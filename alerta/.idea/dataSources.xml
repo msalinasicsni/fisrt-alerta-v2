@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="2685046847">
+    <data-source source="LOCAL" name="Oracle - ALERTA MINSA" uuid="4c4056ae-65b0-4d09-af2f-7422c5c5825d">
+      <driver-ref>oracle</driver-ref>
+      <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+      <jdbc-url>jdbc:oracle:thin:@192.168.100.5:1521:sim</jdbc-url>
+      <user-name>alerta</user-name>
+      <user-password>dfe1df9ddfc1dfccdfe0df93dffddfd3</user-password>
+      <schema-pattern>*.ALERTA</schema-pattern>
+      <default-schemas>*.ALERTA</default-schemas>
+      <libraries />
+    </data-source>
+  </component>
+</project>
+

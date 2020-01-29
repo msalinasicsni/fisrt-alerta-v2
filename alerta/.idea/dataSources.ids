@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="dataSourceStorage">
+  <data-source source="LOCAL" name="Oracle - ALERTA MINSA" uuid="4c4056ae-65b0-4d09-af2f-7422c5c5825d">
+    <database-info product="Oracle" version="Oracle Database 11g Release 11.2.0.1.0 - 64bit Production" jdbc-version="11.2" driver-name="Oracle JDBC driver" driver-version="11.2.0.3.0">
+      <extra-name-characters>$#</extra-name-characters>
+      <identifier-quote-string>&quot;</identifier-quote-string>
+    </database-info>
+    <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact"/>
+    <schema name="ALERTA" catalog=""/>
+    <table name="DA_DETALLE_ENCUESTA_AEDES" schema="ALERTA" catalog="" type="TABLE">
+      <column name="DETA_ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="DEPOSITO_INSPECCIONADO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="DEPOSITO_POSITIVO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FE_ABATIZADO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FE_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FE_REPOT" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FE_V_ENT" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="MANZANA_INSPECCIONADA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="MANZANA_POSITIVA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="NO_ABATIZADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NO_ELIMINADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NO_NEUTRALIZADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PUPA_POSITIVA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="VIVIENDA_INSPECCIONADA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="VIVIENDA_POSITIVA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="COD_LOCALIDAD" sqlType="VARCHAR2" precision="9" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="USUARIO_REGISTRO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047532" columns="DETA_ENCUESTA_ID"/>
+      <foreign-key name="MAENCUESTA_ENCUESTAAEDES_FK" columns="ENCUESTA_ID" ref-table="DA_MAE_ENCUESTA" ref-schema="ALERTA" ref-catalog="" ref-columns="ENCUESTA_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ENCUESTAAEDES_USUARIO_FK" columns="USUARIO_REGISTRO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0010576" unique="true" columns="DETA_ENCUESTA_ID"/>
+    </table>
+    <table name="DA_DETALLE_ENCUESTA_LARVARIA" schema="ALERTA" catalog="" type="TABLE">
+      <column name="DETA_ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ARBOL_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ART_ESPECIAL_INFES" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BARRIL_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BARRO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BEBEDERO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CISTER_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_AEGYPTI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_ALBOPIC" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_ALBIM" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_CORONAT" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_ERRATICO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_FATIGANS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_NIGRIP" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_QUINQUE" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ESPECIE_CULEX_TARSALIS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FE_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FLORERO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="INODORO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="LLANTA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="OTROS_DEPOSITOS_INFES" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PILA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PLANTA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="POZO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_LOCALIDAD" sqlType="VARCHAR2" precision="9" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="USUARIO_REGISTRO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047544" columns="DETA_ENCUESTA_ID"/>
+      <foreign-key name="MAENCUESTA_ENCUESTALARVARIA_FK" columns="ENCUESTA_ID" ref-table="DA_MAE_ENCUESTA" ref-schema="ALERTA" ref-catalog="" ref-columns="ENCUESTA_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ENCUESTALARVARIA_USUARIO_FK" columns="USUARIO_REGISTRO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0010581" unique="true" columns="DETA_ENCUESTA_ID"/>
+    </table>
+    <table name="DA_DETA_DEPOSITOPREFERENCIAL" schema="ALERTA" catalog="" type="TABLE">
+      <column name="DETA_ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ARBOL_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ART_ESPECIAL_INFES" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BARRIL_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BARRO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="BEBEDERO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CISTER_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="DECRIP_OTRO_DEPOSITO" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DECRIPCION_CISTER" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FE_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FLORERO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="INODORO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="LLANTA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="MANZANA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMBRE" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTROS_DEPOSITOS_INFES" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PILA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PLANTA_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="POZO_INFESTADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="VIVIENDA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_LOCALIDAD" sqlType="VARCHAR2" precision="9" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="USUARIO_REGISTRO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047549" columns="DETA_ENCUESTA_ID"/>
+      <foreign-key name="MAENCU_ENCUDEPOSITO_FK" columns="ENCUESTA_ID" ref-table="DA_MAE_ENCUESTA" ref-schema="ALERTA" ref-catalog="" ref-columns="ENCUESTA_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ENCUDEPOSITO_USUARIO_FK" columns="USUARIO_REGISTRO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0010586" unique="true" columns="DETA_ENCUESTA_ID"/>
+    </table>
+    <table name="DA_ENVIO_MX" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_ENVIO" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="FECHAHORA_ENVIO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="NOMBRE_TRANSPORTA" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="TEMPERATURA" sqlType="FLOAT" precision="126" scale="0" nullable="true" jdbcType="6"/>
+      <column name="TIEMPO_ESPERA" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="LABORATORIO_DEST" sqlType="VARCHAR2" precision="10" scale="0" nullable="false" jdbcType="12"/>
+      <column name="USUARIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047554" columns="ID_ENVIO"/>
+      <foreign-key name="ENVIO_ORDEN_LABORATORIO_FK" columns="LABORATORIO_DEST" ref-table="CATALOGO_LABORATORIOS" ref-schema="LABORATORIO" ref-catalog="" ref-columns="CODIGO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ENVIO_ORDEN_USUARIO_FK" columns="USUARIO" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="ENVIOMX_MX_FK" table="DA_TOMAMX" schema="ALERTA" catalog="" columns="ID_ENVIO"/>
+      <index name="SYS_C0020116" unique="true" columns="ID_ENVIO"/>
+    </table>
+    <table name="DA_FICHA_SINDFEB" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ANIMALES" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ANIO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="EXPEDIENTE" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DONDE_VIAJO" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAGNOSTICO_FINAL" sqlType="VARCHAR2" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAG_PRESUNTIVO" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ENFERMEDAD_AGUDA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ENFERMEDAD_CRONICA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FECHA_FALLECIMIENTO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_FICHA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="FECHA_HOSPITALIZACION" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_TOMA_MUESTRA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FUENTE_AGUA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ID_LAB" sqlType="VARCHAR2" precision="15" scale="0" nullable="true" jdbcType="12"/>
+      <column name="MES" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="MESES_EMBARAZO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMB_PADRE" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NOMBRE_COMPLETA_FICHA" sqlType="VARCHAR2" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NUM_FICHA" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_ENFERMEDAD_AGUDA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_ENFERMEDAD_CRONICA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_FUENTE_AGUA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTROS_ANIMALES" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="PRESION_ARTERIAL_DIASTOLICA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PRESION_ARTERIAL_SISTOLICA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="SEMANA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="SIGNOS_CHIKUNGUNYA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIGNOS_DENGUE_CON_ALARMA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIGNOS_DENGUE_SEVERO" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIGNOS_DENGUE_SIN_ALARMA" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIGNOS_HANTAVIRUS" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIGNOS_LEPTOSPIROSIS" sqlType="VARCHAR2" precision="250" scale="0" nullable="true" jdbcType="12"/>
+      <column name="TEMPERATURA" sqlType="FLOAT" precision="126" scale="0" nullable="true" jdbcType="6"/>
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_PROCEDENCIA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="EMBARAZO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FALLECIDO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="HOSPITALIZADO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_VIAJO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047559" columns="ID_NOTIFICACION"/>
+      <foreign-key name="FK341887EF263A3415" columns="ID_NOTIFICACION" ref-table="DA_NOTIFICACION" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_NOTIFICACION" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0012515" unique="true" columns="ID_NOTIFICACION"/>
+    </table>
+    <table name="DA_IRAG" schema="ALERTA" catalog="" type="TABLE">
+      <column name="AGENTE_BACTERIANO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="AGENTE_ETIOLOGICO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="AGENTE_VIRAL" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CANT_ANTIBIOTICOS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_CLASFINAL" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_EXPEDIENTE" sqlType="VARCHAR2" precision="30" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_RES_RADIOLOGIA" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CONDICIONES" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FECHA_CONSULTA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_EGRESO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_PRIM_DOSIS_ANTIB" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_PRIM_DOSIS_ANTIV" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_PRIMERA_CONSULTA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="FECHA_ULT_DOSIS_ANTIB" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_ULT_DOSIS_ANTIV" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FICHA_COMPLETA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="MANIFESTACIONES" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NO_DIAS_HOSP" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NO_DOSIS_ANTIB" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NO_DOSIS_ANTIV" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMBRE_ANTIBIOTICO" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NOMBRE_ANTIVIRAL" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NOMBRE_MADRE_TUTOR" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_CONDICION" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_MANIFESTACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRO_RES_RADIOLOGIA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SEMANAS_EMBARAZO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="SEROTIPIFICACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="TARJETA_VACUNA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="UCI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="VENTILACION_ASISTIDA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_ANTB_ULSEM" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_CAPTACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_CLASF_NB" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_CLASF_NV" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_CLASIFICACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_COND_EGRESO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_PROCEDENCIA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_VIA_ANTB" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAGNOSTICO" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAG1_EGRESO" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAG2_EGRESO" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="USO_ANTIVIRALES" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="USUARIO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047562" columns="ID_NOTIFICACION"/>
+      <foreign-key name="FK54E16591263A3415" columns="ID_NOTIFICACION" ref-table="DA_NOTIFICACION" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_NOTIFICACION" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="USUARIO_FICHAI_FK" columns="USUARIO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="ID_NOTI_VAC_FK" table="DA_VACUNAS_IRAG" schema="ALERTA" catalog="" columns="ID_NOTIFICACION"/>
+      <index name="SYS_C0012760" unique="true" columns="ID_NOTIFICACION"/>
+    </table>
+    <table name="DA_MAE_ENCUESTA" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ENCUESTA_ID" sqlType="VARCHAR2" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ANIO_EPI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_AREA" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_DISTRITO" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FE_FIN_ENCUESTA" sqlType="DATE" precision="7" scale="0" nullable="true" jdbcType="93"/>
+      <column name="FE_INICIO_ENCUESTA" sqlType="DATE" precision="7" scale="0" nullable="false" jdbcType="93"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="MES_EPI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="SEMANA_EPI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_SILAIS" sqlType="NUMBER" precision="19" scale="0" nullable="false" jdbcType="3"/>
+      <column name="COD_MODELO_ENCU" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_MUNICIPIO" sqlType="VARCHAR2" precision="4" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_ORDINAL_ENCU" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_PROCEDENCIA" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_UNIDAD_SALUD" sqlType="NUMBER" precision="19" scale="0" nullable="false" jdbcType="3"/>
+      <column name="USUARIO_REGISTRO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047567" columns="ENCUESTA_ID"/>
+      <foreign-key name="MAENCUESTA_USUARIOS_FK" columns="USUARIO_REGISTRO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="MAENCUESTA_ENCUESTAAEDES_FK" table="DA_DETALLE_ENCUESTA_AEDES" schema="ALERTA" catalog="" columns="ENCUESTA_ID"/>
+      <exported-key name="MAENCUESTA_ENCUESTALARVARIA_FK" table="DA_DETALLE_ENCUESTA_LARVARIA" schema="ALERTA" catalog="" columns="ENCUESTA_ID"/>
+      <exported-key name="MAENCU_ENCUDEPOSITO_FK" table="DA_DETA_DEPOSITOPREFERENCIAL" schema="ALERTA" catalog="" columns="ENCUESTA_ID"/>
+      <index name="SYS_C0010598" unique="true" columns="ENCUESTA_ID"/>
+    </table>
+    <table name="DA_NOTIFICACION" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_SILAIS_ATENCION" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_TIPO_NOTIFICACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_UNIDAD_ATENCION" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PERSONA_ID" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="USUARIO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FECHA_ANULACION" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="DIRECCION_RESIDENCIA" sqlType="VARCHAR2" precision="100" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CODIGO_COMUNIDAD_RESIDENCIA" sqlType="VARCHAR2" precision="9" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FECHA_INICIO_SINTOMAS" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="URGENTE" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ID_SOLICITANTE" sqlType="VARCHAR2" precision="36" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CODIGO_MUNIC_RESIDENCIA" sqlType="VARCHAR2" precision="4" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COMPLETA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <primary-key name="SYS_C0047576" columns="ID_NOTIFICACION"/>
+      <foreign-key name="SOLICITANTE_NOT_FK" columns="ID_SOLICITANTE" ref-table="SOLICITANTE" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_SOLICITANTE" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="USUARIO_NOTI_FK" columns="USUARIO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="PERSONA_ID_NOT_FK" columns="PERSONA_ID" ref-table="SIS_PERSONAS" ref-schema="SIS" ref-catalog="" ref-columns="PERSONA_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="FK341887EF263A3415" table="DA_FICHA_SINDFEB" schema="ALERTA" catalog="" columns="ID_NOTIFICACION"/>
+      <exported-key name="FK54E16591263A3415" table="DA_IRAG" schema="ALERTA" catalog="" columns="ID_NOTIFICACION"/>
+      <exported-key name="IDNOTI_FK" table="DA_TOMAMX" schema="ALERTA" catalog="" columns="ID_NOTIFICACION"/>
+      <exported-key name="FK95C88C0D263A3415" table="FICHA_ROTAVIRUS" schema="ALERTA" catalog="" columns="ID_NOTIFICACION"/>
+      <index name="SYS_C0011173" unique="true" columns="ID_NOTIFICACION"/>
+    </table>
+    <table name="DA_SOLICITUD_DX" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_SOLICITUD_DX" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="APROBADA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CONTROL_CALIDAD" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3" def="MA=="/>
+      <column name="FECHA_APROBACION" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHAH_SOLICITUD" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="ID_DIAGNOSTICO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="ID_TOMAMX" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="LABORATORIO_PRC" sqlType="VARCHAR2" precision="10" scale="0" nullable="true" jdbcType="12"/>
+      <column name="USUARIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="USUARIO_APROBACION" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <primary-key name="SYS_C0047580" columns="ID_SOLICITUD_DX"/>
+      <foreign-key name="ID_TOMAMX_FK" columns="ID_TOMAMX" ref-table="DA_TOMAMX" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TOMAMX" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ID_DX_FK" columns="ID_DIAGNOSTICO" ref-table="CATALOGO_DX" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_DIAGNOSTICO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="SOLIC_DX_LABORATORIO_FK" columns="LABORATORIO_PRC" ref-table="CATALOGO_LABORATORIOS" ref-schema="LABORATORIO" ref-catalog="" ref-columns="CODIGO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="USUARIO_APROBACION_FK" columns="USUARIO_APROBACION" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="USUARIO_FK" columns="USUARIO" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0020122" unique="true" columns="ID_SOLICITUD_DX"/>
+    </table>
+    <table name="DA_SOLICITUD_ESTUDIO" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_SOLICITUD_EST" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="APROBADA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FECHA_APROBACION" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHAH_SOLICITUD" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="ID_TOMAMX" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ID_ESTUDIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="USUARIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="USUARIO_APROBACION" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <primary-key name="SYS_C0047586" columns="ID_SOLICITUD_EST"/>
+      <foreign-key name="SOLEST_TOMAMX_FK" columns="ID_TOMAMX" ref-table="DA_TOMAMX" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TOMAMX" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="SOLEST_ESTUDIO_FK" columns="ID_ESTUDIO" ref-table="CATALOGO_ESTUDIO" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_ESTUDIO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0020128" unique="true" columns="ID_SOLICITUD_EST"/>
+    </table>
+    <table name="DA_TOMAMX" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_TOMAMX" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ANULADA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CANT_TUBOS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CODIGO_LAB" sqlType="VARCHAR2" precision="16" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CODUNICOMX" sqlType="VARCHAR2" precision="12" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FECHA_ANULACION" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHAH_TOMAMX" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="HORA_REFRIGERACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="MXSEPARADA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="VOLUMEN" sqlType="FLOAT" precision="126" scale="0" nullable="true" jdbcType="6"/>
+      <column name="COD_CATEGORIA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_TIPOMX" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="ID_ENVIO" sqlType="VARCHAR2" precision="36" scale="0" nullable="true" jdbcType="12"/>
+      <column name="COD_ESTADOMX" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="USUARIO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="COD_SILAIS_ATENCION" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_UNIDAD_ATENCION" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+      <column name="HORA_TOMAMX" sqlType="VARCHAR2" precision="8" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047594" columns="ID_TOMAMX"/>
+      <foreign-key name="ENVIOMX_MX_FK" columns="ID_ENVIO" ref-table="DA_ENVIO_MX" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_ENVIO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="IDNOTI_FK" columns="ID_NOTIFICACION" ref-table="DA_NOTIFICACION" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_NOTIFICACION" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="COD_TIPOMX_FK" columns="COD_TIPOMX" ref-table="TIPO_MUESTRA" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TIPOMX" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="ID_TOMAMX_FK" table="DA_SOLICITUD_DX" schema="ALERTA" catalog="" columns="ID_TOMAMX"/>
+      <exported-key name="SOLEST_TOMAMX_FK" table="DA_SOLICITUD_ESTUDIO" schema="ALERTA" catalog="" columns="ID_TOMAMX"/>
+      <index name="SYS_C0020268" unique="true" columns="ID_TOMAMX"/>
+      <index name="SYS_C0020269" unique="true" columns="CODIGO_LAB"/>
+      <index name="SYS_C0020270" unique="true" columns="CODUNICOMX"/>
+    </table>
+    <table name="DA_VACUNAS_IRAG" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_VACUNA" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="DOSIS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="FECHA_ULTIMA_DOSIS" sqlType="DATE" precision="7" scale="0" nullable="true" jdbcType="93"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COD_TIPO_VACUNA" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="COD_VACUNA" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="true" jdbcType="12"/>
+      <column name="USUARIO_ID" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047602" columns="ID_VACUNA"/>
+      <foreign-key name="ID_NOTI_VAC_FK" columns="ID_NOTIFICACION" ref-table="DA_IRAG" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_NOTIFICACION" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="USUARIO_VAC_FK" columns="USUARIO_ID" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0015231" unique="true" columns="ID_VACUNA"/>
+    </table>
+    <table name="DX_TIPOMX_TIPONOTI" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_DX_TPMX_NOTI" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_DIAGNOSTICO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="ID_TIPOMX_NOTIFI" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="USUARIO_REGISTRO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047608" columns="ID_DX_TPMX_NOTI"/>
+      <foreign-key name="DXTMX_TIPOMXTIPONOTI_FK" columns="ID_TIPOMX_NOTIFI" ref-table="TIPOMX_TIPONOTIFI" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TIPOMX_NOTIFI" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="DXTMX_DX_FK" columns="ID_DIAGNOSTICO" ref-table="CATALOGO_DX" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_DIAGNOSTICO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="FK_DXTIPOMXNOTI_USUARIO" columns="USUARIO_REGISTRO" ref-table="USUARIOS_SISTEMA" ref-schema="LABORATORIO" ref-catalog="" ref-columns="USERNAME" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0012784" unique="true" columns="ID_DX_TPMX_NOTI"/>
+    </table>
+    <table name="ESTUDIO_TIPOMX_TIPONOTI" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_EST_TPMX_NOTI" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_ESTUDIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="ID_TIPOMX_NOTIFI" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="USUARIO_REGISTRO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047612" columns="ID_EST_TPMX_NOTI"/>
+      <foreign-key name="ESTTMXNOTI_TIPOMXTIPONOTI_FK" columns="ID_TIPOMX_NOTIFI" ref-table="TIPOMX_TIPONOTIFI" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TIPOMX_NOTIFI" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ESTTMXNOTI_ESTUDIO_FK" columns="ID_ESTUDIO" ref-table="CATALOGO_ESTUDIO" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_ESTUDIO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="FK_ESTTMXNOTI_USUARIO" columns="USUARIO_REGISTRO" ref-table="USUARIOS_SISTEMA" ref-schema="LABORATORIO" ref-catalog="" ref-columns="USERNAME" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0015299" unique="true" columns="ID_EST_TPMX_NOTI"/>
+    </table>
+    <table name="ESTUDIO_UNIDAD" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_EST_UNIDAD" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_ESTUDIO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="UNIDAD_ID" sqlType="NUMBER" precision="19" scale="0" nullable="false" jdbcType="3"/>
+      <column name="USUARIO_REGISTRO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <primary-key name="SYS_C0047616" columns="ID_EST_UNIDAD"/>
+      <foreign-key name="ESTUNIDAD_UNIDAD_FK" columns="UNIDAD_ID" ref-table="UNIDADES" ref-schema="GENERAL" ref-catalog="" ref-columns="UNIDAD_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ESTUNIDAD_ESTUDIO_FK" columns="ID_ESTUDIO" ref-table="CATALOGO_ESTUDIO" ref-schema="LABORATORIO" ref-catalog="" ref-columns="ID_ESTUDIO" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="ESTUNIDAD_USUARIO_FK" columns="USUARIO_REGISTRO" ref-table="USUARIOS" ref-schema="PORTAL" ref-catalog="" ref-columns="USUARIO_ID" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0023599" unique="true" columns="ID_EST_UNIDAD"/>
+    </table>
+    <table name="FICHA_ROTAVIRUS" schema="ALERTA" catalog="" type="TABLE">
+      <column name="INGRESADO_UCI" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="CUAL_ANTIBIOTICO" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DIAS_HOSPITALIZADO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="DIAS_UCI" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="DOSIS1" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="DOSIS2" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="DOSIS3" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="EN_GUARDERIA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMBRE_EPIDEMIOLOGO" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FECHA_ALTA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_APLICACION_D1" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_APLICACION_D2" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_APLICACION_D3" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_INGRESO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_INICIO_DIARREA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_INICIO_VOMITO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="FECHA_TERM_DIARREA" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="NO_EVACU_24HRS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NO_VOMITO_24HRS" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMBRE_GUARDERIA" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NOMBRE_LLENA_FICHA" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NOMBRE_TUTOR" sqlType="VARCHAR2" precision="150" scale="0" nullable="true" jdbcType="12"/>
+      <column name="OTRA_HECES" sqlType="VARCHAR2" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="PLANB" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="PLANC" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_NOTIFICACION" sqlType="VARCHAR2" precision="36" scale="0" nullable="false" jdbcType="12"/>
+      <column name="ANTIBIOTICO_HOSP" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="HECES" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CLASIFICACION_FINAL" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CONDICION_EGRESO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="FIEBRE" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="GRADO_DESHIDRATACION" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="REGISTRO_VACUNA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SALA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="TIPO_VACUNA" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="MX_HECES" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="USO_ANTIB_PREVIO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="VACUNADO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="VOMITO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CODIGO" sqlType="VARCHAR2" precision="32" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NUM_EXPEDIENTE" sqlType="VARCHAR2" precision="32" scale="0" nullable="true" jdbcType="12"/>
+      <column name="IGNORADO_FTD" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="NOMBRE_TOMOMX" sqlType="VARCHAR2" precision="156" scale="0" nullable="true" jdbcType="12"/>
+      <column name="TELEFONO_TUTOR" sqlType="VARCHAR2" precision="32" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ALTA_UCI_DIARREA" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <primary-key name="SYS_C0047636" columns="ID_NOTIFICACION"/>
+      <foreign-key name="FK95C88C0D263A3415" columns="ID_NOTIFICACION" ref-table="DA_NOTIFICACION" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_NOTIFICACION" update-rule="0" delete-rule="1" deferrability="2"/>
+      <index name="SYS_C0023409" unique="true" columns="ID_NOTIFICACION"/>
+    </table>
+    <table name="HIBERNATE_SEQUENCES" schema="ALERTA" catalog="" type="TABLE">
+      <column name="SEQUENCE_NAME" sqlType="VARCHAR2" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SEQUENCE_NEXT_HI_VALUE" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+    </table>
+    <table name="PARAMETROS" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_PARAMETRO" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="DESCRIPCION" sqlType="VARCHAR2" precision="200" scale="0" nullable="false" jdbcType="12"/>
+      <column name="NOMBRE" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="VALOR" sqlType="VARCHAR2" precision="100" scale="0" nullable="false" jdbcType="12"/>
+      <primary-key name="SYS_C0047623" columns="ID_PARAMETRO"/>
+      <index name="SYS_C0013172" unique="true" columns="ID_PARAMETRO"/>
+      <index name="SYS_C0013173" unique="true" columns="NOMBRE"/>
+    </table>
+    <table name="RELACION_GRUPOS_OCUPACIONES" schema="ALERTA" catalog="" type="TABLE">
+      <column name="GRUPOOCUPACION_ID" sqlType="NUMBER" precision="19" scale="0" nullable="false" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="false" jdbcType="93"/>
+      <column name="USUARIO_REGISTRO" sqlType="VARCHAR2" precision="400" scale="0" nullable="false" jdbcType="12"/>
+      <column name="CODIGO_CIUO" sqlType="VARCHAR2" precision="40" scale="0" nullable="false" jdbcType="12"/>
+      <column name="CODIGO_OCUPACION" sqlType="VARCHAR2" precision="40" scale="0" nullable="false" jdbcType="12"/>
+      <primary-key name="SYS_C0048108" columns="GRUPOOCUPACION_ID"/>
+    </table>
+    <table name="SIVE_PATOLOGIAS_VIG_TIPO" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_PATOLOGIA" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FACTOR" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="TIPO_POB" sqlType="VARCHAR2" precision="25" scale="0" nullable="true" jdbcType="12"/>
+      <column name="CODIGO" sqlType="VARCHAR2" precision="6" scale="0" nullable="true" jdbcType="12"/>
+    </table>
+    <table name="SIVE_POBLACION_COMUNIDADES" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_POBLACION" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ANIO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FEMENINO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="GRUPO" sqlType="VARCHAR2" precision="6" scale="0" nullable="true" jdbcType="12"/>
+      <column name="MASCULINO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="TOTAL" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="COMUNIDAD" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+    </table>
+    <table name="SIVE_POBLACION_REGIONES" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_POBLACION" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ANIO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FEMENINO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="GRUPO" sqlType="VARCHAR2" precision="6" scale="0" nullable="true" jdbcType="12"/>
+      <column name="MASCULINO" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="TOTAL" sqlType="NUMBER" precision="10" scale="0" nullable="true" jdbcType="3"/>
+      <column name="REGION" sqlType="NUMBER" precision="19" scale="0" nullable="true" jdbcType="3"/>
+    </table>
+    <table name="TIPOMX_TIPONOTIFI" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_TIPOMX_NOTIFI" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="ID_TIPOMX" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="COD_TIPONOTI" sqlType="VARCHAR2" precision="50" scale="0" nullable="false" jdbcType="12"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="USUARIO_REGISTRO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047629" columns="ID_TIPOMX_NOTIFI"/>
+      <foreign-key name="TMTN_TIPOMX_FK" columns="ID_TIPOMX" ref-table="TIPO_MUESTRA" ref-schema="ALERTA" ref-catalog="" ref-columns="ID_TIPOMX" update-rule="0" delete-rule="1" deferrability="2"/>
+      <foreign-key name="FK_TMXNOTI_USUARIO" columns="USUARIO_REGISTRO" ref-table="USUARIOS_SISTEMA" ref-schema="LABORATORIO" ref-catalog="" ref-columns="USERNAME" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="DXTMX_TIPOMXTIPONOTI_FK" table="DX_TIPOMX_TIPONOTI" schema="ALERTA" catalog="" columns="ID_TIPOMX_NOTIFI"/>
+      <exported-key name="ESTTMXNOTI_TIPOMXTIPONOTI_FK" table="ESTUDIO_TIPOMX_TIPONOTI" schema="ALERTA" catalog="" columns="ID_TIPOMX_NOTIFI"/>
+      <index name="SYS_C0011828" unique="true" columns="ID_TIPOMX_NOTIFI"/>
+      <index name="SYS_C0011829" unique="true" columns="COD_TIPONOTI,ID_TIPOMX"/>
+    </table>
+    <table name="TIPO_MUESTRA" schema="ALERTA" catalog="" type="TABLE">
+      <column name="ID_TIPOMX" sqlType="NUMBER" precision="10" scale="0" nullable="false" jdbcType="3"/>
+      <column name="NOMBRE" sqlType="VARCHAR2" precision="200" scale="0" nullable="false" jdbcType="12"/>
+      <column name="PASIVO" sqlType="NUMBER" precision="1" scale="0" nullable="true" jdbcType="3"/>
+      <column name="FECHA_REGISTRO" sqlType="TIMESTAMP(6)" precision="11" scale="6" nullable="true" jdbcType="93"/>
+      <column name="USUARIO_REGISTRO" sqlType="VARCHAR2" precision="50" scale="0" nullable="true" jdbcType="12"/>
+      <primary-key name="SYS_C0047633" columns="ID_TIPOMX"/>
+      <foreign-key name="FK_TIPOMX_USUARIOREGISTRO" columns="USUARIO_REGISTRO" ref-table="USUARIOS_SISTEMA" ref-schema="LABORATORIO" ref-catalog="" ref-columns="USERNAME" update-rule="0" delete-rule="1" deferrability="2"/>
+      <exported-key name="COD_TIPOMX_FK" table="DA_TOMAMX" schema="ALERTA" catalog="" columns="COD_TIPOMX"/>
+      <exported-key name="TMTN_TIPOMX_FK" table="TIPOMX_TIPONOTIFI" schema="ALERTA" catalog="" columns="ID_TIPOMX"/>
+      <index name="SYS_C0011878" unique="true" columns="ID_TIPOMX"/>
+    </table>
+  </data-source>
+</component>
