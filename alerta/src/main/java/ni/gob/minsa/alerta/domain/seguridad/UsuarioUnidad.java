@@ -6,9 +6,10 @@ package ni.gob.minsa.alerta.domain.seguridad;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.portal.Sistema;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 
 @Entity
 @Table(name="usuarios_unidades", schema="general")
@@ -17,8 +18,10 @@ import ni.gob.minsa.alerta.domain.portal.Usuarios;
 			name="unidadesPorUsuario",
 			query="select tuu from UsuarioUnidad tuu " +
 					"where tuu.usuario.usuarioId=:pUsuarioId and " +
-					       "tuu.unidad.pasivo='0' " +
-					"order by tuu.unidad.nombre")
+                    "tuu.unidad='0' " +
+                    "order by tuu.unidad")
+					      /* "tuu.unidad.pasivo='0' " +
+					"order by tuu.unidad.nombre")*/
 })
 /**
  * La clase persistente para la tabla USUARIOS_UNIDADES 
@@ -43,9 +46,10 @@ public class UsuarioUnidad implements Serializable {
     @JoinColumn(name="SISTEMA", unique=false, nullable=false, updatable=false)
     private Sistema sistema;
 
-    @ManyToOne(targetEntity=Unidades.class,fetch=FetchType.LAZY)
-    @JoinColumn(name="UNIDAD", unique=false, nullable=false, updatable=false)
-    private Unidades unidad;
+    //@ManyToOne(targetEntity=Unidades.class,fetch=FetchType.LAZY)
+    //@JoinColumn(name="UNIDAD", unique=false, nullable=false, updatable=false)
+    @Column(name="UNIDAD", nullable=false, updatable=false)
+    private String unidad;
 
     @ManyToOne(targetEntity=Usuarios.class,fetch=FetchType.LAZY)
     @JoinColumn(name="USUARIO", nullable=false,updatable=false)
@@ -78,11 +82,11 @@ public class UsuarioUnidad implements Serializable {
 		this.usuarioRegistro = usuarioRegistro;
 	}
 
-	public Unidades getUnidad() {
+	public String getUnidad() {
 		return this.unidad;
 	}
 
-	public void setUnidad(Unidades unidad) {
+	public void setUnidad(String unidad) {
 		this.unidad = unidad;
 	}
 	

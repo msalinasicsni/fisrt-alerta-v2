@@ -3,9 +3,12 @@ package ni.gob.minsa.alerta.web.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.*;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
@@ -118,11 +121,12 @@ public class EnvioMxController {
         FiltroMx filtroMx = jsonToFiltroMx(filtro);
         long idUsuario = seguridadService.obtenerIdUsuario(request);
         List<DaTomaMx> tomaMxList = envioMxService.getMxPendientes(filtroMx);
-        boolean nivelCentral = seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE);
+        /*boolean nivelCentral = seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE);
         List<Unidades> unidadesPermitidas = new ArrayList<Unidades>();
         if (!nivelCentral)
-            unidadesPermitidas = seguridadService.obtenerUnidadesPorUsuario((int)idUsuario,ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
-        return tomaMxToJson(tomaMxList, unidadesPermitidas, nivelCentral);
+            unidadesPermitidas = seguridadService.obtenerUnidadesPorUsuario((int)idUsuario,ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());*/
+        //return tomaMxToJson(tomaMxList, unidadesPermitidas, nivelCentral);
+        return tomaMxToJson(tomaMxList);
     }
 
     /**
@@ -165,7 +169,8 @@ public class EnvioMxController {
             //envioOrden.setTiempoEspera(CalcularDiferenciaHorasFechas());
             envioOrden.setLaboratorioDestino(labDestino);
 
-            EstadoMx estadoMx = catalogosService.getEstadoMx("ESTDMX|ENV");
+            //EstadoMx estadoMx = catalogosService.getEstadoMx("ESTDMX|ENV");
+            Catalogo estadoMx = CallRestServices.getCatalogo("ESTDMX|ENV");
 
             try {
                 envioMxService.addEnvioOrden(envioOrden);
@@ -218,25 +223,29 @@ public class EnvioMxController {
      * @param tomaMxList lista de muestras
      * @return JSON
      */
-    private String tomaMxToJson(List<DaTomaMx> tomaMxList, List<Unidades> unidadesPermitidas, boolean nivelCentral){
+    //private String tomaMxToJson(List<DaTomaMx> tomaMxList, List<Unidades> unidadesPermitidas, boolean nivelCentral){
+    private String tomaMxToJson(List<DaTomaMx> tomaMxList) throws Exception{
         String jsonResponse="";
         Map<Integer, Object> mapResponse = new HashMap<Integer, Object>();
         Integer indice=0;
         for(DaTomaMx tomaMx:tomaMxList){
-            if (nivelCentral || unidadesPermitidas.contains(tomaMx.getCodUnidadAtencion())) {
+            //if (nivelCentral || unidadesPermitidas.contains(tomaMx.getCodUnidadAtencion())) {
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("idTomaMx", tomaMx.getIdTomaMx());
                 //map.put("fechaHoraOrden",DateToString(orden.getFechaHSolicitud(),"dd/MM/yyyy hh:mm:ss a"));
                 map.put("fechaTomaMx", DateUtil.DateToString(tomaMx.getFechaHTomaMx(), "dd/MM/yyyy") +
                         (tomaMx.getHoraTomaMx() != null ? " " + tomaMx.getHoraTomaMx() : ""));
-                map.put("estadoMx", tomaMx.getEstadoMx().getValor());
+                //map.put("estadoMx", tomaMx.getEstadoMx().getValor());
+                map.put("estadoMx", tomaMx.getEstadoMx());
                 map.put("codSilais", (tomaMx.getIdNotificacion().getCodSilaisAtencion() != null ? tomaMx.getIdNotificacion().getCodSilaisAtencion().getNombre() : ""));
-                map.put("codUnidadSalud", (tomaMx.getIdNotificacion().getCodUnidadAtencion() != null ? tomaMx.getIdNotificacion().getCodUnidadAtencion().getNombre() : ""));
+                //map.put("codUnidadSalud", (tomaMx.getIdNotificacion().getCodUnidadAtencion() != null ? tomaMx.getIdNotificacion().getCodUnidadAtencion().getNombre() : ""));
+            map.put("codUnidadSalud", (tomaMx.getIdNotificacion().getCodUnidadAtencion() != null ? tomaMx.getIdNotificacion().getNombreUnidadAtencion() : ""));
                 map.put("separadaMx", (tomaMx.getMxSeparada() != null ? (tomaMx.getMxSeparada() ? "Si" : "No") : ""));
                 map.put("tipoMuestra", tomaMx.getCodTipoMx().getNombre());
 
                 if (tomaMx.getIdNotificacion().getUrgente() != null) {
-                    map.put("urgente", tomaMx.getIdNotificacion().getUrgente().getValor());
+                    //map.put("urgente", tomaMx.getIdNotificacion().getUrgente().getValor());
+                    map.put("urgente", tomaMx.getIdNotificacion().getUrgente());
                 } else {
                     map.put("urgente", "--");
                 }
@@ -253,7 +262,8 @@ public class EnvioMxController {
                 boolean hosp = false;
 
                 if (tomaMx.getCodUnidadAtencion() != null) {
-                    int h = Arrays.binarySearch(arrayHosp, String.valueOf(tomaMx.getCodUnidadAtencion().getTipoUnidad()));
+                    //int h = Arrays.binarySearch(arrayHosp, String.valueOf(tomaMx.getCodUnidadAtencion().getTipoUnidad()));
+                    int h = Arrays.binarySearch(arrayHosp, String.valueOf(tomaMx.getCodUnidadAtencion()));
                     hosp = h > 0;
 
                 }
@@ -280,7 +290,8 @@ public class EnvioMxController {
                     int edad = DateUtil.calcularEdadAnios(tomaMx.getIdNotificacion().getPersona().getFechaNacimiento());
                     map.put("edad", String.valueOf(edad));
                     //se obtiene el sexo
-                    map.put("sexo", tomaMx.getIdNotificacion().getPersona().getSexo().getValor());
+                    //map.put("sexo", tomaMx.getIdNotificacion().getPersona().getSexo().getValor());
+                    map.put("sexo", tomaMx.getIdNotificacion().getPersona().getCodigoSexo());
                     if (edad > 12 && tomaMx.getIdNotificacion().getPersona().isSexoFemenino()) {
                         map.put("embarazada", envioMxService.estaEmbarazada(tomaMx.getIdNotificacion().getIdNotificacion()));
                     } else
@@ -321,7 +332,7 @@ public class EnvioMxController {
                 }
                 mapResponse.put(indice, map);
                 indice++;
-            }
+            //}
         }
 
         jsonResponse = new Gson().toJson(mapResponse);

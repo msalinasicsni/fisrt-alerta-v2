@@ -1,6 +1,7 @@
 package ni.gob.minsa.alerta.domain.estructura;
 
 import javax.persistence.*;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 
 @MappedSuperclass
 public class BaseEntidadCatalogo extends BaseEntidadCreacion {

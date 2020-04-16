@@ -1,8 +1,8 @@
 package ni.gob.minsa.alerta.domain.vih;
 
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -20,7 +20,8 @@ public class VihFicha {
     private String codigo_usuario_vih;
     private Date fecha;
     private String entidadesAdtva;
-    private Unidades unidadSalud;
+    //private Unidades unidadSalud;
+    private String unidadSalud;
     private String id_municipio;
     private Integer id_categoria_afiliacion;
     private String responsable_ficha;
@@ -75,7 +76,7 @@ public class VihFicha {
         this.id_municipio = id_municipio;
     }
 
-    @ManyToOne(optional=false)
+    /*@ManyToOne(optional=false)
     @JoinColumn(name="ID_UNIDAD_SALUD", referencedColumnName = "CODIGO")
     @ForeignKey(name = "VIHFICHA_UNIDADES_FK")
     public Unidades getUnidadSalud() {
@@ -83,6 +84,14 @@ public class VihFicha {
     }
 
     public void setUnidadSalud(Unidades unidadSalud) {
+        this.unidadSalud = unidadSalud;
+    }*/
+    @Column(name="ID_UNIDAD_SALUD")
+    public String getUnidadSalud() {
+        return unidadSalud;
+    }
+
+    public void setUnidadSalud(String unidadSalud) {
         this.unidadSalud = unidadSalud;
     }
 
@@ -148,9 +157,5 @@ public class VihFicha {
     public void setId_metodo_captacion(Integer id_metodo_captacion) {
         this.id_metodo_captacion = id_metodo_captacion;
     }
-
-
-
-
 
 }

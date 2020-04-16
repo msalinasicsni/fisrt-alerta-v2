@@ -1,13 +1,12 @@
 package ni.gob.minsa.alerta.web.controllers;
 
 import ni.gob.minsa.alerta.domain.agrupaciones.Grupo;
-import ni.gob.minsa.alerta.domain.catalogos.Anios;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
-import ni.gob.minsa.alerta.domain.catalogos.Semanas;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.ZonaEspecial;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.sive.SivePatologias;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import org.slf4j.Logger;
@@ -65,11 +64,17 @@ public class AnalisisController {
 
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
             //List<AreaRep> areas = catalogosService.getAreaRep();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 3);
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 3);
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 3, areasList);
+
             List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
-            List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
+            //List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
+            List<Catalogo> zonas = CallRestServices.getCatalogos("ZONACM");
             List<Grupo> grupos = admonPatoGroupService.getGrupos();
             model.addAttribute("areas", areas);
             model.addAttribute("entidades", entidades);
@@ -121,15 +126,20 @@ public class AnalisisController {
         if (urlValidacion.isEmpty()) {
         long idUsuario = seguridadService.obtenerIdUsuario(request);
 		List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-    	List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+    	//List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+        List<Departamento> departamentos = CallRestServices.getDepartamentos();
     	/*List<AreaRep> areas = new ArrayList<AreaRep>();
         areas.add(catalogosService.getAreaRep("AREAREP|PAIS"));
         areas.add(catalogosService.getAreaRep("AREAREP|SILAIS"));*/
-        List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
-    	List<Semanas> semanas = catalogosService.getSemanas();
-    	List<Anios> anios = catalogosService.getAnios();
+        //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+        List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+        List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+    	//List<Semanas> semanas = catalogosService.getSemanas();
+        List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
+    	//List<Anios> anios = catalogosService.getAnios();
+        List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
     	List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
-            List<Grupo> grupos = admonPatoGroupService.getGrupos();
+    	List<Grupo> grupos = admonPatoGroupService.getGrupos();
     	model.addAttribute("areas", areas);
     	model.addAttribute("semanas", semanas);
     	model.addAttribute("anios", anios);
@@ -184,11 +194,15 @@ public class AnalisisController {
         if (urlValidacion.isEmpty()) {
         long idUsuario = seguridadService.obtenerIdUsuario(request);
         List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-        List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+        //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+        List<Departamento> departamentos = CallRestServices.getDepartamentos();
     	//List<AreaRep> areas = catalogosService.getAreaRep();
        // List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
-        List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
-    	List<Anios> anios = catalogosService.getAnios();
+        //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
+        List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+        List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 3, areasList);
+    	//List<Anios> anios = catalogosService.getAnios();
+        List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
     	model.addAttribute("areas", areas);
     	model.addAttribute("anios", anios);
     	model.addAttribute("entidades", entidades);

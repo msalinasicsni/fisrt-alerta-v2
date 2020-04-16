@@ -3,17 +3,21 @@ package ni.gob.minsa.alerta.api;
 import com.google.gson.Gson;
 import ni.gob.minsa.alerta.domain.estructura.CalendarioEpi;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudDx;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudEstudio;
 import ni.gob.minsa.alerta.domain.muestra.Dx_TipoMx_TipoNoti;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.poblacion.Sectores;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Areas;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Distritos;
+//import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Areas;
+//import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Distritos;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.ComunidadesV2;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
@@ -80,7 +84,7 @@ public class expose {
 
     @Resource(name = "resultadoFinalService")
     public ResultadoFinalService resultadoFinalService;
-    
+
     @Resource(name="entidadAdmonService")
 	private EntidadAdmonService entidadAdmonService;
 
@@ -91,7 +95,7 @@ public class expose {
     @Autowired
     MessageSource messageSource;
 
-    @RequestMapping(value = "unidades", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@RequestMapping(value = "unidades", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
     List<Unidades> getUnidadesBySilais(@RequestParam(value = "silaisId", required = true) int silaisId, HttpServletRequest request) throws Exception {
@@ -104,17 +108,25 @@ public class expose {
             return seguridadService.obtenerUnidadesPorUsuarioEntidad((int)idUsuario,(long)silaisId, ConstantsSecurity.SYSTEM_CODE);
         }
     }
-
-    @RequestMapping(value = "municipio", method = RequestMethod.GET, produces = "application/json")
+*/
+    /*@RequestMapping(value = "municipio", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
     List<Divisionpolitica> getmunicipio(@RequestParam(value = "departamentoId", required = true) String departamentoId) throws Exception {
         logger.info("Obteniendo los silais por Departamento en JSON");
         return
                 divisionPoliticaService.getMunicipiosFromDepartamento(departamentoId);
+    }*/
+
+    @RequestMapping(value = "municipio", method = RequestMethod.GET, produces = "application/json")
+    public
+    @ResponseBody
+    List<Municipio> getmunicipio(@RequestParam(value = "departamentoId", required = true) long departamentoId) throws Exception {
+        logger.info("Obteniendo los silais por Departamento en JSON");
+        return CallRestServices.getMunicipiosDepartamento(departamentoId);
     }
 
-    @RequestMapping(value = "municipiosbysilais", method = RequestMethod.GET, produces = "application/json")
+    /*@RequestMapping(value = "municipiosbysilais", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
     List<Divisionpolitica> getMunicipiosBySilas(@RequestParam(value = "idSilais", required = true) long idSilais, HttpServletRequest request) throws Exception {
@@ -128,8 +140,17 @@ public class expose {
           return seguridadService.obtenerMunicipiosPorUsuarioEntidad((int)idUsuario,idSilais, ConstantsSecurity.SYSTEM_CODE);
         }
     }
+*/
 
-    @RequestMapping(value = "unidadesPrimarias", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "municipiosbysilais", method = RequestMethod.GET, produces = "application/json")
+    public
+    @ResponseBody
+    List<Municipio> getMunicipiosBySilas(@RequestParam(value = "idSilais", required = true) long idSilais, HttpServletRequest request) throws Exception {
+        logger.info("Obteniendo los municipios por silais en JSON");
+        return  CallRestServices.getMunicipiosEntidad(idSilais);//ABRIL2019
+    }
+
+    /*@RequestMapping(value = "unidadesPrimarias", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
     List<Unidades> getPrimaryUnitsByMunicipioAndSilais(@RequestParam(value = "codMunicipio", required = true) String codMunicipio, @RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
@@ -141,9 +162,17 @@ public class expose {
         }else{ //sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS y municipio
             return seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int)idUsuario ,codSilais,codMunicipio, ConstantsSecurity.SYSTEM_CODE,HealthUnitType.UnidadesPrimarias.getDiscriminator());
         }
+    }*/
+
+    @RequestMapping(value = "unidadesPrimarias", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    List<Unidades> getPrimaryUnitsByMunicipioAndSilais(@RequestParam(value = "codMunicipio", required = true) long codMunicipio, @RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
+        logger.info("Obteniendo las unidades por municipio y SILAIS en JSON");
+        return CallRestServices.getUnidadesByEntidadMunicipioTipo(codSilais, codMunicipio, HealthUnitType.UnidadesPrimarias.getDiscriminator().split(",")); //ABRIL2019
     }
 
-    @RequestMapping(value = "unidadesPrimHosp", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@RequestMapping(value = "unidadesPrimHosp", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
     List<Unidades> getPUnitsHospByMuniAndSilais(@RequestParam(value = "codMunicipio", required = true) String codMunicipio,@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
@@ -155,8 +184,16 @@ public class expose {
         }else{ //sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS y municipio
             return seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, codSilais, codMunicipio, ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
         }
+    }*/
+
+    @RequestMapping(value = "unidadesPrimHosp", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    List<Unidades> getPUnitsHospByMuniAndSilais(@RequestParam(value = "codMunicipio", required = true) long codMunicipio,@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
+        logger.info("Obteniendo las unidades primarias y Hospitales por municipio y Silais en JSON");
+        return CallRestServices.getUnidadesByEntidadMunicipioTipo(codSilais, codMunicipio, HealthUnitType.UnidadesPrimHosp.getDiscriminator().split(",")); //ABRIL2019
     }
-    
+/*   PENDIENTES DE REVISAR YA QUE NO EXISTEN EN LA CLASE DE LABORATORIO
     @RequestMapping(value = "unidadesPorSilaisyMuni", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
@@ -187,9 +224,9 @@ public class expose {
         }else{ //sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS y municipio
             return seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, silais.getCodigo(), municipio.getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
         }
-    }
+    }*/
 
-    @RequestMapping(value = "unidadesPrimariasSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+   /* @RequestMapping(value = "unidadesPrimariasSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
     List<Unidades> getPrimaryUnitsBySilais(@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
@@ -201,9 +238,17 @@ public class expose {
         }else{//sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS
             return seguridadService.obtenerUnidadesPorUsuarioEntidad((int)idUsuario,codSilais, ConstantsSecurity.SYSTEM_CODE,HealthUnitType.UnidadesPrimarias.getDiscriminator());
         }
+    }*/
+
+    @RequestMapping(value = "unidadesPrimariasSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    List<Unidades> getPrimaryUnitsBySilais(@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
+        logger.info("Obteniendo las unidades por SILAIS en JSON");
+        return CallRestServices.getUnidadesByEntidadMunicipioTipo(codSilais, 0, HealthUnitType.UnidadesPrimarias.getDiscriminator().split(",")); //ABRIL2019
     }
 
-    @RequestMapping(value = "unidadesPrimariasHospSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@RequestMapping(value = "unidadesPrimariasHospSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
     List<Unidades> getPrimaryUnitsAndHospBySilais(@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
@@ -215,15 +260,24 @@ public class expose {
         }else{//sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS
             return seguridadService.obtenerUnidadesPorUsuarioEntidad((int)idUsuario,codSilais, ConstantsSecurity.SYSTEM_CODE,HealthUnitType.UnidadesPrimHosp.getDiscriminator());
         }
+    }*/
+
+    @RequestMapping(value = "unidadesPrimariasHospSilais", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    List<Unidades> getPrimaryUnitsAndHospBySilais(@RequestParam(value = "codSilais", required = true) long codSilais, HttpServletRequest request) throws Exception {
+        logger.info("Obteniendo las unidades por SILAIS en JSON");
+        return CallRestServices.getUnidadesByEntidadMunicipioTipo(codSilais, 0, HealthUnitType.UnidadesPrimHosp.getDiscriminator().split(",")); //ABRIL2019
     }
 
     @RequestMapping(value = "comunidad", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
-    List<Comunidades> getComunidad(@RequestParam(value = "municipioId", required = true) String municipioId) throws Exception {
+    List<ComunidadesV2> getComunidad(@RequestParam(value = "municipioId", required = true) String municipioId) throws Exception {
         logger.info("Obteniendo las comunidaes por municipio en JSON");
 
-        List<Comunidades> comunidades = comunidadesService.getComunidades(municipioId);
+        //List<Comunidades> comunidades = comunidadesService.getComunidades(municipioId);
+        List<ComunidadesV2> comunidades = CallRestServices.getComunidadesByMunicipio_V2(Integer.valueOf(municipioId));
         return comunidades;
     }
 
@@ -237,7 +291,7 @@ public class expose {
         return comunidades;
     }
 
-    @RequestMapping(value = "distritosMng", method = RequestMethod.GET, produces = "application/json")
+    /*@RequestMapping(value = "distritosMng", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
     List<Distritos> getDistritosMng(@RequestParam(value = "codMunicipio", required = true) String codMunicipio) throws Exception {
@@ -247,9 +301,9 @@ public class expose {
             distritos = catalogosService.getDistritos();
         }
         return distritos;
-    }
+    }*/
 
-    @RequestMapping(value = "areasMng", method = RequestMethod.GET, produces = "application/json")
+    /*@RequestMapping(value = "areasMng", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
     List<Areas> getAreasMng(@RequestParam(value = "codMunicipio", required = true) String codMunicipio) throws Exception {
@@ -259,7 +313,7 @@ public class expose {
             areas = catalogosService.getAreas();
         }
         return areas;
-    }
+    }*/
 
     @RequestMapping(value = "semanaEpidemiologica", method = RequestMethod.GET, produces = "application/json")
     public
@@ -315,10 +369,12 @@ public class expose {
             Map<String, String> mapRes = new HashMap<String, String>();
             for(DetalleResultadoFinal res: resultList){
                 if (res.getRespuesta()!=null) {
-                    if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                         Catalogo_Lista cat_lista = resultadoFinalService.getCatalogoLista(res.getValor());
                         mapRes.put("valor", cat_lista.getValor());
-                    }else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
+                    } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LOG")) {
+                    // else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
                         String valorBoleano = (Boolean.valueOf(res.getValor())?"lbl.yes":"lbl.no");
                         mapRes.put("valor", messageSource.getMessage(valorBoleano, null, null));
                     } else {
@@ -327,10 +383,12 @@ public class expose {
                     mapRes.put("respuesta", res.getRespuesta().getNombre());
 
                 }else if (res.getRespuestaExamen()!=null){
-                    if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                         Catalogo_Lista cat_lista = resultadoFinalService.getCatalogoLista(res.getValor());
                         mapRes.put("valor", cat_lista.getValor());
-                    } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
+                    } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LOG")) {
+                    //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
                         String valorBoleano = (Boolean.valueOf(res.getValor())?"lbl.yes":"lbl.no");
                         mapRes.put("valor", messageSource.getMessage(valorBoleano, null, null));
                     }else {
@@ -368,10 +426,12 @@ public class expose {
             int subIndice = 0;
             for(DetalleResultadoFinal res: resultList){
                 if (res.getRespuesta()!=null) {
-                    if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                         Catalogo_Lista cat_lista = resultadoFinalService.getCatalogoLista(res.getValor());
                         mapRes.put("valor", cat_lista.getValor());
-                    }else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
+                    } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LOG")) {
+                    //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
                         String valorBoleano = (Boolean.valueOf(res.getValor())?"lbl.yes":"lbl.no");
                         mapRes.put("valor", messageSource.getMessage(valorBoleano, null, null));
                     } else {
@@ -380,10 +440,12 @@ public class expose {
                     mapRes.put("respuesta", res.getRespuesta().getNombre());
 
                 }else if (res.getRespuestaExamen()!=null){
-                    if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                         Catalogo_Lista cat_lista = resultadoFinalService.getCatalogoLista(res.getValor());
                         mapRes.put("valor", cat_lista.getValor());
-                    } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
+                    } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LOG")) {
+                    //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
                         String valorBoleano = (Boolean.valueOf(res.getValor())?"lbl.yes":"lbl.no");
                         mapRes.put("valor", messageSource.getMessage(valorBoleano, null, null));
                     }else {
@@ -406,7 +468,7 @@ public class expose {
         UnicodeEscaper escaper     = UnicodeEscaper.above(127);
         return escaper.translate(jsonResponse);
     }
-
+/* PENDIENTES DE REVISAR YA QUE NO EXISTEN EN LA CLASE DE LABORATORIO
     @RequestMapping(value = "municipiosbysilais2", method = RequestMethod.GET, produces = "application/json")
     public
     @ResponseBody
@@ -425,7 +487,7 @@ public class expose {
     @RequestMapping(value = "validarMenu", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody String validarMenu(HttpServletRequest request){
         return seguridadService.obtenerMenu(request);
-    }
+    }*/
 
     @RequestMapping(value = "getDiagnosticosEdicion", method = RequestMethod.GET, produces = "application/json")
     public
@@ -434,5 +496,12 @@ public class expose {
         logger.info("Obteniendo los dx por tipo mx en JSON");
         return tomaMxService.getDx(codMx,tipoNoti);
 
+    }
+
+    @RequestMapping(value = "unidades", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    List<Unidades> getUnidadesBySilais(@RequestParam(value = "silaisId", required = true) int silaisId, HttpServletRequest request) throws Exception {
+        return CallRestServices.getUnidadesEntidad(silaisId);
     }
 }

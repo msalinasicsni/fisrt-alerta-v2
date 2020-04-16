@@ -1,12 +1,13 @@
 package ni.gob.minsa.alerta.service;
 
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudDx;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudEstudio;
 import ni.gob.minsa.alerta.domain.muestra.FiltroMx;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.utilities.DateUtil;
 import ni.gob.minsa.alerta.utilities.FiltrosReporte;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
@@ -45,7 +46,8 @@ public class ReportesService {
     @Resource(name="respuestasExamenService")
     private RespuestasExamenService respuestasExamenService;
 
-    private static final String sqlTipoNoti = " and noti.codTipoNotificacion.codigo = :tipoNoti ";
+    //private static final String sqlTipoNoti = " and noti.codTipoNotificacion.codigo = :tipoNoti ";
+    private static final String sqlTipoNoti = " and noti.codTipoNotificacion = :tipoNoti ";
     private static final String sqlFechas =  "and noti.fechaRegistro between :fechaInicio and :fechaFin ";
     private static final String sqlDataSemana = "select cal.noSemana ";
     private static final String sqlWhereSemana = " WHERE cal.anio = :anio and cal.noSemana between :semanaI and :semanaF order by cal.noSemana";
@@ -79,7 +81,8 @@ public class ReportesService {
                         "(select count(noti.idNotificacion) from DaNotificacion noti " +
                         "where noti.codSilaisAtencion.codigo =  ent.codigo " +
                         " and noti.pasivo = false " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
                         "(select sum(pob.total)" +
                         "from SivePoblacionDivPol pob where pob.divpol.dependenciaSilais.entidadAdtvaId = ent.entidadAdtvaId " +
@@ -90,7 +93,8 @@ public class ReportesService {
             }else{
                 queryCasos = session.createQuery(" select divi.nombre, " +
                         "(select count(noti.idNotificacion) from DaNotificacion noti " +
-                        "where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "where noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.pasivo = false " +
                         "and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = divi.divisionpoliticaId  " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
@@ -106,7 +110,8 @@ public class ReportesService {
 
             queryCasos = session.createQuery(" select distinct divi.nombre, " +
                     "(select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId = divi.divisionpoliticaId  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
@@ -123,7 +128,8 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|DEPTO")){
             queryCasos = session.createQuery(" select divi.nombre, " +
                     "(select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId = divi.divisionpoliticaId  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
@@ -140,7 +146,8 @@ public class ReportesService {
             queryCasos = session.createQuery("select uni.nombre, " +
                     " ( select count(noti.idNotificacion) from DaNotificacion noti " +
                     "where noti.codUnidadAtencion.codigo =  uni.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
                     "(select sum(pob.total) as total " +
@@ -161,7 +168,8 @@ public class ReportesService {
                 queryCasos = session.createQuery("select uni.nombre, " +
                         " coalesce (( select count(noti.idNotificacion) from DaNotificacion noti " +
                         "where noti.codUnidadAtencion.codigo =  uni.codigo " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.pasivo = false " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin),0), " +
                         "(Select sum(pob.total) as total " +
@@ -176,7 +184,8 @@ public class ReportesService {
                 queryCasos = session.createQuery("select uni.nombre, " +
                         " coalesce (( select count(noti.idNotificacion) from DaNotificacion noti " +
                         "where noti.codUnidadAtencion.codigo =  uni.codigo " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.pasivo = false " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin),0), " +
                         "(Select sum(pob.total) as total " +
@@ -193,7 +202,8 @@ public class ReportesService {
             queryCasos = session.createQuery("select uni.nombre, " +
                     " coalesce (( select count(noti.idNotificacion) from DaNotificacion noti " +
                     "where noti.codUnidadAtencion.codigo =  uni.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin),0), " +
                     "(Select sum(pob.total) as total " +
@@ -259,13 +269,15 @@ public class ReportesService {
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
                     " and per.sexo.codigo = sex.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by per.sexo.valor),0),  " +
                     " coalesce( (select count(noti.idNotificacion) " +
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "),0) " +
                     " from Sexo sex where sex.pasivo = false" );
@@ -285,14 +297,16 @@ public class ReportesService {
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
                     " and per.sexo.codigo = sex.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "and noti.codSilaisAtencion.codigo = :codSilais  " +
                     "group by per.sexo.valor),0),  " +
                     " coalesce( (select count(noti.idNotificacion) " +
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.codSilaisAtencion.codigo = :codSilais " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "),0) " +
@@ -313,14 +327,16 @@ public class ReportesService {
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
                     " and per.sexo.codigo = sex.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = :codDepartamento  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by per.sexo.valor),0),  " +
                     " coalesce( (select count(noti.idNotificacion) " +
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = :codDepartamento  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "),0) " +
@@ -341,14 +357,16 @@ public class ReportesService {
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
                     " and per.sexo.codigo = sex.codigo " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId = :codMunicipio  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by per.sexo.valor),0),  " +
                     " coalesce( (select count(noti.idNotificacion) " +
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId = :codMunicipio  " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "),0) " +
@@ -373,13 +391,15 @@ public class ReportesService {
                         " and per.sexo.codigo = sex.codigo " +
                         " and (noti.codUnidadAtencion.unidadId = :codUnidad " +
                         "or noti.codUnidadAtencion.unidadAdtva in (select u.codigo from Unidades u where u.unidadId = :codUnidad )) " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         "group by per.sexo.valor),0),  " +
                         " coalesce( (select count(noti.idNotificacion) " +
                         "from DaNotificacion noti, SisPersona per " +
                         "where noti.persona.id = per.personaId " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         " and (noti.codUnidadAtencion.unidadId = :codUnidad " +
                         "or noti.codUnidadAtencion.unidadAdtva in (select u.codigo from Unidades u where u.unidadId = :codUnidad )) " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
@@ -398,13 +418,15 @@ public class ReportesService {
                         "where noti.persona.id = per.personaId " +
                         " and per.sexo.codigo = sex.codigo " +
                         " and noti.codUnidadAtencion.unidadId = :codUnidad " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         "group by per.sexo.valor),0),  " +
                         " coalesce( (select count(noti.idNotificacion) " +
                         "from DaNotificacion noti, SisPersona per " +
                         "where noti.persona.id = per.personaId " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.codUnidadAtencion.unidadId = :codUnidad " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         "),0) " +
@@ -429,13 +451,15 @@ public class ReportesService {
                     "where noti.persona.id = per.personaId " +
                     " and per.sexo.codigo = sex.codigo " +
                     " and noti.codUnidadAtencion.zona = :codZona " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by per.sexo.valor),0),  " +
                     " coalesce( (select count(noti.idNotificacion) " +
                     "from DaNotificacion noti, SisPersona per " +
                     "where noti.persona.id = per.personaId " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.codUnidadAtencion.zona = :codZona " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "),0) " +
@@ -1309,7 +1333,8 @@ public class ReportesService {
                     List<DetalleResultadoFinal> finalRes = resultadoFinalService.getDetResActivosBySolicitud(sol[1].toString());
                     for (DetalleResultadoFinal res : finalRes) {
                         if (res.getRespuesta() != null) {
-                            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -1338,7 +1363,8 @@ public class ReportesService {
                                 }
 
 
-                            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().equals("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1359,7 +1385,8 @@ public class ReportesService {
                             }
 
                         } else if (res.getRespuestaExamen() != null) {
-                            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -1387,7 +1414,8 @@ public class ReportesService {
                                     }
                                 }
 
-                            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().equals("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1438,7 +1466,8 @@ public class ReportesService {
 
         if (filtro.getCodArea().equals("AREAREP|PAIS")){
             queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    //"where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    "where noti.pasivo = false and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                     "From CalendarioEpi cal " + sqlWhereSemana);
 
             queryPoblacion = session.createQuery("Select sum(pob.total) as total " +
@@ -1449,7 +1478,8 @@ public class ReportesService {
         }
         else if (filtro.getCodArea().equals("AREAREP|SILAIS")){
             queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    //"where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    "where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                     "From CalendarioEpi cal " + sqlWhereSemana);
             queryCasos.setParameter("codSilais", filtro.getCodSilais());
 
@@ -1464,7 +1494,8 @@ public class ReportesService {
         }
         else if (filtro.getCodArea().equals("AREAREP|DEPTO")){
             queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    //"where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                     "From CalendarioEpi cal " + sqlWhereSemana);
             queryCasos.setParameter("codDepartamento", filtro.getCodDepartamento());
 
@@ -1477,7 +1508,8 @@ public class ReportesService {
         }
         else if (filtro.getCodArea().equals("AREAREP|MUNI")){
             queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    //"where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                     "From CalendarioEpi cal " + sqlWhereSemana);
             queryCasos.setParameter("codMunicipio", filtro.getCodMunicipio());
 
@@ -1495,7 +1527,8 @@ public class ReportesService {
                         "where noti.pasivo = false and (noti.codUnidadAtencion.unidadId = :codUnidad " +
                         " or noti.codUnidadAtencion.unidadAdtva in (select uni.codigo from Unidades uni where uni.unidadId = :codUnidad ) " + //se toman en cuenta sus unidades dependientes( si las tiene)
                         ") " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                        "and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                         "From CalendarioEpi cal " + sqlWhereSemana);
 
 
@@ -1509,7 +1542,8 @@ public class ReportesService {
             }else{
                 queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
                         "where noti.pasivo = false and (noti.codUnidadAtencion.unidadId = :codUnidad) " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                        "and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                         "From CalendarioEpi cal " + sqlWhereSemana);
 
 
@@ -1526,7 +1560,8 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|ZE")){
             queryCasos = session.createQuery(sqlDataSemana + ", (select count(noti.idNotificacion) from DaNotificacion noti " +
                     "where noti.pasivo = false and (noti.codUnidadAtencion.zona = :codZona) " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
+                    "and noti.codTipoNotificacion = :tipoNoti and noti.fechaRegistro between cal.fechaInicial and cal.fechaFinal) " +
                     "From CalendarioEpi cal " + sqlWhereSemana);
 
 
@@ -1580,14 +1615,16 @@ public class ReportesService {
 
         if (filtro.getCodArea().equals("AREAREP|PAIS")){
             queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                    "where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.pasivo = false and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by noti.fechaRegistro order by noti.fechaRegistro asc");
 
         }
         else if (filtro.getCodArea().equals("AREAREP|SILAIS")){
             queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                    "where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.pasivo = false and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by noti.fechaRegistro order by noti.fechaRegistro asc");
             queryCasos.setParameter("codSilais", filtro.getCodSilais());
@@ -1595,7 +1632,8 @@ public class ReportesService {
         }
         else if (filtro.getCodArea().equals("AREAREP|DEPTO")){
             queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by noti.fechaRegistro order by noti.fechaRegistro asc");
             queryCasos.setParameter("codDepartamento", filtro.getCodDepartamento());
@@ -1603,7 +1641,8 @@ public class ReportesService {
         }
         else if (filtro.getCodArea().equals("AREAREP|MUNI")){
             queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.pasivo = false and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by noti.fechaRegistro order by noti.fechaRegistro asc");
             queryCasos.setParameter("codMunicipio", filtro.getCodMunicipio());
@@ -1614,7 +1653,8 @@ public class ReportesService {
             if(filtro.isSubunidades()){
 
                 queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                        "where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti" +
+                        //"where noti.pasivo = false and noti.codTipoNotificacion.codigo = :tipoNoti" +
+                        "where noti.pasivo = false and noti.codTipoNotificacion = :tipoNoti" +
                         " and (noti.codUnidadAtencion.unidadId = :codUnidad  " +
                        "or noti.codUnidadAtencion.unidadAdtva in (select uni.codigo from Unidades uni where uni.unidadId = :codUnidad )) " +
                         " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
@@ -1622,7 +1662,8 @@ public class ReportesService {
             }else{
 
                 queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                        "where noti.pasivo = false and noti.codUnidadAtencion.unidadId = :codUnidad and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"where noti.pasivo = false and noti.codUnidadAtencion.unidadId = :codUnidad and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "where noti.pasivo = false and noti.codUnidadAtencion.unidadId = :codUnidad and noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         "group by noti.fechaRegistro order by noti.fechaRegistro asc");
             }
@@ -1632,7 +1673,8 @@ public class ReportesService {
         }
         else  if (filtro.getCodArea().equals("AREAREP|ZE")){
             queryCasos = session.createQuery(sqlDataDia + " From DaNotificacion  noti " +
-                    "where noti.pasivo = false and noti.codUnidadAtencion.zona = :codZona and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.pasivo = false and noti.codUnidadAtencion.zona = :codZona and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.pasivo = false and noti.codUnidadAtencion.zona = :codZona and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     "group by noti.fechaRegistro order by noti.fechaRegistro asc");
             queryCasos.setParameter("codZona", filtro.getCodZona());
@@ -1705,16 +1747,19 @@ public class ReportesService {
         if (filtro.getCodArea().equals("AREAREP|PAIS")){
             queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false  and dx.controlCalidad = false " +
-                    " and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    " and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " order by noti.fechaRegistro asc");
 
              sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                    " and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                     " and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                     " and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                     //" and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                     " and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                      " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                     " order by noti.fechaRegistro asc";
 
@@ -1722,16 +1767,19 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|SILAIS")){
             queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                    "and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " order by noti.fechaRegistro asc");
 
             sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                    "and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codSilaisAtencion.entidadAdtvaId = :codSilais and noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                    " and dx.idTomaMx.idNotificacion.codSilaisAtencion.entidadAdtvaId = :codSilais and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and dx.idTomaMx.idNotificacion.codSilaisAtencion.entidadAdtvaId = :codSilais and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    " and dx.idTomaMx.idNotificacion.codSilaisAtencion.entidadAdtvaId = :codSilais and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                     " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                     " order by noti.fechaRegistro asc";
 
@@ -1741,18 +1789,21 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|DEPTO")){
             queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento" +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " order by noti.fechaRegistro asc");
 
             sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.dependencia.divisionpoliticaId =:codDepartamento" +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = :codDepartamento and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = :codDepartamento and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.dependencia.divisionpoliticaId = :codDepartamento and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                     " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                     " order by noti.fechaRegistro asc";
 
@@ -1762,18 +1813,21 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|MUNI")){
             queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio" +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " order by noti.fechaRegistro asc");
 
             sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                   // "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.municipio.divisionpoliticaId =:codMunicipio" +
                     " and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.divisionpoliticaId = :codMunicipio and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.divisionpoliticaId = :codMunicipio and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.municipio.divisionpoliticaId = :codMunicipio and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                     " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                     " order by noti.fechaRegistro asc";
 
@@ -1784,7 +1838,8 @@ public class ReportesService {
             if(filtro.isSubunidades()){
                 queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                         "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and (noti.codUnidadAtencion.unidadId = :codUnidad " +
                         " or noti.codUnidadAtencion.unidadAdtva in (select uni.codigo from Unidades uni where uni.unidadId = :codUnidad ) " + //se toman en cuenta sus unidades dependientes( si las tiene)
                         " ) and noti.fechaRegistro between :fechaInicio and :fechaFin " +
@@ -1792,29 +1847,34 @@ public class ReportesService {
 
                 sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                         "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and (noti.codUnidadAtencion.unidadId = :codUnidad " +
                         " or noti.codUnidadAtencion.unidadAdtva in (select uni.codigo from Unidades uni where uni.unidadId = :codUnidad ) " + //se toman en cuenta sus unidades dependientes( si las tiene)
                         " ) and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
                         " and (dx.idTomaMx.idNotificacion.codUnidadAtencion.unidadId = :codUnidad or dx.idTomaMx.idNotificacion.codUnidadAtencion.unidadAdtva in (select uni.codigo from Unidades uni where uni.unidadId = :codUnidad )) " +
-                        "and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
+                        //"and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
+                        "and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                         " order by noti.fechaRegistro asc";
             }else{
                 queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                         "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.codUnidadAtencion.unidadId = :codUnidad " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         " order by noti.fechaRegistro asc");
 
                 sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                         "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.codUnidadAtencion.unidadId = :codUnidad " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                         " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                        " and dx.idTomaMx.idNotificacion.codUnidadAtencion.unidadId = :codUnidad and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                        //" and dx.idTomaMx.idNotificacion.codUnidadAtencion.unidadId = :codUnidad and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                        " and dx.idTomaMx.idNotificacion.codUnidadAtencion.unidadId = :codUnidad and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                         " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                         " order by noti.fechaRegistro asc";
             }
@@ -1825,18 +1885,21 @@ public class ReportesService {
         else if (filtro.getCodArea().equals("AREAREP|ZE")){
             queryCasos = session.createQuery(sqlDataSinR + "From DaSolicitudDx dx inner join dx.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and dx.anulado = false and dx.aprobada = false and mx.anulada = false and dx.controlCalidad = false " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.zona = :codZona " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " order by noti.fechaRegistro asc");
 
             sqlCasosEstudios = sqlDataSinR + "From DaSolicitudEstudio est inner join est.idTomaMx mx inner join mx.idNotificacion noti " +
                     "where noti.pasivo = false and est.anulado = false and est.aprobada = false and mx.anulada = false  " +
-                    "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "and noti.codTipoNotificacion = :tipoNoti " +
                     "and noti.codUnidadAtencion.zona = :codZona " +
                     "and noti.fechaRegistro between :fechaInicio and :fechaFin " +
                     " and noti.idNotificacion not in (select dx.idTomaMx.idNotificacion.idNotificacion From DaSolicitudDx dx where dx.idTomaMx.idNotificacion.pasivo = false and dx.anulado = false and dx.aprobada = false and dx.idTomaMx.anulada = false "+
-                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.zona = :codZona and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" and dx.idTomaMx.idNotificacion.codUnidadAtencion.zona = :codZona and dx.idTomaMx.idNotificacion.codTipoNotificacion.codigo = :tipoNoti " +
+                    " and dx.idTomaMx.idNotificacion.codUnidadAtencion.zona = :codZona and dx.idTomaMx.idNotificacion.codTipoNotificacion = :tipoNoti " +
                     " and dx.idTomaMx.idNotificacion.fechaRegistro between :fechaInicio and :fechaFin )" +
                     " order by noti.fechaRegistro asc";
             queryCasos.setParameter("codZona",filtro.getCodZona());
@@ -1949,6 +2012,7 @@ public class ReportesService {
             crit.add( Restrictions.and(
                             Restrictions.eq("unidadS.codigo", Long.valueOf(filtro.getCodUnidadSalud())))
                     .add(Restrictions.or(
+                            //Subqueries.propertyIn("unidadS.unidadAdtva", DetachedCriteria.forClass(Unidades.class)
                             Subqueries.propertyIn("unidadS.unidadAdtva", DetachedCriteria.forClass(Unidades.class)
                                     .setProjection(Property.forName("unidadId")))
                     ))
@@ -2433,7 +2497,8 @@ public class ReportesService {
                     List<DetalleResultadoFinal> finalRes = resultadoFinalService.getDetResActivosBySolicitud(sol[1].toString());
                     for (DetalleResultadoFinal res : finalRes) {
                         if (res.getRespuesta() != null) {
-                            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -2463,7 +2528,8 @@ public class ReportesService {
                                 }
 
 
-                            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().contains("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -2485,7 +2551,8 @@ public class ReportesService {
                             }
 
                         } else if (res.getRespuestaExamen() != null) {
-                            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -2514,7 +2581,8 @@ public class ReportesService {
                                     }
                                 }
 
-                            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().contains("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")

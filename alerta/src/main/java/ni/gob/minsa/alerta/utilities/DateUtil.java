@@ -25,7 +25,7 @@ public class DateUtil {
     }
 
     /**
-     * Convierte un string a Date según el formato indicado
+     * Convierte un string a Date segï¿½n el formato indicado
      * @param strFecha cadena a convertir
      * @param formato formato solicitado
      * @return Fecha
@@ -37,7 +37,7 @@ public class DateUtil {
     }
 
     /**
-     * Convierte una Date a String, según el formato indicado
+     * Convierte una Date a String, segï¿½n el formato indicado
      * @param dtFecha Fecha a convertir
      * @param format formato solicitado
      * @return String
@@ -112,7 +112,7 @@ public class DateUtil {
         int diff_month = today.get(Calendar.MONTH) - fechaNac.get(Calendar.MONTH);
         int diff_day = today.get(Calendar.DAY_OF_MONTH) - fechaNac.get(Calendar.DAY_OF_MONTH);
 
-        //Si está en ese año pero todavía no los ha cumplido
+        //Si estï¿½ en ese aï¿½o pero todavï¿½a no los ha cumplido
         if( diff_month < 0 || (diff_month==0 && diff_day < 0)){
             diff_year--;
         }
@@ -163,8 +163,4 @@ public class DateUtil {
         return iedadEnAnios.toString()+"/"+iedadEnMeses.toString()+"/"+iedadEnDias.toString();
 
     }
-
-
-
-
 }

@@ -3,7 +3,7 @@ package ni.gob.minsa.alerta.web.controllers;
 import com.google.common.base.Predicate;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
+//import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
 import ni.gob.minsa.alerta.domain.estructura.CalendarioEpi;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
@@ -12,6 +12,8 @@ import ni.gob.minsa.alerta.domain.parametros.Parametro;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultado;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
 import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.DaSindFebril;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
@@ -120,10 +122,16 @@ public class ReportesExcelController {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
                 laboratorios = envioMxService.getLaboratorios((int)idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<AreaRep> areas = new ArrayList<AreaRep>();
+            /*List<AreaRep> areas = new ArrayList<AreaRep>();
             areas.add(catalogosService.getAreaRep("AREAREP|PAIS"));
             areas.add(catalogosService.getAreaRep("AREAREP|SILAIS"));
-            areas.add(catalogosService.getAreaRep("AREAREP|UNI"));
+            areas.add(catalogosService.getAreaRep("AREAREP|UNI"));*/
+
+            List<Catalogo> areas = new ArrayList<Catalogo>();
+            areas.add(CallRestServices.getCatalogo("AREAREP|PAIS"));
+            areas.add(CallRestServices.getCatalogo("AREAREP|SILAIS"));
+            areas.add(CallRestServices.getCatalogo("AREAREP|UNI"));
+
             List<Catalogo_Dx> catDx = tomaMxService.getCatalogosDx();
             catDx.add(new Catalogo_Dx(0,"VIRUS RESPIRATORIOS COMPLETO"));
             model.addAttribute("laboratorios", laboratorios);

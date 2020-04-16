@@ -11,7 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -27,8 +27,10 @@ public class Sectores implements Serializable{
 	private Integer sectorId;
 	private String nombre;
 	private String referencias;
-	private Unidades unidad;
-	private Divisionpolitica municipio;
+	//private Unidades unidad;
+	//private Divisionpolitica municipio;
+    private Long unidad;
+    private String municipio;
 	private String codigo;
 	private char sede = 0;
 	private char pasivo = 0;
@@ -68,28 +70,24 @@ public class Sectores implements Serializable{
 		this.referencias = referencias;
 	}
 
-	@ManyToOne(optional=true)
-	@JoinColumn(name="UNIDAD",referencedColumnName="CODIGO", nullable=true)
-	@ForeignKey(name = "SECTOR_UNIDAD_FK")
-	public Unidades getUnidad() {
-		return unidad;
-	}
+    @Column(name="UNIDAD", nullable=true)
+    public Long getUnidad() {
+        return unidad;
+    }
 
-	public void setUnidad(Unidades unidad) {
-		this.unidad = unidad;
-	}
+    public void setUnidad(Long unidad) {
+        this.unidad = unidad;
+    }
 
-	@ManyToOne(optional=true)
-	@JoinColumn(name="MUNICIPIO",referencedColumnName="CODIGO_NACIONAL", nullable=true)
-	@ForeignKey(name = "SECTOR_MUNICIPIO_FK")
-	public Divisionpolitica getMunicipio() {
-		return municipio;
-	}
+    @Column(name="MUNICIPIO", nullable=true)
+    public String getMunicipio() {
+        return municipio;
+    }
 
 
-	public void setMunicipio(Divisionpolitica municipio) {
-		this.municipio = municipio;
-	}
+    public void setMunicipio(String municipio) {
+        this.municipio = municipio;
+    }
 
 	@Column(name = "CODIGO", nullable = false, length = 7)
 	public String getCodigo() {

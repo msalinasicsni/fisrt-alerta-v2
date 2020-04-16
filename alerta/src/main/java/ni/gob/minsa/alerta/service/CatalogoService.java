@@ -1,30 +1,15 @@
 package ni.gob.minsa.alerta.service;
 
-import ni.gob.minsa.alerta.domain.catalogos.Anios;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
-import ni.gob.minsa.alerta.domain.catalogos.FactorPoblacion;
-import ni.gob.minsa.alerta.domain.catalogos.Semanas;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
-import ni.gob.minsa.alerta.domain.estructura.ZonaEspecial;
-import ni.gob.minsa.alerta.domain.irag.*;
-import ni.gob.minsa.alerta.domain.muestra.CategoriaMx;
-import ni.gob.minsa.alerta.domain.muestra.EstadoMx;
+
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+
+import com.google.common.base.Predicate;
 import ni.gob.minsa.alerta.domain.muestra.TipoMx;
-import ni.gob.minsa.alerta.domain.notificacion.TipoNotificacion;
 import ni.gob.minsa.alerta.domain.persona.*;
+import ni.gob.minsa.alerta.utilities.reportes.FilterLists;
 import ni.gob.minsa.alerta.domain.rotavirus.*;
 import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.*;
 import ni.gob.minsa.alerta.domain.vih.*;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.Animales;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.EnfAgudas;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.EnfCronicas;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.FuenteAgua;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasCHIK;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasDCSA;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasDGRA;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasDSSA;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasHANT;
-import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.SintomasLEPT;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -36,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Servicio para el objeto de Catalogos
@@ -66,6 +53,27 @@ public class CatalogoService {
         }
     }
 
+    /****/
+    public String buscarValorCatalogo(List<Catalogo> catalogoList, String codigo){
+        for(Catalogo cat : catalogoList){
+            if (cat.getCodigo().equalsIgnoreCase(codigo))
+                return cat.getValor();
+        }
+        return "";
+    }
+
+    public List<Catalogo> filtrarCatalogo(List<Catalogo> catalogoList, final String comodin){
+        Predicate<Catalogo> byComodin = new Predicate<Catalogo>() {
+            @Override
+            public boolean apply(Catalogo catalogo) {
+                return catalogo.getCodigo().contains(comodin);
+            }
+        };
+        Collection<Catalogo> resExamen = FilterLists.filter(catalogoList, byComodin);
+        return new ArrayList<>(resExamen);
+    }
+
+    /****/
     public List<Catalogo> ElementosCatalogos(String discriminador) throws Exception {
         //String query = "from Catalogo where pasivo = false and nodoPadre.codigo= :discriminador order by orden";
         String query = "from Catalogo";
@@ -84,7 +92,7 @@ public class CatalogoService {
         return  (Catalogo)q.uniqueResult();
     }
 
-    @SuppressWarnings("unchecked")
+   /* @SuppressWarnings("unchecked")
     public List<ModeloEncuesta> getModeloEncuesta() {
         // Retrieve session from Hibernate
         Session session = sessionFactory.getCurrentSession();
@@ -311,7 +319,7 @@ public class CatalogoService {
         //retrieve all
         return query.list();
 
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
     public List<TipoMx> getTipoMuestra(){
@@ -334,7 +342,7 @@ public class CatalogoService {
         return query.list();
 
     }
-
+/*
     @SuppressWarnings("unchecked")
     public List<TipoNotificacion> getTipoNotificacion(){
         //Retrieve session Hibernate
@@ -638,7 +646,7 @@ public class CatalogoService {
         Query query = session.getNamedQuery("obtenerEscolaridadPorCodigo").setString("pCodigo", esc);
         //Retrieve all
         return (Escolaridad) query.uniqueResult();
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
     public List<Ocupacion> getListaOcupacion(){
@@ -659,7 +667,7 @@ public class CatalogoService {
         return (Ocupacion) query.uniqueResult();
     }
 
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     public List<MetodosCalculoSemanasEmbarazo> getListaMetodosCalcSeEmb(){
         //Retrieve session from Hibernate
         Session session = sessionFactory.getCurrentSession();
@@ -1111,5 +1119,5 @@ public class CatalogoService {
         Session session = sessionFactory.getCurrentSession();
         Query query = session.createQuery("From ZonaEspecial  where pasivo = false order by orden");
         return query.list();
-    }
+    }*/
 }

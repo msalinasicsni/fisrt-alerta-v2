@@ -107,9 +107,12 @@ public class DaNotificacionService {
                         .add(Restrictions.ilike("persona.sndNombre", "%"+partesSnd[i]+"%"));
                 crit.add(conditionGroup);
             }
-            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|CAESP")));
+            /*crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|CAESP")));
             crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|OMX")));
-            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|PCNT")));
+            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|PCNT")));*/
+            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|CAESP")));
+            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|OMX")));
+            crit.add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|PCNT")));
             crit.add(Restrictions.and(Restrictions.eq("noti.pasivo",false)));
             return crit.list();
         }
@@ -121,9 +124,12 @@ public class DaNotificacionService {
                                     Restrictions.eq("persona.identificacionHse", filtro).ignoreCase(),
                                     Restrictions.eq("persona.identificacion", filtro).ignoreCase())
                     )
-                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|CAESP")))
+                    /*.add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|CAESP")))
                     .add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|OMX")))
-                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|PCNT")))
+                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion.codigo", "TPNOTI|PCNT")))*/
+                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|CAESP")))
+                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|OMX")))
+                    .add( Restrictions.and(Restrictions.ne("codTipoNotificacion", "TPNOTI|PCNT")))
                     .list();
         }
     }
@@ -151,7 +157,8 @@ public class DaNotificacionService {
                 .createAlias("noti.persona", "persona")
                 .add(Restrictions.and(
                                 Restrictions.eq("persona.personaId", idPersona),
-                                Restrictions.eq("codTipoNotificacion.codigo", tipoNotificacion))
+                                //Restrictions.eq("codTipoNotificacion.codigo", tipoNotificacion))
+                                Restrictions.eq("codTipoNotificacion", tipoNotificacion))
                 )
                 .list();
 
@@ -167,9 +174,11 @@ public class DaNotificacionService {
         );
         //no mostrar las muestras de notificaciones 'OTRAS MUESTRAS' pues son de laboratorio, ni CASOS ESPECIALES
         crit.add( Restrictions.and(
-                Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|OMX").ignoreCase()));
+                //Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|OMX").ignoreCase()));
+                Restrictions.ne("notifi.codTipoNotificacion", "TPNOTI|OMX").ignoreCase()));
         crit.add( Restrictions.and(
-                Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|CAESP").ignoreCase()));
+                //Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|CAESP").ignoreCase()));
+                Restrictions.ne("notifi.codTipoNotificacion", "TPNOTI|CAESP").ignoreCase()));
         //se filtra por SILAIS
         if (filtro.getCodSilais()!=null){
             crit.createAlias("notifi.codSilaisAtencion","silais");

@@ -48,15 +48,19 @@ public class VihFichaService {
             if(codUsuario.equals(""))
             {
             //silais, unidad salud
-              query = "from VihFicha as a join a.entidadesAdtva as b " +
+              /*query = "from VihFicha as a join a.entidadesAdtva as b " +
                     "join a.unidadSalud as c " +
-                    "where b.codigo =:codSilais and c.codigo =:unidadSalud";//" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
+                    "where b.codigo =:codSilais and c.codigo =:unidadSalud";*///" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
+                query = "from VihFicha as a " +
+                        "where a.entidadesAdtva =:codSilais and a.unidadSalud =:unidadSalud";
             }
             else
             {
-                query = "from VihFicha as a join a.entidadesAdtva as b " +
+                /*query = "from VihFicha as a join a.entidadesAdtva as b " +
                         "join a.unidadSalud as c " +
-                        "where b.codigo =:codSilais and c.codigo =:unidadSalud and a.codigo_usuario_vih=:codUsuario";
+                        "where b.codigo =:codSilais and c.codigo =:unidadSalud and a.codigo_usuario_vih=:codUsuario";*/
+                query = "from VihFicha as a " +
+                        "where a.entidadesAdtva =:codSilais and a.unidadSalud =:unidadSalud and a.codigo_usuario_vih=:codUsuario";
             }
             Session session = sessionFactory.getCurrentSession();
             Query q = session.createQuery(query);

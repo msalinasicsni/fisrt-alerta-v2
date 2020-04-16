@@ -71,7 +71,8 @@ public class ReportesResidenciaService {
                         "where noti.municipioResidencia.dependenciaSilais.codigo =  ent.codigo " +
                         " and noti.municipioResidencia is not null " +
                         " and noti.pasivo = false " +
-                        "and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"and noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "and noti.codTipoNotificacion = :tipoNoti " +
                         "and noti.fechaRegistro between :fechaInicio and :fechaFin), " +
                         "(select sum(pob.total)" +
                         "from SivePoblacionDivPol pob where pob.divpol.dependenciaSilais.entidadAdtvaId = ent.entidadAdtvaId " +
@@ -83,7 +84,8 @@ public class ReportesResidenciaService {
                 //Por Departamento
                 queryCasos = session.createQuery(" select divi.nombre, " +
                         "(select count(noti.idNotificacion) from DaNotificacion noti " +
-                        "where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        //"where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                        "where noti.codTipoNotificacion = :tipoNoti " +
                         " and noti.municipioResidencia is not null " +
                         " and noti.pasivo = false " +
                         "and noti.municipioResidencia.dependencia.divisionpoliticaId = divi.divisionpoliticaId  " +
@@ -100,7 +102,8 @@ public class ReportesResidenciaService {
 
             queryCasos = session.createQuery(" select distinct divi.nombre, " +
                     "(select count(noti.idNotificacion) from DaNotificacion noti " +
-                    "where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //"where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    "where noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     " and noti.municipioResidencia is not null " +
                     "and noti.municipioResidencia.divisionpoliticaId = divi.divisionpoliticaId  " +
@@ -119,7 +122,8 @@ public class ReportesResidenciaService {
         else if (filtro.getCodArea().equals("AREAREP|DEPTO")){
             queryCasos = session.createQuery(" select divi.nombre, " +
                     " (select count(noti.idNotificacion) from DaNotificacion noti " +
-                    " where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    //" where noti.codTipoNotificacion.codigo = :tipoNoti " +
+                    " where noti.codTipoNotificacion = :tipoNoti " +
                     " and noti.pasivo = false " +
                     " and noti.municipioResidencia is not null " +
                     " and noti.municipioResidencia.divisionpoliticaId = divi.divisionpoliticaId  " +
@@ -717,7 +721,8 @@ public class ReportesResidenciaService {
                     List<DetalleResultadoFinal> finalRes = resultadoFinalService.getDetResActivosBySolicitud(sol[1].toString());
                     for (DetalleResultadoFinal res : finalRes) {
                         if (res.getRespuesta() != null) {
-                            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -746,7 +751,8 @@ public class ReportesResidenciaService {
                                 }
 
 
-                            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().equals("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -767,7 +773,8 @@ public class ReportesResidenciaService {
                             }
 
                         } else if (res.getRespuestaExamen() != null) {
-                            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -795,7 +802,8 @@ public class ReportesResidenciaService {
                                     }
                                 }
 
-                            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().equals("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1375,7 +1383,8 @@ public class ReportesResidenciaService {
                     List<DetalleResultadoFinal> finalRes = resultadoFinalService.getDetResActivosBySolicitud(sol[1].toString());
                     for (DetalleResultadoFinal res : finalRes) {
                         if (res.getRespuesta() != null) {
-                            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -1403,7 +1412,8 @@ public class ReportesResidenciaService {
                                 }
 
 
-                            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().contains("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1423,7 +1433,8 @@ public class ReportesResidenciaService {
                             }
 
                         } else if (res.getRespuestaExamen() != null) {
-                            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                 Integer idLista = Integer.valueOf(res.getValor());
                                 Catalogo_Lista valor = null;
                                 try {
@@ -1450,7 +1461,8 @@ public class ReportesResidenciaService {
                                     }
                                 }
 
-                            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+                            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                                 if (res.getValor().trim().toLowerCase().contains("negativo")
                                         || res.getValor().trim().toLowerCase().contains("no reactor")
                                         || res.getValor().trim().toLowerCase().contains("no detectado")

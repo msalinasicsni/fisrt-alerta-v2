@@ -191,14 +191,22 @@
 	                                                    	<select data-placeholder="<spring:message code="act.select" /> <spring:message code="sindfeb.muni" />" name="codMunicipio" id="codMunicipio" class="select2">
 	                                                    		<option value=""></option>
 																<c:forEach items="${munic}" var="muni">
-																	<c:choose> 
-																		<c:when test="${muni.codigoNacional eq daSindFeb.idNotificacion.codUnidadAtencion.municipio.codigoNacional}">
-																			<option selected value="${muni.codigoNacional}">${muni.nombre}</option>
-																		</c:when>
-																		<c:otherwise>
-																			<option value="${muni.codigoNacional}">${muni.nombre}</option>
-																		</c:otherwise>
-																	</c:choose> 
+                                                                    <c:choose>
+                                                                        <c:when test="${muni.id eq daSindFeb.idNotificacion.idMuniUnidadAtencion}">
+                                                                            <option selected value="${muni.codigoNacional},${muni.id}">${muni.nombre}</option>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <option value="${muni.codigoNacional},${muni.id}">${muni.nombre}</option>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                    <%--<c:choose>
+                                                                        <c:when test="${muni.codigoNacional eq daSindFeb.idNotificacion.codUnidadAtencion.municipio.codigoNacional}">
+                                                                            <option selected value="${muni.codigoNacional}">${muni.nombre}</option>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <option value="${muni.codigoNacional}">${muni.nombre}</option>
+                                                                        </c:otherwise>
+                                                                    </c:choose> --%>
 																</c:forEach>
 															</select>
 														</div>
@@ -214,11 +222,12 @@
 																<option value=""></option>
 																<c:forEach items="${uni}" var="us">
 																	<c:choose> 
-																		<c:when test="${us.codigo eq daSindFeb.idNotificacion.codUnidadAtencion.codigo}">
-																			<option selected value="${us.codigo}">${us.nombre}</option>
+																		<%--<c:when test="${us.codigo eq daSindFeb.idNotificacion.codUnidadAtencion.codigo}">--%>
+                                                                        <c:when test="${us.codigo eq daSindFeb.idNotificacion.codUnidadAtencion}">
+																			<option selected value="${us.id}">${us.nombre}</option>
 																		</c:when>
 																		<c:otherwise>
-																			<option value="${us.codigo}">${us.nombre}</option>
+																			<option value="${us.id}">${us.nombre}</option>
 																		</c:otherwise>
 																	</c:choose> 
 																</c:forEach>
@@ -367,10 +376,12 @@
                                             			<div>
 															<label class="input">
 																<c:choose>
-																	<c:when test="${daSindFeb.idNotificacion.persona.sexo.codigo eq 'SEXO|M'}">
+																	<%--<c:when test="${daSindFeb.idNotificacion.persona.sexo.codigo eq 'SEXO|M'}">--%>
+                                                                    <c:when test="${daSindFeb.idNotificacion.persona.codigoSexo eq 'SEXO|M'}">
 																		<i class="icon-prepend fa fa-male"></i> <i class="icon-append fa fa-sort-alpha-asc"></i>
 																	</c:when>
-																	<c:when test="${daSindFeb.idNotificacion.persona.sexo.codigo eq 'SEXO|F'}">
+																	<%--<c:when test="${daSindFeb.idNotificacion.persona.sexo.codigo eq 'SEXO|F'}">--%>
+                                                                    <c:when test="${daSindFeb.idNotificacion.persona.codigoSexo eq 'SEXO|F'}">
 																		<i class="icon-prepend fa fa-female"></i> <i class="icon-append fa fa-sort-alpha-asc"></i>
 																	</c:when>
 																	<c:otherwise>
@@ -378,7 +389,8 @@
 																	</c:otherwise>
 																</c:choose>
 																<input class="form-control" type="text" name="sexo" id="sexo" 
-																	value="${daSindFeb.idNotificacion.persona.sexo}" readonly
+																	<%--value="${daSindFeb.idNotificacion.persona.sexo}" readonly--%>
+                                                                    value="${daSindFeb.idNotificacion.persona.codigoSexo}" readonly
 																	placeholder=" <spring:message code="person.sexo" />">
 															</label>
 														</div>
@@ -387,7 +399,7 @@
                                                 		<label class="text-left txt-color-blue font-md hidden-xs">
                                                     		<spring:message code="person.ocupacion" />
                                                     	</label>
-                                                    	<div class="input-group">
+                                                    	<%--<div class="input-group">
                                                     		<span class="input-group-addon"> <i class="fa fa-wrench"></i></span>
 	                                                    	<select data-placeholder="<spring:message code="act.select" /> <spring:message code="person.ocupacion" />" name="ocupacion" id="ocupacion" class="select2">
 																<option value=""></option>
@@ -402,7 +414,7 @@
 																	</c:choose> 
 																</c:forEach>
 															</select>
-														</div>
+														</div> PENDIENTE DE REVISAR ****************************** --%>
                                             		</section>
 	                                            	</div>
 	                                            	<!-- END ROW -->
@@ -450,11 +462,14 @@
 																<option value=""></option>
 																<c:forEach items="${departamentos}" var="departamento">
 																	<c:choose> 
-																		<c:when test="${departamento.codigoNacional eq daSindFeb.idNotificacion.municipioResidencia.dependencia.codigoNacional or departamento.codigoNacional eq daSindFeb.idNotificacion.persona.municipioResidencia.dependencia.codigoNacional}">
-																			<option selected value="${departamento.codigoNacional}">${departamento.nombre}</option>
+																		<%--<c:when test="${departamento.codigoNacional eq daSindFeb.idNotificacion.municipioResidencia.dependencia.codigoNacional or departamento.codigoNacional eq daSindFeb.idNotificacion.persona.municipioResidencia.dependencia.codigoNacional}">--%>
+                                                                        <c:when test="${departamento.codigo eq daSindFeb.idNotificacion.idMunicipioResidencia or departamento.id eq daSindFeb.idNotificacion.persona.idMunicipioResidencia}">
+																			<%--<option selected value="${departamento.codigoNacional}">${departamento.nombre}</option>--%>
+                                                                            <option selected value="${departamento.id}">${departamento.nombre}</option>
 																		</c:when>
 																		<c:otherwise>
-																			<option value="${departamento.codigoNacional}">${departamento.nombre}</option>
+																			<%--<option value=${departamento.codigoNacional}">${departamento.nombre}</option>--%>
+                                                                            <option value="${departamento.id}">${departamento.nombre}</option>
 																		</c:otherwise>
 																	</c:choose> 
 																</c:forEach>
@@ -471,11 +486,12 @@
 																<option value=""></option>
 																<c:forEach items="${municipiosResi}" var="municipioResi">
 																	<c:choose> 
-																		<c:when test="${municipioResi.codigoNacional eq daSindFeb.idNotificacion.municipioResidencia.codigoNacional or municipioResi.codigoNacional eq daSindFeb.idNotificacion.persona.municipioResidencia.codigoNacional}">
-																			<option selected value="${municipioResi.codigoNacional}">${municipioResi.nombre}</option>
+																		<%--<c:when test="${municipioResi.codigoNacional eq daSindFeb.idNotificacion.municipioResidencia.codigoNacional or municipioResi.codigoNacional eq daSindFeb.idNotificacion.persona.municipioResidencia.codigoNacional}">--%>
+                                                                        <c:when test="${municipioResi.id eq daSindFeb.idNotificacion.idMunicipioResidencia or municipioResi.id eq daSindFeb.idNotificacion.persona.idMunicipioResidencia}">
+																			<option selected value="${municipioResi.id}">${municipioResi.nombre}</option>
 																		</c:when>
 																		<c:otherwise>
-																			<option value="${municipioResi.codigoNacional}">${municipioResi.nombre}</option>
+																			<option value="${municipioResi.id}">${municipioResi.nombre}</option>
 																		</c:otherwise>
 																	</c:choose> 
 																</c:forEach>
@@ -492,11 +508,16 @@
 																<option value=""></option>
 																<c:forEach items="${comunidades}" var="comunid">
 																	<c:choose> 
-																		<c:when test="${comunid.codigo eq daSindFeb.idNotificacion.comunidadResidencia.codigo or comunid.codigo eq daSindFeb.idNotificacion.persona.comunidadResidencia.codigo}">
-																			<option selected value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad.nombre}</option>
+																		<%--<c:when test="${comunid.codigo eq daSindFeb.idNotificacion.comunidadResidencia.codigo or comunid.codigo eq daSindFeb.idNotificacion.persona.comunidadResidencia.codigo}">--%>
+                                                                        <c:when test="${comunid.codigo eq daSindFeb.idNotificacion.codMuniUnidadAtencion or comunid.id eq daSindFeb.idNotificacion.persona.idComunidadResidencia}">
+																			<%--<option selected value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad.nombre}</option>--%>
+                                                                            <%--<option selected value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad}</option>--%>
+                                                                            <option selected value="${comunid.codigo},${comunid.id}">${comunid.nombre}</option>
 																		</c:when>
 																		<c:otherwise>
-																			<option value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad.nombre}</option>
+																			<%--<option value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad.nombre}</option>--%>
+                                                                            <%--<option value="${comunid.codigo}">${comunid.nombre}-${comunid.sector.unidad}</option>--%>
+                                                                            <option value="${comunid.codigo},${comunid.id}">${comunid.nombre}</option>
 																		</c:otherwise>
 																	</c:choose> 
 																</c:forEach>
@@ -514,7 +535,8 @@
 																<option value=""></option>
 																<c:forEach items="${catProcedencia}" var="catProc">
 																	<c:choose> 
-																		<c:when test="${catProc.codigo eq daSindFeb.codProcedencia.codigo}">
+																		<%--<c:when test="${catProc.codigo eq daSindFeb.codProcedencia.codigo}">--%>
+                                                                        <c:when test="${catProc.codigo eq daSindFeb.codProcedencia}">
 																			<option selected value="${catProc.codigo}">${catProc.valor}</option>
 																		</c:when>
 																		<c:otherwise>
@@ -540,7 +562,8 @@
 																<option value=""></option>
 																<c:forEach items="${catResp}" var="cresp">
 																	<c:choose> 
-																		<c:when test="${cresp.codigo eq daSindFeb.viaje.codigo}">
+																		<%--<c:when test="${cresp.codigo eq daSindFeb.viaje.codigo}">--%>
+                                                                        <c:when test="${cresp.codigo eq daSindFeb.viaje}">
 																			<option selected value="${cresp.codigo}">${cresp.valor}</option>
 																		</c:when>
 																		<c:otherwise>
@@ -565,7 +588,8 @@
 															</label>
 														</div>
                                             		</section>
-                                                        <input type="hidden" id="codigoSexo" value="${daSindFeb.idNotificacion.persona.sexo.codigo}" >
+                                                        <%--<input type="hidden" id="codigoSexo" value="${daSindFeb.idNotificacion.persona.sexo.codigo}" >--%>
+                                                        <input type="hidden" id="codigoSexo" value="${daSindFeb.idNotificacion.persona.codigoSexo}" >
                                                         <div id="datoEmbarazo" class="col col-3">
                                                             <i class="fa fa-fw fa-asterisk txt-color-red font-sm hidden-xs"></i>
                                                             <label class="text-left txt-color-blue font-md hidden-xs">
@@ -577,7 +601,8 @@
                                                                     <option value=""></option>
                                                                     <c:forEach items="${catResp}" var="cresp">
                                                                         <c:choose>
-                                                                            <c:when test="${cresp.codigo eq daSindFeb.embarazo.codigo}">
+                                                                            <%--<c:when test="${cresp.codigo eq daSindFeb.embarazo.codigo}">--%>
+                                                                            <c:when test="${cresp.codigo eq daSindFeb.embarazo}">
                                                                                 <option selected value="${cresp.codigo}">${cresp.valor}</option>
                                                                             </c:when>
                                                                             <c:otherwise>
@@ -812,7 +837,8 @@
                                                                     <option value=""></option>
                                                                     <c:forEach items="${catResp}" var="cresp">
                                                                         <c:choose>
-                                                                            <c:when test="${cresp.codigo eq  daSindFeb.idNotificacion.urgente.codigo}">
+                                                                            <%--<c:when test="${cresp.codigo eq  daSindFeb.idNotificacion.urgente.codigo}">--%>
+                                                                            <c:when test="${cresp.codigo eq  daSindFeb.idNotificacion.urgente}">
                                                                                 <option selected value="${cresp.codigo}">${cresp.valor}</option>
                                                                             </c:when>
                                                                             <c:otherwise>
@@ -871,7 +897,7 @@
                                             		</section>
                                       				</div>
                                       				<!-- END ROW -->
-                                      				<!-- START ROW -->
+                                                    <!-- START ROW -->
                                       				<div class="row">
                                       				<section class="col col-4">
                                                 		<i class="fa fa-fw fa-asterisk txt-color-red font-sm hidden-xs"></i>
@@ -1024,7 +1050,8 @@
 																<option value=""></option>
 																<c:forEach items="${catResp}" var="cresp">
 																	<c:choose> 
-																		<c:when test="${cresp.codigo eq daSindFeb.hosp.codigo}">
+																		<%--<c:when test="${cresp.codigo eq daSindFeb.hosp.codigo}">--%>
+                                                                        <c:when test="${cresp.codigo eq daSindFeb.hosp}">
 																			<option selected value="${cresp.codigo}">${cresp.valor}</option>
 																		</c:when>
 																		<c:otherwise>
@@ -1061,7 +1088,8 @@
 																<option value=""></option>
 																<c:forEach items="${catResp}" var="cresp">
 																	<c:choose> 
-																		<c:when test="${cresp.codigo eq daSindFeb.fallecido.codigo}">
+																		<%--<c:when test="${cresp.codigo eq daSindFeb.fallecido.codigo}">--%>
+                                                                        <c:when test="${cresp.codigo eq daSindFeb.fallecido}">
 																			<option selected value="${cresp.codigo}">${cresp.valor}</option>
 																		</c:when>
 																		<c:otherwise>

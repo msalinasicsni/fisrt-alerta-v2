@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.agrupaciones.Grupo;
 import ni.gob.minsa.alerta.domain.agrupaciones.GrupoPatologia;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.Catalogo_Estudio;
 import ni.gob.minsa.alerta.domain.muestra.Estudio_UnidadSalud;
 import ni.gob.minsa.alerta.domain.sive.SivePatologias;

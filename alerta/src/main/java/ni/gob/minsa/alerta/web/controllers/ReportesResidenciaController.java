@@ -2,10 +2,6 @@ package ni.gob.minsa.alerta.web.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import ni.gob.minsa.alerta.domain.catalogos.Anios;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
-import ni.gob.minsa.alerta.domain.catalogos.FactorPoblacion;
-import ni.gob.minsa.alerta.domain.catalogos.Semanas;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
 import ni.gob.minsa.alerta.domain.muestra.Catalogo_Dx;
@@ -13,9 +9,11 @@ import ni.gob.minsa.alerta.domain.muestra.DaSolicitudDx;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudEstudio;
 import ni.gob.minsa.alerta.domain.muestra.FiltroMx;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
-import ni.gob.minsa.alerta.domain.notificacion.TipoNotificacion;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
@@ -61,17 +59,17 @@ public class ReportesResidenciaController {
     private EntidadAdmonService entidadAdmonService;
 
     @Autowired
-    @Resource(name="envioMxService")
+    @Resource(name = "envioMxService")
     private EnvioMxService envioMxService;
 
     @Autowired
-    @Resource(name="resultadoFinalService")
+    @Resource(name = "resultadoFinalService")
     private ResultadoFinalService resultadoFinalService;
 
-    @Resource(name="divisionPoliticaService")
+    @Resource(name = "divisionPoliticaService")
     private DivisionPoliticaService divisionPoliticaService;
 
-    @Resource(name="reportesResidenciaService")
+    @Resource(name = "reportesResidenciaService")
     private ReportesResidenciaService reportesService;
 
     @Autowired
@@ -91,13 +89,13 @@ public class ReportesResidenciaController {
     @RequestMapping(value = "porSemana", method = RequestMethod.GET)
     public ModelAndView initCreateFormSemana(HttpServletRequest request) throws Exception {
         logger.debug("Crear reporte general de notificaciones");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
@@ -106,30 +104,43 @@ public class ReportesResidenciaController {
             mav.setViewName("reportes/residencia/porSemana");
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+
+            List<Catalogo> tiposNotificacion = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
+
             tiposNotificacion.add(tipoNotificacionSF);
             tiposNotificacion.add(tipoNotificacionIRA);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
-            List<Semanas> semanas = catalogosService.getSemanas();
-            List<Anios> anios = catalogosService.getAnios();
-            List<FactorPoblacion> factores = catalogosService.getFactoresPoblacion();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+            //List<Semanas> semanas = catalogosService.getSemanas();
+            //List<Anios> anios = catalogosService.getAnios();
+            //List<FactorPoblacion> factores = catalogosService.getFactoresPoblacion();
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+            List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+            List<Catalogo> factores = CallRestServices.getCatalogos("FACTORPOB");
+
             mav.addObject("areas", areas);
             mav.addObject("semanas", semanas);
             mav.addObject("anios", anios);
             mav.addObject("departamentos", departamentos);
-            mav.addObject("entidades",entidades);
+            mav.addObject("entidades", entidades);
             mav.addObject("tiposNotificacion", tiposNotificacion);
-            mav.addObject("factores",factores);
+            mav.addObject("factores", factores);
 
-        }else{
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
@@ -137,22 +148,24 @@ public class ReportesResidenciaController {
 
     /**
      * Método para obtener data para Reporte de semana
-     * @param factor factor poblacional
-     * @param codArea PAIS, Departamente, SILAIS, Municipìo o Unidad de Salud
-     * @param semI desde que semana consultar
-     * @param semF hasta que semana consultar
-     * @param anioI que anio consultar
-     * @param codSilais que silais consultar
-     * @param codDepartamento que departamento consultar
-     * @param codMunicipio que municipio consultar
-     * @param codUnidad que unidad de salud consultar
+     *
+     * @param factor           factor poblacional
+     * @param codArea          PAIS, Departamente, SILAIS, Municipìo o Unidad de Salud
+     * @param semI             desde que semana consultar
+     * @param semF             hasta que semana consultar
+     * @param anioI            que anio consultar
+     * @param codSilais        que silais consultar
+     * @param codDepartamento  que departamento consultar
+     * @param codMunicipio     que municipio consultar
+     * @param codUnidad        que unidad de salud consultar
      * @param tipoNotificacion que tipo notificación consultar
-     * @param ckUS incluir sub unidades (areas de salud)
+     * @param ckUS             incluir sub unidades (areas de salud)
      * @return List<Object>
      * @throws ParseException
      */
     @RequestMapping(value = "getDataPorSemana", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody List<Object[]> getDataPorSemana(
+    public @ResponseBody
+    List<Object[]> getDataPorSemana(
             @RequestParam(value = "factor", required = false) Integer factor,
             @RequestParam(value = "codArea", required = true) String codArea,
             @RequestParam(value = "semI", required = true) String semI,
@@ -163,7 +176,7 @@ public class ReportesResidenciaController {
             @RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
             @RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
             @RequestParam(value = "tipoNotificacion", required = true) String tipoNotificacion,
-            @RequestParam(value= "ckUS", required = false) boolean ckUS) throws ParseException {
+            @RequestParam(value = "ckUS", required = false) boolean ckUS) throws ParseException {
 
         logger.info("Obteniendo los datos de casos de notificaciones por semana");
         FiltrosReporte filtrosReporte = new FiltrosReporte();
@@ -180,7 +193,7 @@ public class ReportesResidenciaController {
         filtrosReporte.setTipoPoblacion("Todos");//por defecto se toma toda la población
         filtrosReporte.setSubunidades((ckUS));//Incluir subunidades
         List<Object[]> datos = reportesService.getDataPorSemana(filtrosReporte);
-        if (datos == null){
+        if (datos == null) {
             logger.debug("Nulo");
         }
         return datos;
@@ -192,13 +205,13 @@ public class ReportesResidenciaController {
     @RequestMapping(value = "porDia", method = RequestMethod.GET)
     public ModelAndView initCreateFormDia(HttpServletRequest request) throws Exception {
         logger.debug("Crear reporte general de notificaciones");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
@@ -207,24 +220,32 @@ public class ReportesResidenciaController {
             mav.setViewName("reportes/residencia/porDia");
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+
+            List<Catalogo> tiposNotificacion = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
+
             tiposNotificacion.add(tipoNotificacionSF);
             tiposNotificacion.add(tipoNotificacionIRA);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
             mav.addObject("areas", areas);
             mav.addObject("departamentos", departamentos);
-            mav.addObject("entidades",entidades);
+            mav.addObject("entidades", entidades);
             mav.addObject("tiposNotificacion", tiposNotificacion);
 
-        }else{
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
@@ -232,21 +253,23 @@ public class ReportesResidenciaController {
 
     /**
      * Método para obtener data para Reporte de dia
-     * @param factor factor poblacional
-     * @param codArea PAIS, Departamente, SILAIS, Municipìo o Unidad de Salud
-     * @param fechaInicial desde que fecha de notificación consultar
-     * @param fechaFinal hasta que fecha de notificación consultar
-     * @param codSilais que silais consultar
-     * @param codDepartamento que departamento consultar
-     * @param codMunicipio que municipio consultar
-     * @param codUnidad que unidad de salud consultar
+     *
+     * @param factor           factor poblacional
+     * @param codArea          PAIS, Departamente, SILAIS, Municipìo o Unidad de Salud
+     * @param fechaInicial     desde que fecha de notificación consultar
+     * @param fechaFinal       hasta que fecha de notificación consultar
+     * @param codSilais        que silais consultar
+     * @param codDepartamento  que departamento consultar
+     * @param codMunicipio     que municipio consultar
+     * @param codUnidad        que unidad de salud consultar
      * @param tipoNotificacion que tipo notificación consultar
-     * @param ckUS incluir sub unidades (areas de salud)
+     * @param ckUS             incluir sub unidades (areas de salud)
      * @return List<Object>
      * @throws ParseException
      */
     @RequestMapping(value = "getDataPorDia", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody List<Object[]> getDataPorDia(
+    public @ResponseBody
+    List<Object[]> getDataPorDia(
             @RequestParam(value = "factor", required = false) Integer factor,
             @RequestParam(value = "codArea", required = true) String codArea,
             @RequestParam(value = "fechaInicial", required = true) String fechaInicial,
@@ -256,7 +279,7 @@ public class ReportesResidenciaController {
             @RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
             @RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
             @RequestParam(value = "tipoNotificacion", required = true) String tipoNotificacion,
-            @RequestParam(value= "ckUS", required = false) boolean ckUS) throws ParseException {
+            @RequestParam(value = "ckUS", required = false) boolean ckUS) throws ParseException {
 
         logger.info("Obteniendo los datos de casos de notificaciones por semana");
         FiltrosReporte filtrosReporte = new FiltrosReporte();
@@ -267,12 +290,12 @@ public class ReportesResidenciaController {
         filtrosReporte.setCodUnidad(codUnidad);
         filtrosReporte.setTipoNotificacion(tipoNotificacion);
         filtrosReporte.setFactor(factor);
-        filtrosReporte.setFechaInicio(DateUtil.StringToDate(fechaInicial+" 00:00:00","dd/MM/yyyy HH:mm:ss"));
-        filtrosReporte.setFechaFin(DateUtil.StringToDate(fechaFinal+" 23:59:59","dd/MM/yyyy HH:mm:ss"));
+        filtrosReporte.setFechaInicio(DateUtil.StringToDate(fechaInicial + " 00:00:00", "dd/MM/yyyy HH:mm:ss"));
+        filtrosReporte.setFechaFin(DateUtil.StringToDate(fechaFinal + " 23:59:59", "dd/MM/yyyy HH:mm:ss"));
         //filtrosReporte.setTipoPoblacion("Todos");//por defecto se toma toda la población
         filtrosReporte.setSubunidades((ckUS));//Incluir subunidades
         List<Object[]> datos = reportesService.getDataPorDia(filtrosReporte);
-        if (datos == null){
+        if (datos == null) {
             logger.debug("Nulo");
         }
         return datos;
@@ -284,13 +307,13 @@ public class ReportesResidenciaController {
     @RequestMapping(value = "sinResultado", method = RequestMethod.GET)
     public ModelAndView initCreateFormSR(HttpServletRequest request) throws Exception {
         logger.debug("Crear reporte general de notificaciones");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
@@ -299,24 +322,30 @@ public class ReportesResidenciaController {
             mav.setViewName("reportes/residencia/sinResultado");
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<TipoNotificacion> tiposNotificacion = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            List<Catalogo> tiposNotificacion = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
             tiposNotificacion.add(tipoNotificacionSF);
             tiposNotificacion.add(tipoNotificacionIRA);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
             mav.addObject("areas", areas);
             mav.addObject("departamentos", departamentos);
-            mav.addObject("entidades",entidades);
+            mav.addObject("entidades", entidades);
             mav.addObject("tiposNotificacion", tiposNotificacion);
 
-        }else{
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
@@ -324,20 +353,22 @@ public class ReportesResidenciaController {
 
     /**
      * Método para obtener data para reporte de notificaciones sin resultados
-     * @param codArea PAIS, Departamente o SILAIS
-     * @param fechaInicial a filtrar registros
-     * @param fechaFinal a filtrar registros
-     * @param codSilais a consultar
-     * @param codDepartamento a consultar
-     * @param codMunicipio a consultar
-     * @param codUnidad a cosnultar
+     *
+     * @param codArea          PAIS, Departamente o SILAIS
+     * @param fechaInicial     a filtrar registros
+     * @param fechaFinal       a filtrar registros
+     * @param codSilais        a consultar
+     * @param codDepartamento  a consultar
+     * @param codMunicipio     a consultar
+     * @param codUnidad        a cosnultar
      * @param tipoNotificacion a filtrar
-     * @param subunidades si deben incluirse las subunidades (area de salud)
+     * @param subunidades      si deben incluirse las subunidades (area de salud)
      * @return JSON
      * @throws ParseException
      */
     @RequestMapping(value = "getDataSinResultado", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody String getDataSinResultado(
+    public @ResponseBody
+    String getDataSinResultado(
             @RequestParam(value = "codArea", required = true) String codArea,
             @RequestParam(value = "fechaInicial", required = true) String fechaInicial,
             @RequestParam(value = "fechaFinal", required = true) String fechaFinal,
@@ -356,12 +387,12 @@ public class ReportesResidenciaController {
         filtrosReporte.setCodMunicipio(codMunicipio);
         filtrosReporte.setCodUnidad(codUnidad);
         filtrosReporte.setTipoNotificacion(tipoNotificacion);
-        filtrosReporte.setFechaInicio(DateUtil.StringToDate(fechaInicial+" 00:00:00","dd/MM/yyyy HH:mm:ss"));
-        filtrosReporte.setFechaFin(DateUtil.StringToDate(fechaFinal+" 23:59:59","dd/MM/yyyy HH:mm:ss"));
+        filtrosReporte.setFechaInicio(DateUtil.StringToDate(fechaInicial + " 00:00:00", "dd/MM/yyyy HH:mm:ss"));
+        filtrosReporte.setFechaFin(DateUtil.StringToDate(fechaFinal + " 23:59:59", "dd/MM/yyyy HH:mm:ss"));
         filtrosReporte.setSubunidades(subunidades);
         //filtrosReporte.setTipoPoblacion("Todos");//por defecto se toma toda la población
         List<DaNotificacion> datos = reportesService.getDataSinResultado(filtrosReporte);
-        if (datos == null){
+        if (datos == null) {
             logger.debug("Nulo");
         }
         return notificacionesSRToJson(datos);
@@ -369,63 +400,69 @@ public class ReportesResidenciaController {
 
     /**
      * Convierte una lista de nofiticaciones sin resultado en formato JSON
+     *
      * @param notificacions lista de nofiticaciones
      * @return JSON
      */
-    private String notificacionesSRToJson(List<DaNotificacion> notificacions){
-        String jsonResponse="";
+    private String notificacionesSRToJson(List<DaNotificacion> notificacions) {
+        String jsonResponse = "";
         Map<Integer, Object> mapResponse = new HashMap<Integer, Object>();
-        Integer indice=0;
-        for(DaNotificacion notificacion : notificacions){
+        Integer indice = 0;
+        for (DaNotificacion notificacion : notificacions) {
             Map<String, String> map = new HashMap<String, String>();
-            map.put("idNotificacion",notificacion.getIdNotificacion());
-            if (notificacion.getFechaInicioSintomas()!=null)
-                map.put("fechaInicioSintomas",DateUtil.DateToString(notificacion.getFechaInicioSintomas(), "dd/MM/yyyy"));
+            map.put("idNotificacion", notificacion.getIdNotificacion());
+            if (notificacion.getFechaInicioSintomas() != null)
+                map.put("fechaInicioSintomas", DateUtil.DateToString(notificacion.getFechaInicioSintomas(), "dd/MM/yyyy"));
             else
-                map.put("fechaInicioSintomas"," ");
-            map.put("codtipoNoti",notificacion.getCodTipoNotificacion().getCodigo());
-            map.put("tipoNoti",notificacion.getCodTipoNotificacion().getValor());
-            map.put("fechaRegistro",DateUtil.DateToString(notificacion.getFechaRegistro(), "dd/MM/yyyy"));
-            map.put("SILAIS",notificacion.getCodSilaisAtencion()!=null?notificacion.getCodSilaisAtencion().getNombre():"");
-            map.put("unidad",notificacion.getCodUnidadAtencion()!=null?notificacion.getCodUnidadAtencion().getNombre():"");
+                map.put("fechaInicioSintomas", " ");
+                //map.put("codtipoNoti", notificacion.getCodTipoNotificacion().getCodigo());
+                //map.put("tipoNoti", notificacion.getCodTipoNotificacion().getValor());
+                map.put("codtipoNoti", notificacion.getCodTipoNotificacion());
+                map.put("tipoNoti", notificacion.getCodTipoNotificacion());
+                map.put("fechaRegistro", DateUtil.DateToString(notificacion.getFechaRegistro(), "dd/MM/yyyy"));
+                map.put("SILAIS", notificacion.getCodSilaisAtencion() != null ? notificacion.getCodSilaisAtencion().getNombre() : "");
+                //map.put("unidad", notificacion.getCodUnidadAtencion() != null ? notificacion.getCodUnidadAtencion().getNombre() : "");
+            map.put("unidad", notificacion.getCodUnidadAtencion() != null ? notificacion.getNombreMuniUnidadAtencion() : "");
             //Si hay persona
-            if (notificacion.getPersona()!=null){
+            if (notificacion.getPersona() != null) {
                 /// se obtiene el nombre de la persona asociada a la ficha
                 String nombreCompleto = "";
                 nombreCompleto = notificacion.getPersona().getPrimerNombre();
-                if (notificacion.getPersona().getSegundoNombre()!=null)
-                    nombreCompleto = nombreCompleto +" "+ notificacion.getPersona().getSegundoNombre();
-                nombreCompleto = nombreCompleto+" "+notificacion.getPersona().getPrimerApellido();
-                if (notificacion.getPersona().getSegundoApellido()!=null)
-                    nombreCompleto = nombreCompleto +" "+ notificacion.getPersona().getSegundoApellido();
-                map.put("persona",nombreCompleto);
+                if (notificacion.getPersona().getSegundoNombre() != null)
+                    nombreCompleto = nombreCompleto + " " + notificacion.getPersona().getSegundoNombre();
+                nombreCompleto = nombreCompleto + " " + notificacion.getPersona().getPrimerApellido();
+                if (notificacion.getPersona().getSegundoApellido() != null)
+                    nombreCompleto = nombreCompleto + " " + notificacion.getPersona().getSegundoApellido();
+                map.put("persona", nombreCompleto);
                 //Se calcula la edad
                 int edad = DateUtil.calcularEdadAnios(notificacion.getPersona().getFechaNacimiento());
-                map.put("edad",String.valueOf(edad));
+                map.put("edad", String.valueOf(edad));
                 //se obtiene el sexo
-                map.put("sexo",notificacion.getPersona().getSexo().getValor());
-                if(edad > 12 && notificacion.getPersona().isSexoFemenino()){
+                //map.put("sexo", notificacion.getPersona().getSexo().getValor());
+                map.put("sexo", notificacion.getPersona().getCodigoSexo());
+                if (edad > 12 && notificacion.getPersona().isSexoFemenino()) {
                     map.put("embarazada", envioMxService.estaEmbarazada(notificacion.getIdNotificacion()));
-                }else
-                    map.put("embarazada","--");
-                if (notificacion.getMunicipioResidencia()!=null){
-                    map.put("municipio",notificacion.getMunicipioResidencia().getNombre());
-                }else{
-                    map.put("municipio","--");
+                } else
+                    map.put("embarazada", "--");
+                if (notificacion.getMunicipioResidencia() != null) {
+                    //map.put("municipio", notificacion.getMunicipioResidencia().getNombre());
+                    map.put("municipio", notificacion.getNombreMunicipioResidencia());
+                } else {
+                    map.put("municipio", "--");
                 }
-            }else{
-                map.put("persona"," ");
-                map.put("edad"," ");
-                map.put("sexo"," ");
-                map.put("embarazada","--");
-                map.put("municipio","");
+            } else {
+                map.put("persona", " ");
+                map.put("edad", " ");
+                map.put("sexo", " ");
+                map.put("embarazada", "--");
+                map.put("municipio", "");
             }
 
             mapResponse.put(indice, map);
-            indice ++;
+            indice++;
         }
         jsonResponse = new Gson().toJson(mapResponse);
-        UnicodeEscaper escaper     = UnicodeEscaper.above(127);
+        UnicodeEscaper escaper = UnicodeEscaper.above(127);
         return escaper.translate(jsonResponse);
     }
 
@@ -435,35 +472,50 @@ public class ReportesResidenciaController {
     /*******************************************************************/
 
     @RequestMapping(value = "area", method = RequestMethod.GET)
-    public String initArea(Model model,HttpServletRequest request) throws Exception {
+    public String initArea(Model model, HttpServletRequest request) throws Exception {
         logger.debug("Reporte por Area");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
-            List<Anios> anios = catalogosService.getAnios();
-            List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
+            //List<Anios> anios = catalogosService.getAnios();
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+
+            //List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+
+            List<Catalogo> tipoNoti = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
+
             tipoNoti.add(tipoNotificacionSF);
             tipoNoti.add(tipoNotificacionIRA);
-            List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            //List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            List<Catalogo> factor = CallRestServices.getCatalogos("FACTORPOB");
+
             model.addAttribute("areas", areas);
             model.addAttribute("anios", anios);
             model.addAttribute("entidades", entidades);
@@ -471,13 +523,14 @@ public class ReportesResidenciaController {
             model.addAttribute("tipoNoti", tipoNoti);
             model.addAttribute("factor", factor);
             return "reportes/residencia/porArea";
-        }else{
+        } else {
             return urlValidacion;
         }
     }
 
     /**
      * Convierte un JSON con los filtros de búsqueda a objeto FiltrosReporte
+     *
      * @param strJson filtros
      * @return FiltrosReporte
      * @throws Exception
@@ -490,7 +543,7 @@ public class ReportesResidenciaController {
         Long codSilais = null;
         Long codUnidadSalud = null;
         String tipoNotificacion = null;
-        Integer factor= 0;
+        Integer factor = 0;
         Long codDepartamento = null;
         Long codMunicipio = null;
         String codArea = null;
@@ -538,13 +591,14 @@ public class ReportesResidenciaController {
 
     /**
      * Método para obtener data para Reporte por Area
+     *
      * @param filtro JSon con los datos de los filtros a aplicar en la búsqueda
      * @return Object
      * @throws Exception
      */
     @RequestMapping(value = "dataArea", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody
-    List<Object[]> fetchDataAreaJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception{
+    List<Object[]> fetchDataAreaJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception {
         logger.info("Obteniendo los datos para reporte por Area ");
         FiltrosReporte filtroRep = jsonToFiltroReportes(filtro);
         return reportesService.getDataCT(filtroRep);
@@ -555,35 +609,51 @@ public class ReportesResidenciaController {
     /*******************************************************************/
 
     @RequestMapping(value = "genderReport", method = RequestMethod.GET)
-    public String initSexReport(Model model,HttpServletRequest request) throws Exception {
+    public String initSexReport(Model model, HttpServletRequest request) throws Exception {
         logger.debug("Reporte por Sexo");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
-            List<Anios> anios = catalogosService.getAnios();
-            List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
+            //List<Anios> anios = catalogosService.getAnios();
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+
+            //List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+
+            List<Catalogo> tipoNoti = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
+
             tipoNoti.add(tipoNotificacionSF);
             tipoNoti.add(tipoNotificacionIRA);
-            List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            //List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            List<Catalogo> factor = CallRestServices.getCatalogos("FACTORPOB");
+
             model.addAttribute("areas", areas);
             model.addAttribute("anios", anios);
             model.addAttribute("entidades", entidades);
@@ -591,20 +661,21 @@ public class ReportesResidenciaController {
             model.addAttribute("tipoNoti", tipoNoti);
             model.addAttribute("factor", factor);
             return "reportes/residencia/porSexo";
-        }else{
+        } else {
             return urlValidacion;
         }
     }
 
     /**
      * Método para obtener data para Reporte por Sexo
+     *
      * @param filtro JSon con los datos de los filtros a aplicar en la búsqueda
      * @return Object
      * @throws Exception
      */
     @RequestMapping(value = "datagenderReport", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody
-    List<Object[]> fetchDataSexJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception{
+    List<Object[]> fetchDataSexJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception {
         logger.info("Obteniendo los datos para reporte por Sexo ");
         FiltrosReporte filtroRep = jsonToFiltroReportes(filtro);
         return reportesService.getDataSexReport(filtroRep);
@@ -615,35 +686,51 @@ public class ReportesResidenciaController {
     /*******************************************************************/
 
     @RequestMapping(value = "reportResult", method = RequestMethod.GET)
-    public String initReportResult(Model model,HttpServletRequest request) throws Exception {
+    public String initReportResult(Model model, HttpServletRequest request) throws Exception {
         logger.debug("Reporte por Resultado");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
-            List<Anios> anios = catalogosService.getAnios();
-            List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
-            TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
-            TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
+            //List<Anios> anios = catalogosService.getAnios();
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+
+            //List<TipoNotificacion> tipoNoti = new ArrayList<TipoNotificacion>();// = catalogosService.getTipoNotificacion();
+            //TipoNotificacion tipoNotificacionSF = catalogosService.getTipoNotificacion("TPNOTI|SINFEB");
+            //TipoNotificacion tipoNotificacionIRA = catalogosService.getTipoNotificacion("TPNOTI|IRAG");
+
+            List<Catalogo> tipoNoti = new ArrayList<Catalogo>();
+            Catalogo tipoNotificacionSF = CallRestServices.getCatalogo("TPNOTI|SINFEB");
+            Catalogo tipoNotificacionIRA = CallRestServices.getCatalogo("TPNOTI|IRAG");
+
             tipoNoti.add(tipoNotificacionSF);
             tipoNoti.add(tipoNotificacionIRA);
-            List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            //List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            List<Catalogo> factor = CallRestServices.getCatalogos("FACTORPOB");
+
             model.addAttribute("areas", areas);
             model.addAttribute("anios", anios);
             model.addAttribute("entidades", entidades);
@@ -651,20 +738,21 @@ public class ReportesResidenciaController {
             model.addAttribute("tipoNoti", tipoNoti);
             model.addAttribute("factor", factor);
             return "reportes/residencia/porResultado";
-        }else{
+        } else {
             return urlValidacion;
         }
     }
 
     /**
      * Método para obtener data para Reporte por Resultado
+     *
      * @param filtro JSon con los datos de los filtros a aplicar en la búsqueda
      * @return Object
      * @throws Exception
      */
     @RequestMapping(value = "dataReportResult", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody
-    List<Object[]> fetchReportResultJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception{
+    List<Object[]> fetchReportResultJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception {
         logger.info("Obteniendo los datos para Reporte por Resultado ");
         FiltrosReporte filtroRep = jsonToFiltroReportes(filtro);
         return reportesService.getDataResultReport(filtroRep);
@@ -694,9 +782,9 @@ public class ReportesResidenciaController {
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
             mav.addObject("entidades", entidades);
@@ -728,6 +816,7 @@ public class ReportesResidenciaController {
 
     /**
      * Convierte un JSON con los filtros de búsqueda a objeto FiltroMx
+     *
      * @param strJson JSON
      * @return FiltroMx
      * @throws Exception
@@ -788,14 +877,14 @@ public class ReportesResidenciaController {
                 List<DetalleResultadoFinal> finalRes = resultadoFinalService.getDetResActivosBySolicitud(soli.getIdSolicitudDx());
                 for (DetalleResultadoFinal res : finalRes) {
 
-                    if(filtroResu != null){
-                        if(filtroResu.equals("Positivo")){
+                    if (filtroResu != null) {
+                        if (filtroResu.equals("Positivo")) {
                             content = getPositiveResult(res);
-                        }else{
+                        } else {
                             content = getNegativeResult(res);
                         }
 
-                    }else{
+                    } else {
                         content = getResult(res);
                     }
 
@@ -813,11 +902,13 @@ public class ReportesResidenciaController {
                         map.put("resultado", valorResultado);
 
                         if (soli.getIdTomaMx().getIdNotificacion().getCodSilaisAtencion() != null) {
-                            map.put("codSilais", soli.getIdTomaMx().getIdNotificacion().getMunicipioResidencia().getDependenciaSilais().getNombre());
+                            //map.put("codSilais", soli.getIdTomaMx().getIdNotificacion().getMunicipioResidencia().getDependenciaSilais().getNombre());
+                            map.put("codSilais", soli.getIdTomaMx().getIdNotificacion().getMunicipioResidencia());
                         } else {
                             map.put("codSilais", "");
                         }
-                        map.put("tipoNoti", soli.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion().getValor());
+                        //map.put("tipoNoti", soli.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion().getValor());
+                        map.put("tipoNoti", soli.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion());
 
                         //Si hay persona
                         if (soli.getIdTomaMx().getIdNotificacion().getPersona() != null) {
@@ -830,7 +921,7 @@ public class ReportesResidenciaController {
                             if (soli.getIdTomaMx().getIdNotificacion().getPersona().getSegundoApellido() != null)
                                 nombreCompleto = nombreCompleto + " " + soli.getIdTomaMx().getIdNotificacion().getPersona().getSegundoApellido();
                             map.put("persona", nombreCompleto);
-                        } else if (soli.getIdTomaMx().getIdNotificacion().getSolicitante()!=null){
+                        } else if (soli.getIdTomaMx().getIdNotificacion().getSolicitante() != null) {
                             map.put("persona", soli.getIdTomaMx().getIdNotificacion().getSolicitante().getNombre());
                         } else {
                             map.put("persona", " ");
@@ -860,14 +951,14 @@ public class ReportesResidenciaController {
                 for (DetalleResultadoFinal res : finalRes) {
 
 
-                    if(filtroResu != null){
-                        if(filtroResu.equals("Positivo")){
+                    if (filtroResu != null) {
+                        if (filtroResu.equals("Positivo")) {
                             content = getPositiveResult(res);
-                        }else{
+                        } else {
                             content = getNegativeResult(res);
                         }
 
-                    }else{
+                    } else {
                         content = getResult(res);
                     }
 
@@ -885,11 +976,13 @@ public class ReportesResidenciaController {
                         map.put("resultado", valorResultado);
 
                         if (soliE.getIdTomaMx().getIdNotificacion().getCodSilaisAtencion() != null) {
-                            map.put("codSilais", soliE.getIdTomaMx().getIdNotificacion().getMunicipioResidencia().getDependenciaSilais().getNombre());
+                            //map.put("codSilais", soliE.getIdTomaMx().getIdNotificacion().getMunicipioResidencia().getDependenciaSilais().getNombre());
+                            map.put("codSilais", soliE.getIdTomaMx().getIdNotificacion().getMunicipioResidencia());
                         } else {
                             map.put("codSilais", "");
                         }
-                        map.put("tipoNoti", soliE.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion().getValor());
+                        //map.put("tipoNoti", soliE.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion().getValor());
+                        map.put("tipoNoti", soliE.getIdTomaMx().getIdNotificacion().getCodTipoNotificacion());
 
                         //Si hay persona
                         if (soliE.getIdTomaMx().getIdNotificacion().getPersona() != null) {
@@ -922,33 +1015,12 @@ public class ReportesResidenciaController {
     }
 
     private String getResult(DetalleResultadoFinal res) throws Exception {
-        boolean mostrar= false;
+        boolean mostrar = false;
         String valorResultado = null;
 
         if (res.getRespuesta() != null) {
-            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
-                Integer idLista = Integer.valueOf(res.getValor());
-                Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
-
-                if (valor.getValor().trim().toLowerCase().equals("positivo") ||valor.getValor().trim().toLowerCase().equals("negativo")
-                        || valor.getValor().trim().toLowerCase().contains("reactor") || valor.getValor().trim().toLowerCase().contains("detectado")
-                        || valor.getValor().trim().toUpperCase().contains("MTB-")
-                        || (!valor.getValor().trim().toLowerCase().contains("indetermin") && !valor.getValor().trim().toLowerCase().equals("mx inadecuada"))) {
-                    mostrar = true;
-                    valorResultado = valor.getValor();
-                }
-
-            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
-                if (res.getValor().trim().toLowerCase().equals("positivo") || res.getValor().trim().toLowerCase().equals("negativo")
-                        || res.getValor().trim().toLowerCase().contains("reactor") || res.getValor().trim().toLowerCase().contains("detectado")
-                        || res.getValor().trim().toUpperCase().contains("MTB-")
-                        || (!res.getValor().trim().toLowerCase().contains("indetermin") && !res.getValor().trim().toLowerCase().equals("mx inadecuada"))) {
-                    mostrar = true;
-                    valorResultado = res.getValor();
-                }
-            }
-        } else if (res.getRespuestaExamen() != null) {
-            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                 Integer idLista = Integer.valueOf(res.getValor());
                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
 
@@ -960,7 +1032,32 @@ public class ReportesResidenciaController {
                     valorResultado = valor.getValor();
                 }
 
-            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+                if (res.getValor().trim().toLowerCase().equals("positivo") || res.getValor().trim().toLowerCase().equals("negativo")
+                        || res.getValor().trim().toLowerCase().contains("reactor") || res.getValor().trim().toLowerCase().contains("detectado")
+                        || res.getValor().trim().toUpperCase().contains("MTB-")
+                        || (!res.getValor().trim().toLowerCase().contains("indetermin") && !res.getValor().trim().toLowerCase().equals("mx inadecuada"))) {
+                    mostrar = true;
+                    valorResultado = res.getValor();
+                }
+            }
+        } else if (res.getRespuestaExamen() != null) {
+            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
+                Integer idLista = Integer.valueOf(res.getValor());
+                Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
+
+                if (valor.getValor().trim().toLowerCase().equals("positivo") || valor.getValor().trim().toLowerCase().equals("negativo")
+                        || valor.getValor().trim().toLowerCase().contains("reactor") || valor.getValor().trim().toLowerCase().contains("detectado")
+                        || valor.getValor().trim().toUpperCase().contains("MTB-")
+                        || (!valor.getValor().trim().toLowerCase().contains("indetermin") && !valor.getValor().trim().toLowerCase().equals("mx inadecuada"))) {
+                    mostrar = true;
+                    valorResultado = valor.getValor();
+                }
+
+            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                 if (res.getValor().trim().toLowerCase().equals("positivo") || res.getValor().trim().toLowerCase().equals("negativo")
                         || res.getValor().trim().toLowerCase().contains("reactor") || res.getValor().trim().toLowerCase().contains("detectado")
                         || res.getValor().trim().toUpperCase().contains("MTB-")
@@ -975,11 +1072,12 @@ public class ReportesResidenciaController {
     }
 
     private String getNegativeResult(DetalleResultadoFinal res) throws Exception {
-        boolean mostrar= false;
+        boolean mostrar = false;
         String valorResultado = null;
 
         if (res.getRespuesta() != null) {
-            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                 Integer idLista = Integer.valueOf(res.getValor());
                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
 
@@ -991,7 +1089,8 @@ public class ReportesResidenciaController {
                     valorResultado = valor.getValor();
                 }
 
-            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                 if (res.getValor().toLowerCase().equals("negativo")
                         || res.getValor().trim().toLowerCase().contains("no reactor")
                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1001,7 +1100,8 @@ public class ReportesResidenciaController {
                 }
             }
         } else if (res.getRespuestaExamen() != null) {
-            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                 Integer idLista = Integer.valueOf(res.getValor());
                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
 
@@ -1013,7 +1113,8 @@ public class ReportesResidenciaController {
                     valorResultado = valor.getValor();
                 }
 
-            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                 if (res.getValor().toLowerCase().equals("negativo")
                         || res.getValor().trim().toLowerCase().contains("no reactor")
                         || res.getValor().trim().toLowerCase().contains("no detectado")
@@ -1029,11 +1130,12 @@ public class ReportesResidenciaController {
     }
 
     private String getPositiveResult(DetalleResultadoFinal res) throws Exception {
-        boolean mostrar= false;
+        boolean mostrar = false;
         String valorResultado = null;
 
         if (res.getRespuesta() != null) {
-            if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            //if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                 Integer idLista = Integer.valueOf(res.getValor());
                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
 
@@ -1045,7 +1147,8 @@ public class ReportesResidenciaController {
                     valorResultado = valor.getValor();
                 }
 
-            } else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+            } else if (res.getRespuesta().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                 if (res.getValor().trim().toLowerCase().equals("positivo")
                         || (res.getValor().trim().toLowerCase().contains("reactor") && !res.getValor().trim().toLowerCase().contains("no reactor"))
                         || (res.getValor().trim().toLowerCase().contains("detectado") && !res.getValor().trim().toLowerCase().contains("no detectado"))
@@ -1056,7 +1159,8 @@ public class ReportesResidenciaController {
                 }
             }
         } else if (res.getRespuestaExamen() != null) {
-            if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            //if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+            if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                 Integer idLista = Integer.valueOf(res.getValor());
                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(idLista);
 
@@ -1069,7 +1173,8 @@ public class ReportesResidenciaController {
                     valorResultado = valor.getValor();
                 }
 
-            } else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
+            } else if (res.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|TXT")) {
+            //else if (res.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|TXT")) {
                 if (res.getValor().trim().toLowerCase().equals("positivo")
                         || (res.getValor().trim().toLowerCase().contains("reactor") && !res.getValor().trim().toLowerCase().contains("no reactor"))
                         || (res.getValor().trim().toLowerCase().contains("detectado") && !res.getValor().trim().toLowerCase().contains("no detectado"))
@@ -1089,31 +1194,41 @@ public class ReportesResidenciaController {
     /*******************************************************************/
 
     @RequestMapping(value = "reportResultDx", method = RequestMethod.GET)
-    public String initReportResultDx(Model model,HttpServletRequest request) throws Exception {
+    public String initReportResultDx(Model model, HttpServletRequest request) throws Exception {
         logger.debug("Reporte por Resultado");
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = new ArrayList<EntidadesAdtvas>();
-            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,4);
-            List<Anios> anios = catalogosService.getAnios();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int) idUsuario, 4);
+            //List<Anios> anios = catalogosService.getAnios();
+
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 4, areasList);
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+
             List<Catalogo_Dx> catDx = tomaMxService.getCatalogosDx();
-            List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            //List<FactorPoblacion> factor = catalogosService.getFactoresPoblacion();
+
+            List<Catalogo> factor = CallRestServices.getCatalogos("FACTORPOB");
+
             model.addAttribute("areas", areas);
             model.addAttribute("anios", anios);
             model.addAttribute("entidades", entidades);
@@ -1121,20 +1236,21 @@ public class ReportesResidenciaController {
             model.addAttribute("dxs", catDx);
             model.addAttribute("factor", factor);
             return "reportes/residencia/porResultadoDx";
-        }else{
-            return  urlValidacion;
+        } else {
+            return urlValidacion;
         }
     }
 
     /**
      * Método para obtener data para Reporte por Resultado dx
+     *
      * @param filtro JSon con los datos de los filtros a aplicar en la búsqueda
      * @return Object
      * @throws Exception
      */
     @RequestMapping(value = "dataReportResultDx", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody
-    List<Object[]> fetchReportResultDxJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception{
+    List<Object[]> fetchReportResultDxJson(@RequestParam(value = "filtro", required = true) String filtro) throws Exception {
         logger.info("Obteniendo los datos para Reporte por Resultado Dx ");
         FiltrosReporte filtroRep = jsonToFiltroReportes(filtro);
         return reportesService.getDataDxResultReport(filtroRep);

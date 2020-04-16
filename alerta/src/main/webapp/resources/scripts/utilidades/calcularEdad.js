@@ -3,6 +3,9 @@ var getAge = function(dateString) {
     var dob = new Date(dateString.substring(6,10),
             dateString.substring(3,5)-1,
         dateString.substring(0,2)
+    /*var dob = new Date(dateString.substring(0,4),
+            dateString.substring(5,7)-1,
+        dateString.substring(8,10)*/
     );
     yearDob = dob.getYear(),monthDob = dob.getMonth(),dateDob = dob.getDate(),age = {},ageString = "",yearString = "",monthString = "",dayString = "",monthAge = 0, dateAge = 0, yearAge = 0;
     yearAge = yearNow - yearDob;

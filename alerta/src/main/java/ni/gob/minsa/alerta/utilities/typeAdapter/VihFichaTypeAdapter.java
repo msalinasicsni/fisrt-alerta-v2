@@ -51,7 +51,8 @@ public class VihFichaTypeAdapter extends TypeAdapter<VihFicha> {
         out.beginObject();
         out.name("id_ficha_vih").value(value.getId_ficha_vih());
         out.name("silais").value(value.getEntidadesAdtva());
-        out.name("unidadSalud").value(value.getUnidadSalud().getNombre());
+        //out.name("unidadSalud").value(value.getUnidadSalud().getNombre());
+        out.name("unidadSalud").value(value.getUnidadSalud());
         out.name("cod_usuario").value(value.getCodigo_usuario_vih());
         out.name("fecha").value(DateToString(value.getFecha()));
         out.endObject();

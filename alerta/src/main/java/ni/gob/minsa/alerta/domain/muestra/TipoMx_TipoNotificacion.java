@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.domain.muestra;
 
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
-import ni.gob.minsa.alerta.domain.notificacion.TipoNotificacion;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+//import ni.gob.minsa.alerta.domain.notificacion.TipoNotificacion;
 import ni.gob.minsa.alerta.domain.seguridadLab.User;
 import org.hibernate.annotations.ForeignKey;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,11 +16,13 @@ import java.util.Date;
 @Table(name = "tipomx_tiponotifi", schema = "alerta")
 public class TipoMx_TipoNotificacion {
     Integer id;
-    TipoNotificacion tipoNotificacion;
+    //TipoNotificacion tipoNotificacion;
     TipoMx tipoMx;
     boolean pasivo;
     Date fechaRegistro;
     User usuarioRegistro;
+
+    String tipoNotificacion;
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
@@ -33,7 +35,7 @@ public class TipoMx_TipoNotificacion {
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
     @JoinColumn(name="COD_TIPONOTI", referencedColumnName = "CODIGO", nullable = false)
     @ForeignKey(name = "TMTN_TIPONOTI_FK")
     public TipoNotificacion getTipoNotificacion() {
@@ -41,6 +43,15 @@ public class TipoMx_TipoNotificacion {
     }
 
     public void setTipoNotificacion(TipoNotificacion tipoNotificacion) {
+        this.tipoNotificacion = tipoNotificacion;
+    }*/
+
+    @Column(name="COD_TIPONOTI", nullable = false)
+    public String getTipoNotificacion() {
+        return tipoNotificacion;
+    }
+
+    public void setTipoNotificacion(String tipoNotificacion) {
         this.tipoNotificacion = tipoNotificacion;
     }
 

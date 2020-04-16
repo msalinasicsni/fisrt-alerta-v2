@@ -71,13 +71,118 @@
 								<!-- widget content -->
 								<div class="widget-body no-padding">
 									<form id="search-form" class="smart-form" autocomplete="off">
-										<fieldset>
+										<%--<fieldset>
 											<section>
 												<label class="input"> <i class="icon-append fa fa-check"></i>
 													<input type="text" id="filtro" name="filtro" placeholder="<spring:message code="person.search.parameters"/>">
 													<b class="tooltip tooltip-bottom-right"><spring:message code="person.search.parameters"/></b> </label>
 											</section>
-										</fieldset>
+										</fieldset>--%>
+                                            <fieldset>
+                                                <!-- START ROW -->
+                                                <div class="row">
+                                                    <section class="col col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                                        <div class="inline-group">
+                                                            <section class="col col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                                <label class="radio">
+                                                                    <input type="radio" name="rbTipoBusqueda" value="NOMBRE" id="NOMBRE" checked="checked">
+                                                                    <i></i><spring:message code="lbl.filter.by"/> <spring:message code="lbl.receipt.person.name"/></label>
+                                                            </section>
+                                                            <section class="col col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                                <label class="radio">
+                                                                    <input type="radio" name="rbTipoBusqueda" id="IDENT" value="IDENT">
+                                                                    <i></i><spring:message code="lbl.filter.by"/> <spring:message code="person.num.identificacion"/></label>
+                                                            </section>
+                                                        </div>
+                                                    </section>
+                                                </div>
+                                                <!-- END ROW -->
+                                                <div class="row" id="filtroNombre">
+                                                    <section class="col col-sm-6 col-md-3 col-lg-3">
+                                                        <label class="text-left txt-color-blue font-md">
+                                                            <i class="fa fa-fw fa-asterisk txt-color-red font-sm"></i>
+                                                            <spring:message code="person.name1"/>
+                                                        </label>
+                                                        <div class="">
+                                                            <!--<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>-->
+                                                            <label class="input">
+                                                                <i class="icon-prepend fa fa-pencil fa-fw"></i><i class="icon-append fa fa-sort-alpha-asc fa-fw"></i>
+                                                                <input class="form-control" type="text" id="primerNombre" name="primerNombre" value="" placeholder=" <spring:message code="person.name1" />">
+                                                                <b class="tooltip tooltip-bottom-right"> <i class="fa fa-warning txt-color-pink"></i> <spring:message code="tooltip.nombre1"/>
+                                                                </b>
+                                                            </label>
+                                                            <!--<span class="input-group-addon"><i class="fa fa-sort-alpha-asc fa-fw"></i></span>-->
+                                                        </div>
+                                                    </section>
+                                                    <section class="col col-sm-6 col-md-3 col-lg-3">
+                                                        <label class="text-left txt-color-blue font-md">
+                                                            <spring:message code="person.name2"/>
+                                                        </label>
+                                                        <div class="">
+                                                            <!--<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>-->
+                                                            <label class="input">
+                                                                <i class="icon-prepend fa fa-pencil fa-fw"></i><i class="icon-append fa fa-sort-alpha-asc fa-fw"></i>
+                                                                <input class="form-control" type="text" name="segundoNombre" id="segundoNombre" value="" placeholder=" <spring:message code="person.name2" />" />
+                                                                <b class="tooltip tooltip-bottom-right"> <i
+                                                                        class="fa fa-warning txt-color-pink"></i> <spring:message code="tooltip.nombre2"/>
+                                                                </b>
+                                                                <!--<span class="input-group-addon"><i class="fa fa-sort-alpha-asc fa-fw"></i></span>-->
+                                                            </label>
+                                                        </div>
+                                                    </section>
+                                                    <section class="col col-sm-6 col-md-3 col-lg-3">
+                                                        <label class="text-left txt-color-blue font-md">
+                                                            <i class="fa fa-fw fa-asterisk txt-color-red font-sm"></i>
+                                                            <spring:message code="person.lastname1"/>
+                                                        </label>
+                                                        <div class="">
+                                                            <!--<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>-->
+                                                            <label class="input">
+                                                                <i class="icon-prepend fa fa-pencil fa-fw"></i><i class="icon-append fa fa-sort-alpha-asc fa-fw"></i>
+                                                                <input class="form-control" type="text" name="primerApellido" id="primerApellido" value="" placeholder=" <spring:message code="person.lastname1" />" />
+                                                                <b class="tooltip tooltip-bottom-right"> <i
+                                                                        class="fa fa-warning txt-color-pink"></i> <spring:message code="tooltip.apellido1"/>
+                                                                </b>
+                                                            </label>
+                                                            <!--<span class="input-group-addon"><i class="fa fa-sort-alpha-asc fa-fw"></i></span>-->
+                                                        </div>
+                                                    </section>
+                                                    <section class="col col-sm-6 col-md-3 col-lg-3">
+                                                        <label class="text-left txt-color-blue font-md">
+                                                            <spring:message code="person.lastname2"/>
+                                                        </label>
+                                                        <div class="">
+                                                            <label class="input">
+                                                                <!--<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>-->
+                                                                <i class="icon-prepend fa fa-pencil fa-fw"></i><i class="icon-append fa fa-sort-alpha-asc fa-fw"></i>
+                                                                <input class="form-control" type="text" name="segundoApellido" id="segundoApellido" value="" placeholder=" <spring:message code="person.lastname2" />"/>
+                                                                <b class="tooltip tooltip-bottom-right"> <i
+                                                                        class="fa fa-warning txt-color-pink"></i> <spring:message code="tooltip.apellido2"/>
+                                                                </b>
+                                                                <!--<span class="input-group-addon"><i class="fa fa-sort-alpha-asc fa-fw"></i></span>-->
+                                                            </label>
+                                                        </div>
+                                                    </section>
+                                                </div>
+                                                <div class="row" id="filtroIdentificacion">
+                                                    <section class="col col-sm-6 col-md-3 col-lg-3">
+                                                        <label class="text-left txt-color-blue font-md hidden-xs">
+                                                            <i class="fa fa-fw fa-asterisk txt-color-red font-sm"></i>
+                                                            <spring:message code="person.num.identificacion" />
+                                                        </label>
+                                                        <div class="">
+                                                            <label class="input">
+                                                                <i class="icon-prepend fa fa-pencil fa-fw"></i><i class="icon-append fa fa-sort-alpha-asc fa-fw"></i>
+                                                                <input class="form-control" type="text" name="numIdentificacion" id="numIdentificacion" value="${persona.identNumero}"
+                                                                       placeholder=" <spring:message code="person.num.identificacion" />"/>
+                                                                <b class="tooltip tooltip-bottom-right"> <i
+                                                                        class="fa fa-warning txt-color-pink"></i> <spring:message code="tooltip.numIdent"/>
+                                                                </b>
+                                                            </label>
+                                                        </div>
+                                                    </section>
+                                                </div>
+                                            </fieldset>
 										<footer>
 											<button type="submit" id="search-person" class="btn btn-info"><i class="fa fa-search"></i> <spring:message code="act.search" /></button>
 										</footer>
@@ -195,6 +300,8 @@
 			pageSetUp();
 			var parametros = {sPersonUrl: "${sPersonUrl}",
 					sActionUrl: "${sActionUrl}",
+                    sPersonaByIdentificacionUrl : "${personaByIdentificacion}",
+                    sPersonaByNombresUrl : "${personaByNombres}",
 					blockMess:"${blockMess}"};
 			SearchPerson.init(parametros);
 	    	$("li.notificacion").addClass("open");

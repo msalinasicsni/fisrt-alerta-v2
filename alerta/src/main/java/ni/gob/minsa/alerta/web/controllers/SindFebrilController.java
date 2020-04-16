@@ -2,25 +2,27 @@ package ni.gob.minsa.alerta.web.controllers;
 
 import com.google.gson.Gson;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
-import ni.gob.minsa.alerta.domain.irag.Respuesta;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudDx;
 import ni.gob.minsa.alerta.domain.muestra.DaSolicitudEstudio;
 import ni.gob.minsa.alerta.domain.muestra.DaTomaMx;
 import ni.gob.minsa.alerta.domain.muestra.OrdenExamen;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import ni.gob.minsa.alerta.domain.persona.Ocupacion;
-import ni.gob.minsa.alerta.domain.persona.SisPersona;
+import ni.gob.minsa.alerta.domain.persona.PersonaTmp;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultado;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Procedencia;
 import ni.gob.minsa.alerta.domain.vigilanciaSindFebril.*;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.MinsaServices;
+import ni.gob.minsa.alerta.restServices.entidades.*;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
+import ni.gob.minsa.alerta.utilities.Utils;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
 import ni.gob.minsa.alerta.utilities.pdfUtils.BaseTable;
 import ni.gob.minsa.alerta.utilities.pdfUtils.Cell;
@@ -52,7 +54,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -64,33 +65,33 @@ import java.util.List;
 
 /**
  * Controlador web de peticiones relacionadas a DaSindFebril
- * 
+ *
  * @author William Aviles
  */
 @Controller
 @RequestMapping("/febriles/")
 public class SindFebrilController {
-	private static final Logger logger = LoggerFactory.getLogger(SindFebrilController.class);
-	@Resource(name="sindFebrilService")
-	private SindFebrilService sindFebrilService;
-	@Resource(name="personaService")
-	private PersonaService personaService;
-	@Resource(name="divisionPoliticaService")
-	private DivisionPoliticaService divisionPoliticaService;
-	@Resource(name="entidadAdmonService")
-	private EntidadAdmonService entidadAdmonService;
-	@Resource(name="catalogosService")
-	public CatalogoService catalogoService;
-	@Resource(name="ocupacionService")
-	public OcupacionService ocupacionService;
-	@Resource(name="seguridadService")
-	public SeguridadService seguridadService;
-	@Resource(name = "unidadesService")
+    private static final Logger logger = LoggerFactory.getLogger(SindFebrilController.class);
+    @Resource(name = "sindFebrilService")
+    private SindFebrilService sindFebrilService;
+    @Resource(name = "personaService")
+    private PersonaService personaService;
+    @Resource(name = "divisionPoliticaService")
+    private DivisionPoliticaService divisionPoliticaService;
+    @Resource(name = "entidadAdmonService")
+    private EntidadAdmonService entidadAdmonService;
+    @Resource(name = "catalogosService")
+    public CatalogoService catalogoService;
+    @Resource(name = "ocupacionService")
+    public OcupacionService ocupacionService;
+    @Resource(name = "seguridadService")
+    public SeguridadService seguridadService;
+    @Resource(name = "unidadesService")
     public UnidadesService unidadesService;
-	@Resource(name = "comunidadesService")
+    @Resource(name = "comunidadesService")
     public ComunidadesService comunidadesService;
-	@Resource(name = "usuarioService")
-	public UsuarioService usuarioService;
+    @Resource(name = "usuarioService")
+    public UsuarioService usuarioService;
     @Resource(name = "daNotificacionService")
     public DaNotificacionService daNotificacionService;
     @Resource(name = "resultadoFinalService")
@@ -107,73 +108,81 @@ public class SindFebrilController {
     MessageSource messageSource;
 
 
-	@RequestMapping(value = "create", method = RequestMethod.GET)
+    @RequestMapping(value = "create", method = RequestMethod.GET)
     public String initSearchForm(Model model, HttpServletRequest request) throws ParseException {
-		logger.debug("Crear/Buscar una ficha de sindromes febriles");
-		String urlValidacion= "";
+        /*logger.debug("Crear/Buscar una ficha de sindromes febriles");
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
-            //si la url esta vacia significa que la validación del login fue exitosa
+            //si la url esta vacia significa que la validaciï¿½n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
-        if(urlValidacion.isEmpty()){
-        	return "sindfeb/search";
-        }else{
+        if (urlValidacion.isEmpty()) {
+            return "sindfeb/search";
+        } else {
             return urlValidacion;
-        }
-	}
-	
-	/**
+        }*/
+        logger.debug("Crear/Buscar una ficha de sindromes febriles");
+        model.addAttribute("personaByIdentificacion", MinsaServices.SEVICIO_PERSONAS_IDENTIFICACION);
+        model.addAttribute("personaByNombres", MinsaServices.SEVICIO_PERSONAS_NONBRES);
+        return "sindfeb/search";
+    }
+
+    /**
      * Custom handler for displaying persons reports or create a new one.
      *
      * @param idPerson the ID of the person
      * @return a ModelMap with the model attributes for the respective view
-	 * @throws Exception 
+     * @throws Exception
      */
     @RequestMapping("search/{idPerson}")
     public ModelAndView showPersonReport(@PathVariable("idPerson") long idPerson, HttpServletRequest request) throws Exception {
-    	String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaciÃ³n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         ModelAndView mav = new ModelAndView();
-        if(urlValidacion.isEmpty()){
-        	List<DaSindFebril> results = getResults(idPerson);
+        if (urlValidacion.isEmpty()) {
+            List<DaSindFebril> results = getResults(idPerson);
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-	        if (results.size()==0){
-	        	SisPersona persona = personaService.getPersona(idPerson);
-	        	if (persona!=null){
-		        	DaSindFebril daSindFeb = new DaSindFebril();
-		        	daSindFeb.setIdNotificacion(new DaNotificacion());
-		        	daSindFeb.getIdNotificacion().setPersona(persona);
-		        	List<EntidadesAdtvas> entidades = null;
+            if (results.size() == 0) {
+                //SisPersona persona = personaService.getPersona(idPerson);
+                PersonaTmp persona = personaService.getPersona(idPerson);
+                if (persona != null) {
+                    DaSindFebril daSindFeb = new DaSindFebril();
+                    daSindFeb.setIdNotificacion(new DaNotificacion());
+                    daSindFeb.getIdNotificacion().setPersona(persona);
+                    List<EntidadesAdtvas> entidades = null;
 
-	                //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
-	                if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
-	                    entidades = entidadAdmonService.getAllEntidadesAdtvas();
-	                }else {
-	                    entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-	                }
-		        	List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-		        	List<Divisionpolitica> municipiosResi = null;
-	        		List<Comunidades> comunidades = null;
-		        	if(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia()!=null){
-		        		municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
-		        		comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
-		        	}
-		        	List<Procedencia> catProcedencia = catalogoService.getProcedencia();
-		        	List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
-		        	List<Respuesta> catResp =catalogoService.getRespuesta();
+                    //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
+                    if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
+                        entidades = entidadAdmonService.getAllEntidadesAdtvas();
+                    } else {
+                        entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
+                    }
+                    //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+                    List<Departamento> departamentos = CallRestServices.getDepartamentos();
+                    //List<Divisionpolitica> municipiosResi = null;
+                    List<Municipio> municipiosResi = null;
+                    //List<Comunidades> comunidades = null;
+                    List<ComunidadesV2> comunidades = null;
+                    if (daSindFeb.getIdNotificacion().getPersona().getIdMunicipioResidencia() != null) {
+                        //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
+                        municipiosResi = CallRestServices.getMunicipiosDepartamento(daSindFeb.getIdNotificacion().getPersona().getIdDepartamentoResidencia());
+                        //comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());                        comunidades = CallRestServices.getComunidadesByMunicipio_V2(daSindFeb.getIdNotificacion().getPersona().getIdMunicipioResidencia().intValue());
+                    }
+                    //List<Procedencia> catProcedencia = catalogoService.getProcedencia();
+		        	/*List<Respuesta> catResp =catalogoService.getRespuesta();
 		        	List<EnfCronicas> enfCronicas =catalogoService.getEnfCronicas();
 		        	List<EnfAgudas> enfAgudas =catalogoService.getEnfAgudas();
 		        	List<FuenteAgua> fuentesAgua =catalogoService.getFuenteAgua();
@@ -183,44 +192,58 @@ public class SindFebrilController {
 		        	List<SintomasDGRA> sintDgra =catalogoService.getSintomasDGRA();
 		        	List<SintomasDSSA> sintDssa =catalogoService.getSintomasDSSA();
 		        	List<SintomasHANT> sintHant =catalogoService.getSintomasHANT();
-		        	List<SintomasLEPT> sintLept =catalogoService.getSintomasLEPT();
-		        	mav.addObject("daSindFeb", daSindFeb);
-		        	mav.addObject("entidades", entidades);
-		        	mav.addObject("departamentos", departamentos);
-		        	mav.addObject("municipiosResi", municipiosResi);
-		        	mav.addObject("comunidades", comunidades);
-		        	mav.addObject("catProcedencia", catProcedencia);
-		        	mav.addObject("ocupaciones", ocupaciones);
-		        	mav.addObject("catResp", catResp);
-		        	mav.addObject("enfCronicas", enfCronicas);
-		        	mav.addObject("enfAgudas", enfAgudas);
-		        	mav.addObject("fuentesAgua", fuentesAgua);
-		        	mav.addObject("animales", animales);
-		        	mav.addObject("sintChik", sintChik);
-		        	mav.addObject("sintDcsa", sintDcsa);
-		        	mav.addObject("sintDgra", sintDgra);
-		        	mav.addObject("sintDssa", sintDssa);
-		        	mav.addObject("sintHant", sintHant);
-		        	mav.addObject("sintLept", sintLept);
-                    mav.addObject("autorizado",true);
-		        	mav.setViewName("sindfeb/enterForm");
-	        	}
-	        	else{
-	        		mav.setViewName("404");
-	        	}
-	        }
-	        else{
+		        	List<SintomasLEPT> sintLept =catalogoService.getSintomasLEPT();*/
+
+                    List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
+                    List<Catalogo> catProcedencia = CallRestServices.getCatalogos("PROCDNCIA");
+                    List<Catalogo> catResp = CallRestServices.getCatalogos("RESP");
+                    List<Catalogo> enfCronicas = CallRestServices.getCatalogos("CRONICAS");
+                    List<Catalogo> enfAgudas = CallRestServices.getCatalogos("AGUDAS");
+                    List<Catalogo> fuentesAgua = CallRestServices.getCatalogos("AGUA");
+                    List<Catalogo> animales = CallRestServices.getCatalogos("ANIM");
+                    List<Catalogo> sintChik = CallRestServices.getCatalogos("CHIK");
+                    List<Catalogo> sintDcsa = CallRestServices.getCatalogos("DCSA");
+                    List<Catalogo> sintDgra = CallRestServices.getCatalogos("DGRA");
+                    List<Catalogo> sintDssa = CallRestServices.getCatalogos("DSSA");
+                    List<Catalogo> sintHant = CallRestServices.getCatalogos("HANT");
+                    List<Catalogo> sintLept = CallRestServices.getCatalogos("LEPT");
+
+                    mav.addObject("daSindFeb", daSindFeb);
+                    mav.addObject("entidades", entidades);
+                    mav.addObject("departamentos", departamentos);
+                    mav.addObject("municipiosResi", municipiosResi);
+                    mav.addObject("comunidades", comunidades);
+                    mav.addObject("catProcedencia", catProcedencia);
+                    mav.addObject("ocupaciones", ocupaciones);
+                    mav.addObject("catResp", catResp);
+                    mav.addObject("enfCronicas", enfCronicas);
+                    mav.addObject("enfAgudas", enfAgudas);
+                    mav.addObject("fuentesAgua", fuentesAgua);
+                    mav.addObject("animales", animales);
+                    mav.addObject("sintChik", sintChik);
+                    mav.addObject("sintDcsa", sintDcsa);
+                    mav.addObject("sintDgra", sintDgra);
+                    mav.addObject("sintDssa", sintDssa);
+                    mav.addObject("sintHant", sintHant);
+                    mav.addObject("sintLept", sintLept);
+                    mav.addObject("autorizado", true);
+                    mav.setViewName("sindfeb/enterForm");
+                } else {
+                    mav.setViewName("404");
+                }
+            } else {
                 List<String> fichasAutorizadas = new ArrayList<String>();
-                boolean fichaincompleta=false;
-                for(DaSindFebril febril: results){
+                boolean fichaincompleta = false;
+                for (DaSindFebril febril : results) {
                     if (idUsuario != 0) {
-                        if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)){
+                        if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                             fichasAutorizadas.add(febril.getIdNotificacion().getIdNotificacion());
-                        }else {
+                        } else {
                             if (febril.getIdNotificacion().getCodSilaisAtencion() == null && febril.getIdNotificacion().getCodUnidadAtencion() == null) {
                                 fichasAutorizadas.add(febril.getIdNotificacion().getIdNotificacion());
                             } else if (seguridadService.esUsuarioAutorizadoEntidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, febril.getIdNotificacion().getCodSilaisAtencion().getCodigo())
-                                    || seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, febril.getIdNotificacion().getCodUnidadAtencion().getCodigo())) {
+                                    //|| seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, febril.getIdNotificacion().getCodUnidadAtencion().getCodigo())) {
+                                    || seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, febril.getIdNotificacion().getCodUnidadAtencion())) {
                                 fichasAutorizadas.add(febril.getIdNotificacion().getIdNotificacion());
                             }
                         }
@@ -230,13 +253,13 @@ public class SindFebrilController {
 
                     }
                 }
-	        	mav.addObject("fichas", results);
+                mav.addObject("fichas", results);
                 mav.addObject("idPerson", idPerson);
                 mav.addObject("incompleta", fichaincompleta);
-                mav.addObject("fichasAutorizadas",fichasAutorizadas);
-	        	mav.setViewName("sindfeb/results");
-	        }
-        }else{
+                mav.addObject("fichasAutorizadas", fichasAutorizadas);
+                mav.setViewName("sindfeb/results");
+            }
+        } else {
             mav.setViewName(urlValidacion);
             //esto es una prueba de commit
         }
@@ -244,15 +267,15 @@ public class SindFebrilController {
     }
 
     //Load results list
-    @RequestMapping(value = "getResults", method = RequestMethod.GET,  produces = "application/json")
+    @RequestMapping(value = "getResults", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody
     List<DaSindFebril> getResults(@RequestParam(value = "idPerson", required = true) long idPerson) throws Exception {
-        logger.info("Obteniendo los resultados de la búsqueda");
+        logger.info("Obteniendo los resultados de la bï¿½squeda");
         List<DaSindFebril> results = null;
         results = sindFebrilService.getDaSindFebrilesPersona(idPerson);
         return results;
     }
-    
+
     /**
      * Handler for edit reports.
      *
@@ -261,62 +284,75 @@ public class SindFebrilController {
      */
     @RequestMapping("edit/{idNotificacion}")
     public ModelAndView editReport(@PathVariable(value = "idNotificacion") String idNotificacion, HttpServletRequest request) throws Exception {
-    	String urlValidacion= "";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
-            //si la url esta vacia significa que la validación del login fue exitosa
+            //si la url esta vacia significa que la validaciï¿½n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         boolean autorizado = false;
         ModelAndView mav = new ModelAndView();
-        if(urlValidacion.isEmpty()){
-	        DaSindFebril daSindFeb = sindFebrilService.getDaSindFebril(idNotificacion);
-	        if (daSindFeb!=null){
-	        	List<EntidadesAdtvas> entidades = null;
-	        	long idUsuario = seguridadService.obtenerIdUsuario(request);
+        if (urlValidacion.isEmpty()) {
+            DaSindFebril daSindFeb = sindFebrilService.getDaSindFebril(idNotificacion);
+            if (daSindFeb != null) {
+                List<EntidadesAdtvas> entidades = null;
+                long idUsuario = seguridadService.obtenerIdUsuario(request);
                 //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
-                if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
+                if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                     entidades = entidadAdmonService.getAllEntidadesAdtvas();
-                }else {
+                } else {
                     entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-                    if (!entidades.contains(daSindFeb.getIdNotificacion().getCodSilaisAtencion())){
+                    if (!entidades.contains(daSindFeb.getIdNotificacion().getCodSilaisAtencion())) {
                         entidades.add(daSindFeb.getIdNotificacion().getCodSilaisAtencion());
                     }
                 }
                 if (idUsuario != 0) {
                     autorizado = seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE) ||
-                            ((daSindFeb.getIdNotificacion().getCodSilaisAtencion()!=null && daSindFeb.getIdNotificacion().getCodUnidadAtencion()!=null) &&
+                            ((daSindFeb.getIdNotificacion().getCodSilaisAtencion() != null && daSindFeb.getIdNotificacion().getCodUnidadAtencion() != null) &&
                                     seguridadService.esUsuarioAutorizadoEntidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo()) &&
-                                    seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion().getCodigo()));
+                                    //seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion().getCodigo()));
+                                    seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion()));
                 }
-                List<Divisionpolitica> munic = null;
-                if (daSindFeb.getIdNotificacion().getCodSilaisAtencion()!=null) {
-                   munic = divisionPoliticaService.getMunicipiosBySilais(daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo());
+                //List<Divisionpolitica> munic = null;
+                List<Municipio> munic = null;
+                if (daSindFeb.getIdNotificacion().getCodSilaisAtencion() != null) {
+                    //munic = divisionPoliticaService.getMunicipiosBySilais(daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo());
+                    munic = CallRestServices.getMunicipiosEntidad(daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo());
                 }
                 List<Unidades> uni = null;
-                if (seguridadService.esUsuarioNivelCentral(idUsuario,ConstantsSecurity.SYSTEM_CODE)) {
-                    if (daSindFeb.getIdNotificacion().getCodSilaisAtencion()!=null && daSindFeb.getIdNotificacion().getCodUnidadAtencion()!=null)
-                        uni = unidadesService.getPUnitsHospByMuniAndSilais(daSindFeb.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), HealthUnitType.UnidadesPrimHosp.getDiscriminator().split(","), daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo());
-                }else{
-                    if (daSindFeb.getIdNotificacion().getCodSilaisAtencion()!=null && daSindFeb.getIdNotificacion().getCodUnidadAtencion()!=null) {
-                        uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo(), daSindFeb.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
+                    if (daSindFeb.getIdNotificacion().getCodSilaisAtencion() != null && daSindFeb.getIdNotificacion().getCodUnidadAtencion() != null)
+                        //uni = unidadesService.getPUnitsHospByMuniAndSilais(daSindFeb.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), HealthUnitType.UnidadesPrimHosp.getDiscriminator().split(","), daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo());
+                        uni = CallRestServices.getUnidadesByEntidadMunicipioTipo(daSindFeb.getIdNotificacion().getIdSilaisAtencion(), daSindFeb.getIdNotificacion().getIdMunicipioResidencia(), HealthUnitType.UnidadesPrimHosp.getDiscriminator().split(","));
+                } else {
+                    if (daSindFeb.getIdNotificacion().getCodSilaisAtencion() != null && daSindFeb.getIdNotificacion().getCodUnidadAtencion() != null) {
+                        //uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo(), daSindFeb.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                        uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo(), String.valueOf(daSindFeb.getIdNotificacion().getCodUnidadAtencion()), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
                         if (!uni.contains(daSindFeb.getIdNotificacion().getCodUnidadAtencion())) {
-                            uni.add(daSindFeb.getIdNotificacion().getCodUnidadAtencion());
+                            //uni.add(daSindFeb.getIdNotificacion().getCodUnidadAtencion());
+                            Unidades unidades = CallRestServices.getUnidadSalud(daSindFeb.getIdNotificacion().getCodUnidadAtencion());
+                            uni.add(unidades);
                         }
                     }
                 }
-	        	List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-	        	List<Divisionpolitica> municipiosResi = null;
-        		List<Comunidades> comunidades = null;
-	        	if(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia()!=null){
-	        		municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
-	        		comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
-	        	}
-	        	List<Procedencia> catProcedencia = catalogoService.getProcedencia();
+                /*List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+                List<Divisionpolitica> municipiosResi = null;*/
+                List<Departamento> departamentos = CallRestServices.getDepartamentos();
+                List<Municipio> municipiosResi = null;
+                //List<Comunidades> comunidades = null;
+                List<ComunidadesV2> comunidades = null;
+                //if (daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia() != null) {
+                if (daSindFeb.getIdNotificacion().getPersona().getIdMunicipioResidencia() != null) {
+                    //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
+                    municipiosResi = CallRestServices.getMunicipiosDepartamento(daSindFeb.getIdNotificacion().getPersona().getIdDepartamentoResidencia());
+                    //comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                    comunidades = CallRestServices.getComunidadesByMunicipio_V2(daSindFeb.getIdNotificacion().getPersona().getIdMunicipioResidencia().intValue());
+                }
+	        	/*List<Procedencia> catProcedencia = catalogoService.getProcedencia();
 	        	List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
 	        	List<Respuesta> catResp =catalogoService.getRespuesta();
 	        	List<EnfCronicas> enfCronicas =catalogoService.getEnfCronicas();
@@ -328,143 +364,184 @@ public class SindFebrilController {
 	        	List<SintomasDGRA> sintDgra =catalogoService.getSintomasDGRA();
 	        	List<SintomasDSSA> sintDssa =catalogoService.getSintomasDSSA();
 	        	List<SintomasHANT> sintHant =catalogoService.getSintomasHANT();
-	        	List<SintomasLEPT> sintLept =catalogoService.getSintomasLEPT();
-	        	mav.addObject("entidades", entidades);
-	        	mav.addObject("munic", munic);
-	        	mav.addObject("uni", uni);
-	        	mav.addObject("departamentos", departamentos);
-	        	mav.addObject("municipiosResi", municipiosResi);
-	        	mav.addObject("comunidades", comunidades);
-	        	mav.addObject("catProcedencia", catProcedencia);
-	        	mav.addObject("ocupaciones", ocupaciones);
-	        	mav.addObject("catResp", catResp);
-	        	mav.addObject("enfCronicas", enfCronicas);
-	        	mav.addObject("enfAgudas", enfAgudas);
-	        	mav.addObject("fuentesAgua", fuentesAgua);
-	        	mav.addObject("animales", animales);
-	        	mav.addObject("sintChik", sintChik);
-	        	mav.addObject("sintDcsa", sintDcsa);
-	        	mav.addObject("sintDgra", sintDgra);
-	        	mav.addObject("sintDssa", sintDssa);
-	        	mav.addObject("sintHant", sintHant);
-	        	mav.addObject("sintLept", sintLept);
-	        	mav.addObject("daSindFeb", daSindFeb);
-                mav.addObject("autorizado",autorizado);
+	        	List<SintomasLEPT> sintLept =catalogoService.getSintomasLEPT();*/
+
+                List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
+                List<Catalogo> catProcedencia = CallRestServices.getCatalogos("PROCDNCIA");
+                List<Catalogo> catResp = CallRestServices.getCatalogos("RESP");
+                List<Catalogo> enfCronicas = CallRestServices.getCatalogos("CRONICAS");
+                List<Catalogo> enfAgudas = CallRestServices.getCatalogos("AGUDAS");
+                List<Catalogo> fuentesAgua = CallRestServices.getCatalogos("AGUA");
+                List<Catalogo> animales = CallRestServices.getCatalogos("ANIM");
+                List<Catalogo> sintChik = CallRestServices.getCatalogos("CHIK");
+                List<Catalogo> sintDcsa = CallRestServices.getCatalogos("DCSA");
+                List<Catalogo> sintDgra = CallRestServices.getCatalogos("DGRA");
+                List<Catalogo> sintDssa = CallRestServices.getCatalogos("DSSA");
+                List<Catalogo> sintHant = CallRestServices.getCatalogos("HANT");
+                List<Catalogo> sintLept = CallRestServices.getCatalogos("LEPT");
+
+                mav.addObject("entidades", entidades);
+                mav.addObject("munic", munic);
+                mav.addObject("uni", uni);
+                mav.addObject("departamentos", departamentos);
+                mav.addObject("municipiosResi", municipiosResi);
+                mav.addObject("comunidades", comunidades);
+                mav.addObject("catProcedencia", catProcedencia);
+                mav.addObject("ocupaciones", ocupaciones);
+                mav.addObject("catResp", catResp);
+                mav.addObject("enfCronicas", enfCronicas);
+                mav.addObject("enfAgudas", enfAgudas);
+                mav.addObject("fuentesAgua", fuentesAgua);
+                mav.addObject("animales", animales);
+                mav.addObject("sintChik", sintChik);
+                mav.addObject("sintDcsa", sintDcsa);
+                mav.addObject("sintDgra", sintDgra);
+                mav.addObject("sintDssa", sintDssa);
+                mav.addObject("sintHant", sintHant);
+                mav.addObject("sintLept", sintLept);
+                mav.addObject("daSindFeb", daSindFeb);
+                mav.addObject("autorizado", autorizado);
                 mav.setViewName("sindfeb/enterForm");
-	        }
-	        else{
-	        	mav.setViewName("404");
-	        }
-        }else{
+            } else {
+                mav.setViewName("404");
+            }
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
     }
 
     /**
-     * Método para guardar datos de una notificación de sindrome febril
+     * Mï¿½todo para guardar datos de una notificaciï¿½n de sindrome febril
+     *
      * @return ResponseEntity<String>
      */
-    @RequestMapping( value="save", method=RequestMethod.POST)
-	public ResponseEntity<String> processCreationSindFebrilForm( @RequestParam(value="codSilaisAtencion", required=true ) Integer codSilaisAtencion
-			, @RequestParam( value="codUnidadAtencion", required=true ) Integer codUnidadAtencion
-			, @RequestParam( value="personaId", required=true ) long personaId
-			, @RequestParam( value="idNotificacion", required=false, defaultValue="" ) String idNotificacion
-			, @RequestParam( value="codExpediente", required=false) String codExpediente
-			, @RequestParam( value="numFicha", required=false) String numFicha
-			, @RequestParam( value="nombPadre", required=false) String nombPadre
-			, @RequestParam( value="codProcedencia", required=false) String codProcedencia
-			, @RequestParam( value="viaje", required=false) String viaje
-			, @RequestParam( value="dondeViaje", required=false) String dondeViaje
-			, @RequestParam( value="embarazo", required=false) String embarazo
-			, @RequestParam( value="mesesEmbarazo", required=false) int mesesEmbarazo
-			, @RequestParam( value="enfCronica", required=false) String enfCronica
-			, @RequestParam( value="otraCronica", required=false) String otraCronica
-			, @RequestParam( value="enfAgudaAdicional", required=false) String enfAgudaAdicional
-			, @RequestParam( value="otraAgudaAdicional", required=false) String otraAgudaAdicional
-			, @RequestParam( value="fuenteAgua", required=false) String fuenteAgua
-			, @RequestParam( value="otraFuenteAgua", required=false) String otraFuenteAgua
-			, @RequestParam( value="animales", required=false) String animales
-			, @RequestParam( value="otrosAnimales", required=false) String otrosAnimales
-			, @RequestParam( value="fechaTomaMuestra", required=false, defaultValue="") String fechaTomaMuestra
-			, @RequestParam( value="temperatura", required=false) Float temperatura
-			, @RequestParam( value="pas", required=false) Integer pas
-			, @RequestParam( value="pad", required=false) Integer pad
-			, @RequestParam( value="ssDSA", required=true) String ssDSA
-			, @RequestParam( value="ssDCA", required=true) String ssDCA
-			, @RequestParam( value="ssDS", required=true) String ssDS
-			, @RequestParam( value="ssLepto", required=true) String ssLepto
-			, @RequestParam( value="ssHV", required=true) String ssHV
-			, @RequestParam( value="ssCK", required=true) String ssCK
-			, @RequestParam( value="hosp", required=false) String hosp
-			, @RequestParam( value="fechaIngreso", required=false, defaultValue="") String fechaIngreso
-			, @RequestParam( value="fallecido", required=false) String fallecido
-			, @RequestParam( value="fechaFallecido", required=false, defaultValue="") String fechaFallecido
-			, @RequestParam( value="dxPresuntivo", required=true) String dxPresuntivo
-			, @RequestParam( value="dxFinal", required=true) String dxFinal
-			, @RequestParam( value="nombreLlenoFicha", required=true) String nombreLlenoFicha
-			, @RequestParam( value="fechaFicha", required=true) String fechaFicha
-			, @RequestParam( value="fechaInicioSintomas", required=true) String fechaInicioSintomas
+    @RequestMapping(value = "save", method = RequestMethod.POST)
+    public ResponseEntity<String> processCreationSindFebrilForm(@RequestParam(value = "codSilaisAtencion", required = true) Integer codSilaisAtencion
+            , @RequestParam(value = "codUnidadAtencion", required = true) Integer codUnidadAtencion
+            , @RequestParam(value = "personaId", required = true) long personaId
+            , @RequestParam(value = "idNotificacion", required = false, defaultValue = "") String idNotificacion
+            , @RequestParam(value = "codExpediente", required = false) String codExpediente
+            , @RequestParam(value = "numFicha", required = false) String numFicha
+            , @RequestParam(value = "nombPadre", required = false) String nombPadre
+            , @RequestParam(value = "codProcedencia", required = false) String codProcedencia
+            , @RequestParam(value = "viaje", required = false) String viaje
+            , @RequestParam(value = "dondeViaje", required = false) String dondeViaje
+            , @RequestParam(value = "embarazo", required = false) String embarazo
+            , @RequestParam(value = "mesesEmbarazo", required = false) int mesesEmbarazo
+            , @RequestParam(value = "enfCronica", required = false) String enfCronica
+            , @RequestParam(value = "otraCronica", required = false) String otraCronica
+            , @RequestParam(value = "enfAgudaAdicional", required = false) String enfAgudaAdicional
+            , @RequestParam(value = "otraAgudaAdicional", required = false) String otraAgudaAdicional
+            , @RequestParam(value = "fuenteAgua", required = false) String fuenteAgua
+            , @RequestParam(value = "otraFuenteAgua", required = false) String otraFuenteAgua
+            , @RequestParam(value = "animales", required = false) String animales
+            , @RequestParam(value = "otrosAnimales", required = false) String otrosAnimales
+            , @RequestParam(value = "fechaTomaMuestra", required = false, defaultValue = "") String fechaTomaMuestra
+            , @RequestParam(value = "temperatura", required = false) Float temperatura
+            , @RequestParam(value = "pas", required = false) Integer pas
+            , @RequestParam(value = "pad", required = false) Integer pad
+            , @RequestParam(value = "ssDSA", required = true) String ssDSA
+            , @RequestParam(value = "ssDCA", required = true) String ssDCA
+            , @RequestParam(value = "ssDS", required = true) String ssDS
+            , @RequestParam(value = "ssLepto", required = true) String ssLepto
+            , @RequestParam(value = "ssHV", required = true) String ssHV
+            , @RequestParam(value = "ssCK", required = true) String ssCK
+            , @RequestParam(value = "hosp", required = false) String hosp
+            , @RequestParam(value = "fechaIngreso", required = false, defaultValue = "") String fechaIngreso
+            , @RequestParam(value = "fallecido", required = false) String fallecido
+            , @RequestParam(value = "fechaFallecido", required = false, defaultValue = "") String fechaFallecido
+            , @RequestParam(value = "dxPresuntivo", required = true) String dxPresuntivo
+            , @RequestParam(value = "dxFinal", required = true) String dxFinal
+            , @RequestParam(value = "nombreLlenoFicha", required = true) String nombreLlenoFicha
+            , @RequestParam(value = "fechaFicha", required = true) String fechaFicha
+            , @RequestParam(value = "fechaInicioSintomas", required = true) String fechaInicioSintomas
             , @RequestParam(value = "municipioResidencia", required = false) String municipioResidencia
             , @RequestParam(value = "comunidadResidencia", required = false) String comunidadResidencia
             , @RequestParam(value = "direccionResidencia", required = false) String direccionResidencia
             , @RequestParam(value = "ocupacion", required = false) String ocupacion
             , @RequestParam(value = "urgente", required = false) String urgente
             , @RequestParam(value = "completa", required = false) String completa
-                                                                 ,HttpServletRequest request) throws Exception
-	{
-    	DaSindFebril daSindFeb = new DaSindFebril();
-    	DaNotificacion daNotificacion = new DaNotificacion();
-    	daNotificacion.setPersona(personaService.getPersona(personaId));
+            , HttpServletRequest request) throws Exception {
+        DaSindFebril daSindFeb = new DaSindFebril();
+        DaNotificacion daNotificacion = new DaNotificacion();
+        daNotificacion.setPersona(personaService.getPersona(personaId));
         //antes actualizar a la persona
         InfoResultado infoResultado;
-        try{
-            Divisionpolitica muniResid = divisionPoliticaService.getDivisionPolitiacaByCodNacional(municipioResidencia);
-            Comunidades comuResid = comunidadesService.getComunidad(comunidadResidencia);
+        try {
+            //Divisionpolitica muniResid = divisionPoliticaService.getDivisionPolitiacaByCodNacional(municipioResidencia);
+            //String[] arrOfMunicipioResi = municipioResidencia.split(",");
+            Municipio muniResid = CallRestServices.getMunicipio(Long.parseLong(municipioResidencia));
+            //Comunidades comuResid = comunidadesService.getComunidad(comunidadResidencia);
+            String[] arrOfComunidadResi = comunidadResidencia.split(",");
+            //Comunidades comuResid =  comunidadesService.getComunidad(comunidadResidencia);
+            ComunidadesV2 comuResid = CallRestServices.getComunidadById(Integer.valueOf(comunidadResidencia));
             if (ConstantsSecurity.ENABLE_PERSON_COMPONENT) {
-                SisPersona pers = daNotificacion.getPersona();
-                pers.setMunicipioResidencia(muniResid);
-                pers.setComunidadResidencia(comuResid);
+                //SisPersona pers = daNotificacion.getPersona();
+                PersonaTmp pers = daNotificacion.getPersona();
+                /*pers.setMunicipioResidencia(muniResid);
+                pers.setComunidadResidencia(comuResid);*/
+                pers.setNombreMunicipioResidencia(muniResid.getNombre());
+                pers.setNombreComunidadResidencia(comuResid.getNombre());
                 pers.setDireccionResidencia(direccionResidencia);
-                pers.setOcupacion(catalogoService.getOcupacion(ocupacion));
-                Persona persona = personaService.ensamblarObjetoPersona(pers);
+                //pers.setOcupacion(catalogoService.getOcupacion(ocupacion));
+                //pers.setOcupacion(ocupacion);
+                //Persona persona = personaService.ensamblarObjetoPersona(pers);
 
                 personaService.iniciarTransaccion();
-                logger.info("NombrePersona:"+persona.getPrimerNombre());
-                logger.info("IdPersona:"+persona.getPersonaId());
-                logger.info("ApellidoPersona:"+persona.getPrimerApellido());
-                logger.info("FechaNacPersona:"+persona.getFechaNacimiento());
-                logger.info("SexoPersona:"+persona.getSexoCodigo());
-                logger.info("GUARDAR PERSONA");
-                infoResultado = personaService.guardarPersona(persona, seguridadService.obtenerNombreUsuario(request));
+                /*logger.info("NombrePersona:" + persona.getPrimerNombre());
+                logger.info("IdPersona:" + persona.getPersonaId());
+                logger.info("ApellidoPersona:" + persona.getPrimerApellido());
+                logger.info("FechaNacPersona:" + persona.getFechaNacimiento());
+                logger.info("SexoPersona:" + persona.getSexoCodigo());
+                logger.info("GUARDAR PERSONA");*/
+                //infoResultado = personaService.guardarPersona(persona, seguridadService.obtenerNombreUsuario(request));
                 logger.info("FIN GUARDAR PERSONA");
-            }else{
+            } else {
                 infoResultado = new InfoResultado();
                 infoResultado.setOk(true);
                 infoResultado.setObjeto(daNotificacion);
             }
-            //si se actualizó la persona se registra la notificación
-            if (infoResultado.isOk() && infoResultado.getObjeto() != null ){
+            //si se actualizï¿½ la persona se registra la notificaciï¿½n
+            if (infoResultado.isOk() && infoResultado.getObjeto() != null) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                SisPersona persona = personaService.getPersona(personaId);
-                daNotificacion.setMunicipioResidencia(muniResid);
-                daNotificacion.setComunidadResidencia(comuResid);
+                //SisPersona persona = personaService.getPersona(personaId);
+                PersonaTmp persona = personaService.getPersona(personaId);
+                daNotificacion.setMunicipioResidencia(muniResid.getCodigo());
+                daNotificacion.setComunidadResidencia(comuResid.getCodigo());
                 daNotificacion.setFechaRegistro(new Timestamp(new Date().getTime()));
                 daNotificacion.setCodSilaisAtencion(entidadAdmonService.getSilaisByCodigo(codSilaisAtencion));
-                daNotificacion.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+                //daNotificacion.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+                Unidades unidades = CallRestServices.getUnidadSalud(codUnidadAtencion);
+
+                daNotificacion.setCodUnidadAtencion(Long.valueOf(unidades.getCodigo()));
                 long idUsuario = seguridadService.obtenerIdUsuario(request);
-                daNotificacion.setUrgente(catalogoService.getRespuesta(urgente));
-                daNotificacion.setUsuarioRegistro(usuarioService.getUsuarioById((int)idUsuario));
+
+                List<Catalogo> catResp = CallRestServices.getCatalogos("RESP");
+                String descUrgente = Utils.getDescripcion(catResp, urgente);
+                daNotificacion.setUrgente(urgente);
+                daNotificacion.setDesUrgente(descUrgente);
+                //daNotificacion.setUrgente(catalogoService.getRespuesta(urgente));/
+                daNotificacion.setUsuarioRegistro(usuarioService.getUsuarioById((int) idUsuario));
                 daNotificacion.setCompleta(Boolean.parseBoolean(completa));
-                daNotificacion.setEmbarazada(catalogoService.getRespuesta(embarazo));
+
+                String descEmbarazada = Utils.getDescripcion(catResp, embarazo);
+                daNotificacion.setEmbarazada(embarazo);
+                daNotificacion.setDesEmbarazada(descEmbarazada);
+                //daNotificacion.setEmbarazada(catalogoService.getRespuesta(embarazo));
+
                 daNotificacion.setSemanasEmbarazo(mesesEmbarazo);
                 daNotificacion.setDireccionResidencia(direccionResidencia);
 
                 //	daNotificacion.setUsuarioRegistro(usuarioService.getUsuarioById(1));
-                daNotificacion.setCodTipoNotificacion(catalogoService.getTipoNotificacion("TPNOTI|SINFEB"));
+                List<Catalogo> tipoNoti = CallRestServices.getCatalogos("TPNOTI");
+                String descNoti = Utils.getDescripcion(tipoNoti, "TPNOTI|SINFEB");
+                daNotificacion.setDesTipoNotificacion(descNoti);
+                //daNotificacion.setCodTipoNotificacion(catalogoService.getTipoNotificacion("TPNOTI|SINFEB"));
+                daNotificacion.setCodTipoNotificacion("TPNOTI|SINFEB");
                 Date dateFIS = formatter.parse(fechaInicioSintomas);
                 daNotificacion.setFechaInicioSintomas(dateFIS);
-                if (!idNotificacion.equals("")){
+                if (!idNotificacion.equals("")) {
                     daNotificacion.setIdNotificacion(idNotificacion);
                     daSindFeb = sindFebrilService.getDaSindFebril(idNotificacion);
                 }
@@ -476,10 +553,21 @@ public class SindFebrilController {
                 daSindFeb.setCodExpediente(codExpediente);
                 daSindFeb.setNumFicha(numFicha);
                 daSindFeb.setNombPadre(nombPadre);
-                daSindFeb.setCodProcedencia(catalogoService.getProcedencia(codProcedencia));
-                daSindFeb.setViaje(catalogoService.getRespuesta(viaje));
+                //daSindFeb.setCodProcedencia(catalogoService.getProcedencia(codProcedencia));
+                daSindFeb.setCodProcedencia(codProcedencia);
+                List<Catalogo> procedenciaList = CallRestServices.getCatalogos("PROCDNCIA");
+                String procedencia = Utils.getDescripcion(procedenciaList, codProcedencia);
+                //daSindFeb.setDescProcedencia(procedencia);
+                //daSindFeb.setViaje(catalogoService.getRespuesta(viaje));
+                daSindFeb.setViaje(viaje);
+                List<Catalogo> respuestaList = CallRestServices.getCatalogos("RESP");
+                String descViaje = Utils.getDescripcion(respuestaList, viaje);
+                //daSindFeb.setDescViaje(descViaje);
                 daSindFeb.setDondeViaje(dondeViaje);
-                daSindFeb.setEmbarazo(catalogoService.getRespuesta(embarazo));
+                //daSindFeb.setEmbarazo(catalogoService.getRespuesta(embarazo));
+                daSindFeb.setEmbarazo(embarazo);
+                String descEmbarazo = Utils.getDescripcion(respuestaList, embarazo);
+                //daSindFeb.setDescEmbarazo(descEmbarazo);
                 daSindFeb.setMesesEmbarazo(mesesEmbarazo);
                 daSindFeb.setEnfCronica(enfCronica);
                 daSindFeb.setOtraCronica(otraCronica);
@@ -491,7 +579,7 @@ public class SindFebrilController {
                 daSindFeb.setOtrosAnimales(otrosAnimales);
                 daSindFeb.setActor(seguridadService.obtenerNombreUsuario(request));
 
-                if (!fechaTomaMuestra.equals("")){
+                if (!fechaTomaMuestra.equals("")) {
                     Date dateFTM = formatter.parse(fechaTomaMuestra);
                     daSindFeb.setFechaTomaMuestra(dateFTM);
                 }
@@ -504,13 +592,19 @@ public class SindFebrilController {
                 daSindFeb.setSsDSA(ssDSA);
                 daSindFeb.setSsHV(ssHV);
                 daSindFeb.setSsLepto(ssLepto);
-                daSindFeb.setHosp(catalogoService.getRespuesta(hosp));
-                if (!fechaIngreso.equals("")){
+                //daSindFeb.setHosp(catalogoService.getRespuesta(hosp));
+                daSindFeb.setHosp(hosp);
+                String descHosp = Utils.getDescripcion(respuestaList, hosp);
+                //daSindFeb.setDescHosp(descHosp);
+                if (!fechaIngreso.equals("")) {
                     Date dateIngreso = formatter.parse(fechaIngreso);
                     daSindFeb.setFechaIngreso(dateIngreso);
                 }
-                daSindFeb.setFallecido(catalogoService.getRespuesta(fallecido));
-                if (!fechaFallecido.equals("")){
+                //daSindFeb.setFallecido(catalogoService.getRespuesta(fallecido));
+                daSindFeb.setFallecido(fallecido);
+                String descFallecido = Utils.getDescripcion(respuestaList, fallecido);
+                //daSindFeb.setDescFallecido(descFallecido);
+                if (!fechaFallecido.equals("")) {
                     Date dateFallecido = formatter.parse(fechaFallecido);
                     daSindFeb.setFechaFallecido(dateFallecido);
                 }
@@ -518,12 +612,12 @@ public class SindFebrilController {
                 daSindFeb.setDxFinal(dxFinal);
                 daSindFeb.setNombreLlenoFicha(nombreLlenoFicha);
                 sindFebrilService.saveSindFebril(daSindFeb);
-            }else
-                throw new Exception(infoResultado.getMensaje()+"----"+infoResultado.getMensajeDetalle());
+            } else
+                throw new Exception(infoResultado.getMensaje() + "----" + infoResultado.getMensajeDetalle());
             if (ConstantsSecurity.ENABLE_PERSON_COMPONENT)
                 personaService.commitTransaccion();
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),ex);
+            logger.error(ex.getMessage(), ex);
             ex.printStackTrace();
             try {
                 if (ConstantsSecurity.ENABLE_PERSON_COMPONENT)
@@ -532,7 +626,7 @@ public class SindFebrilController {
                 e.printStackTrace();
             }
             throw new Exception(ex);
-        }finally {
+        } finally {
             try {
                 if (ConstantsSecurity.ENABLE_PERSON_COMPONENT)
                     personaService.remover();
@@ -541,9 +635,9 @@ public class SindFebrilController {
             }
         }
 
-    	return createJsonResponse(daSindFeb);
-	}
-    
+        return createJsonResponse(daSindFeb);
+    }
+
     /**
      * Custom handler for voiding a notificacion.
      *
@@ -551,151 +645,172 @@ public class SindFebrilController {
      * @return a String
      */
     @RequestMapping("delete/{idNotificacion}")
-    public String voidNoti(@PathVariable("idNotificacion") String idNotificacion, 
-    		RedirectAttributes redirectAttributes, HttpServletRequest request) {
-    	String urlValidacion= "";
+    public String voidNoti(@PathVariable("idNotificacion") String idNotificacion,
+                           RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
-            //si la url esta vacia significa que la validación del login fue exitosa
+            //si la url esta vacia significa que la validaciï¿½n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "redirect:/404";
         }
-        if(urlValidacion.isEmpty()){
-	        DaSindFebril daSindFeb = sindFebrilService.getDaSindFebril(idNotificacion);
-	        if (daSindFeb!=null){
+        if (urlValidacion.isEmpty()) {
+            DaSindFebril daSindFeb = sindFebrilService.getDaSindFebril(idNotificacion);
+            if (daSindFeb != null) {
                 long idUsuario = seguridadService.obtenerIdUsuario(request);
-                boolean  autorizado = seguridadService.esUsuarioNivelCentral(idUsuario,ConstantsSecurity.SYSTEM_CODE) ||
+                boolean autorizado = seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE) ||
                         (seguridadService.esUsuarioAutorizadoEntidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodSilaisAtencion().getCodigo()) &&
-                                seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion().getCodigo()));
-	        	if (autorizado) {
+                                //seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion().getCodigo()));
+                                seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, daSindFeb.getIdNotificacion().getCodUnidadAtencion()));
+                if (autorizado) {
                     daSindFeb.getIdNotificacion().setPasivo(true);
                     daSindFeb.getIdNotificacion().setFechaAnulacion(new Timestamp(new Date().getTime()));
                     daSindFeb.getIdNotificacion().setActor(seguridadService.obtenerNombreUsuario(request));
                     daSindFeb.setActor(seguridadService.obtenerNombreUsuario(request));
                     sindFebrilService.saveSindFebril(daSindFeb);
                     return "redirect:/febriles/search/" + daSindFeb.getIdNotificacion().getPersona().getPersonaId();
-                }else {
+                } else {
                     return "redirect:/403";
                 }
-	        }
-	        else{
-	        	return "redirect:/404";
-	        }
-        }else{
-        	return "redirect:/"+urlValidacion;
+            } else {
+                return "redirect:/404";
+            }
+        } else {
+            return "redirect:/" + urlValidacion;
         }
     }
-    
+
     /**
      * Custom handler for create a new report.
      *
      * @param idPerson the ID of the person
      * @return a ModelMap with the model attributes for the respective view
-	 * @throws Exception 
+     * @throws Exception
      */
     @RequestMapping("new/{idPerson}")
     public ModelAndView newPersonReport(@PathVariable("idPerson") long idPerson, HttpServletRequest request) throws Exception {
-    	String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaciÃ³n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         ModelAndView mav = new ModelAndView();
-        if(urlValidacion.isEmpty()){
-        	SisPersona persona = personaService.getPersona(idPerson);
-        	if (persona!=null){
-	        	DaSindFebril daSindFeb = new DaSindFebril();
-	        	daSindFeb.setIdNotificacion(new DaNotificacion());
-	        	daSindFeb.getIdNotificacion().setPersona(persona);
-	        	List<EntidadesAdtvas> entidades = null;
-	        	long idUsuario = seguridadService.obtenerIdUsuario(request);
+        if (urlValidacion.isEmpty()) {
+            //SisPersona persona = personaService.getPersona(idPerson);
+            PersonaTmp persona = personaService.getPersona(idPerson);
+            if (persona != null) {
+                DaSindFebril daSindFeb = new DaSindFebril();
+                daSindFeb.setIdNotificacion(new DaNotificacion());
+                daSindFeb.getIdNotificacion().setPersona(persona);
+                List<EntidadesAdtvas> entidades = null;
+                long idUsuario = seguridadService.obtenerIdUsuario(request);
                 //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
-                if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
+                if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                     entidades = entidadAdmonService.getAllEntidadesAdtvas();
-                }else {
+                } else {
                     entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
                 }
-	        	List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-	        	List<Divisionpolitica> municipiosResi = null;
-        		List<Comunidades> comunidades = null;
-	        	if(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia()!=null){
-	        		municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
-	        		comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
-	        	}
-	        	List<Procedencia> catProcedencia = catalogoService.getProcedencia();
-	        	List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
-	        	List<Respuesta> catResp =catalogoService.getRespuesta();
-	        	List<EnfCronicas> enfCronicas =catalogoService.getEnfCronicas();
-	        	List<EnfAgudas> enfAgudas =catalogoService.getEnfAgudas();
-	        	List<FuenteAgua> fuentesAgua =catalogoService.getFuenteAgua();
-	        	List<Animales> animales =catalogoService.getAnimales();
-	        	List<SintomasCHIK> sintChik =catalogoService.getSintomasCHIK();
-	        	List<SintomasDCSA> sintDcsa =catalogoService.getSintomasDCSA();
-	        	List<SintomasDGRA> sintDgra =catalogoService.getSintomasDGRA();
-	        	List<SintomasDSSA> sintDssa =catalogoService.getSintomasDSSA();
-	        	List<SintomasHANT> sintHant =catalogoService.getSintomasHANT();
-	        	List<SintomasLEPT> sintLept =catalogoService.getSintomasLEPT();
-	        	mav.addObject("daSindFeb", daSindFeb);
-	        	mav.addObject("entidades", entidades);
-	        	mav.addObject("departamentos", departamentos);
-	        	mav.addObject("municipiosResi", municipiosResi);
-	        	mav.addObject("comunidades", comunidades);
-	        	mav.addObject("catProcedencia", catProcedencia);
-	        	mav.addObject("ocupaciones", ocupaciones);
-	        	mav.addObject("catResp", catResp);
-	        	mav.addObject("enfCronicas", enfCronicas);
-	        	mav.addObject("enfAgudas", enfAgudas);
-	        	mav.addObject("fuentesAgua", fuentesAgua);
-	        	mav.addObject("animales", animales);
-	        	mav.addObject("sintChik", sintChik);
-	        	mav.addObject("sintDcsa", sintDcsa);
-	        	mav.addObject("sintDgra", sintDgra);
-	        	mav.addObject("sintDssa", sintDssa);
-	        	mav.addObject("sintHant", sintHant);
-	        	mav.addObject("sintLept", sintLept);
-                mav.addObject("autorizado",true);
-	        	mav.setViewName("sindfeb/enterForm");
-        	}
-        	else{
-        		mav.setViewName("404");
-        	}
-        }else{
+                /*List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+                List<Divisionpolitica> municipiosResi = null;*/
+                List<Departamento> departamentos = CallRestServices.getDepartamentos();
+                List<Municipio> municipiosResi = null;
+                List<Comunidades> comunidades = null;
+                //if (daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia() != null) {
+                if (daSindFeb.getIdNotificacion().getPersona().getIdMunicipioResidencia() != null) {
+                    //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
+                    municipiosResi = CallRestServices.getMunicipiosDepartamento(daSindFeb.getIdNotificacion().getPersona().getIdDepartamentoResidencia());
+                    //comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                    comunidades = comunidadesService.getComunidades(daSindFeb.getIdNotificacion().getPersona().getNombreMunicipioResidencia());
+                }
+                /*List<Procedencia> catProcedencia = catalogoService.getProcedencia();
+                List<Respuesta> catResp = catalogoService.getRespuesta();
+                List<EnfCronicas> enfCronicas = catalogoService.getEnfCronicas();
+                List<EnfAgudas> enfAgudas = catalogoService.getEnfAgudas();
+                List<FuenteAgua> fuentesAgua = catalogoService.getFuenteAgua();
+                List<Animales> animales = catalogoService.getAnimales();
+                List<SintomasCHIK> sintChik = catalogoService.getSintomasCHIK();
+                List<SintomasDCSA> sintDcsa = catalogoService.getSintomasDCSA();
+                List<SintomasDGRA> sintDgra = catalogoService.getSintomasDGRA();
+                List<SintomasDSSA> sintDssa = catalogoService.getSintomasDSSA();
+                List<SintomasHANT> sintHant = catalogoService.getSintomasHANT();
+                List<SintomasLEPT> sintLept = catalogoService.getSintomasLEPT();*/
+
+                List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
+                List<Catalogo> catProcedencia = CallRestServices.getCatalogos("PROCDNCIA");
+                List<Catalogo> catResp = CallRestServices.getCatalogos("RESP");
+                List<Catalogo> enfCronicas = CallRestServices.getCatalogos("CRONICAS");
+                List<Catalogo> enfAgudas = CallRestServices.getCatalogos("AGUDAS");
+                List<Catalogo> fuentesAgua = CallRestServices.getCatalogos("AGUA");
+                List<Catalogo> animales = CallRestServices.getCatalogos("ANIM");
+                List<Catalogo> sintChik = CallRestServices.getCatalogos("CHIK");
+                List<Catalogo> sintDcsa = CallRestServices.getCatalogos("DCSA");
+                List<Catalogo> sintDgra = CallRestServices.getCatalogos("DGRA");
+                List<Catalogo> sintDssa = CallRestServices.getCatalogos("DSSA");
+                List<Catalogo> sintHant = CallRestServices.getCatalogos("HANT");
+                List<Catalogo> sintLept = CallRestServices.getCatalogos("LEPT");
+
+                mav.addObject("daSindFeb", daSindFeb);
+                mav.addObject("entidades", entidades);
+                mav.addObject("departamentos", departamentos);
+                mav.addObject("municipiosResi", municipiosResi);
+                mav.addObject("comunidades", comunidades);
+                mav.addObject("catProcedencia", catProcedencia);
+                mav.addObject("ocupaciones", ocupaciones);
+                mav.addObject("catResp", catResp);
+                mav.addObject("enfCronicas", enfCronicas);
+                mav.addObject("enfAgudas", enfAgudas);
+                mav.addObject("fuentesAgua", fuentesAgua);
+                mav.addObject("animales", animales);
+                mav.addObject("sintChik", sintChik);
+                mav.addObject("sintDcsa", sintDcsa);
+                mav.addObject("sintDgra", sintDgra);
+                mav.addObject("sintDssa", sintDssa);
+                mav.addObject("sintHant", sintHant);
+                mav.addObject("sintLept", sintLept);
+                mav.addObject("autorizado", true);
+                mav.setViewName("sindfeb/enterForm");
+            } else {
+                mav.setViewName("404");
+            }
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
     }
-    
-    private ResponseEntity<String> createJsonResponse( Object o )
-	{
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.set("Content-Type", "application/json");
-	    Gson gson = new Gson();
-	    String json = gson.toJson( o );
-	    return new ResponseEntity<String>( json, headers, HttpStatus.CREATED );
-	}
+
+    private ResponseEntity<String> createJsonResponse(Object o) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        Gson gson = new Gson();
+        String json = gson.toJson(o);
+        return new ResponseEntity<String>(json, headers, HttpStatus.CREATED);
+    }
 
     /**
      * Generar ficha en archivo pdf en el formato oficial del MINSA
+     *
      * @param idNotificacion a generar en pdf
      * @return String base64
      * @throws Exception
      */
     @RequestMapping(value = "getPDF", method = RequestMethod.GET)
-    public @ResponseBody String getPDF(@RequestParam(value = "idNotificacion", required = true) String idNotificacion, HttpServletRequest request) throws Exception {
+    public @ResponseBody
+    String getPDF(@RequestParam(value = "idNotificacion", required = true) String idNotificacion, HttpServletRequest request) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PDDocument doc = new PDDocument();
         DaNotificacion not = daNotificacionService.getNotifById(idNotificacion);
         String res = null;
-        if(not != null){
-            if(not.getCodTipoNotificacion().getCodigo().equals("TPNOTI|SINFEB")){
+        if (not != null) {
+            //if (not.getCodTipoNotificacion().getCodigo().equals("TPNOTI|SINFEB")) {
+            if (not.getCodTipoNotificacion().equals("TPNOTI|SINFEB")) {
                 DaSindFebril febril = sindFebrilService.getDaSindFebril(idNotificacion);
 
 
@@ -708,25 +823,27 @@ public class SindFebrilController {
                     PDPageContentStream stream = new PDPageContentStream(doc, page);
                     float xCenter;
 
-                    String urlServer = "http://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath();
-                    URL url = new URL(urlServer+"/resources/img/fichas/fichaFebril.png");
+                    String urlServer = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+                    URL url = new URL(urlServer + "/resources/img/fichas/fichaFebril.png");
 
                     BufferedImage image = ImageIO.read(url);
 
-                    GeneralUtils.drawObject(stream,doc,image,20,30,545,745);
-                    String silais = (febril.getIdNotificacion().getCodSilaisAtencion()!=null?febril.getIdNotificacion().getCodSilaisAtencion().getNombre():null);
+                    GeneralUtils.drawObject(stream, doc, image, 20, 30, 545, 745);
+                    String silais = (febril.getIdNotificacion().getCodSilaisAtencion() != null ? febril.getIdNotificacion().getCodSilaisAtencion().getNombre() : null);
 
-                    String nombreS = silais != null ? silais.replace("SILAIS", ""): "----";
-                    String municipio = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getNombre(): "----";
-                    String us = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getCodUnidadAtencion().getNombre(): "----";
-                    String nExp = febril.getCodExpediente() != null ? febril.getCodExpediente(): "----------";
+                    String nombreS = silais != null ? silais.replace("SILAIS", "") : "----";
+                    //String municipio = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getCodUnidadAtencion().getMunicipio().getNombre() : "----";
+                    String municipio = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getNombreMunicipioResidencia() : "----";
+                    //String us = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getCodUnidadAtencion().getNombre() : "----";
+                    String us = febril.getIdNotificacion().getCodUnidadAtencion() != null ? febril.getIdNotificacion().getNombreUnidadAtencion() : "----";
+                    String nExp = febril.getCodExpediente() != null ? febril.getCodExpediente() : "----------";
                     //laboratorio pendiente
-                    String fecha = febril.getFechaFicha() != null ? DateUtil.DateToString(febril.getFechaFicha(),"yyyy/MM/dd"): null;
-                    String[] array = fecha != null ?  fecha.split("/"): null;
+                    String fecha = febril.getFechaFicha() != null ? DateUtil.DateToString(febril.getFechaFicha(), "yyyy/MM/dd") : null;
+                    String[] array = fecha != null ? fecha.split("/") : null;
 
-                    String dia = array != null ? array[2]: "--";
-                    String mes = array != null ? array[1]: "--";
-                    String anio = array != null ? array[0]: "--";
+                    String dia = array != null ? array[2] : "--";
+                    String mes = array != null ? array[1] : "--";
+                    String anio = array != null ? array[0] : "--";
                     String nombrePersona = null;
 
                     nombrePersona = febril.getIdNotificacion().getPersona().getPrimerNombre();
@@ -736,43 +853,47 @@ public class SindFebrilController {
                     if (febril.getIdNotificacion().getPersona().getSegundoApellido() != null)
                         nombrePersona = nombrePersona + " " + febril.getIdNotificacion().getPersona().getSegundoApellido();
 
-                    String edad= null;
-                    if(febril.getIdNotificacion().getPersona().getFechaNacimiento() != null && febril.getFechaFicha() != null){
-                        edad= DateUtil.calcularEdad(febril.getIdNotificacion().getPersona().getFechaNacimiento(), febril.getFechaFicha());
+                    String edad = null;
+                    if (febril.getIdNotificacion().getPersona().getFechaNacimiento() != null && febril.getFechaFicha() != null) {
+                        edad = DateUtil.calcularEdad(febril.getIdNotificacion().getPersona().getFechaNacimiento(), febril.getFechaFicha());
                     }
 
-                    String[] edadDias = edad != null ? edad.split("/"): null;
-                    String anios = edadDias != null ? edadDias[0]:"--";
-                    String meses = edadDias != null ? edadDias[1]:"--";
+                    String[] edadDias = edad != null ? edad.split("/") : null;
+                    String anios = edadDias != null ? edadDias[0] : "--";
+                    String meses = edadDias != null ? edadDias[1] : "--";
 
-                    String fNac = febril.getIdNotificacion().getPersona().getFechaNacimiento() != null ? DateUtil.DateToString(febril.getIdNotificacion().getPersona().getFechaNacimiento(), "yyyy/MM/dd"): null;
-                    String[] fechaNac = fNac != null ? fNac.split("/"): null;
-                    String anioNac = fechaNac != null ? fechaNac[0]: "--";
-                    String mesNac = fechaNac != null ? fechaNac[1]: "--";
-                    String diaNac = fechaNac != null ? fechaNac[2]:"--";
+                    String fNac = febril.getIdNotificacion().getPersona().getFechaNacimiento() != null ? DateUtil.DateToString(febril.getIdNotificacion().getPersona().getFechaNacimiento(), "yyyy/MM/dd") : null;
+                    String[] fechaNac = fNac != null ? fNac.split("/") : null;
+                    String anioNac = fechaNac != null ? fechaNac[0] : "--";
+                    String mesNac = fechaNac != null ? fechaNac[1] : "--";
+                    String diaNac = fechaNac != null ? fechaNac[2] : "--";
 
-                    String sexo = febril.getIdNotificacion().getPersona().getSexo() != null ? febril.getIdNotificacion().getPersona().getSexo().getValor(): null;
+                    //String sexo = febril.getIdNotificacion().getPersona().getSexo() != null ? febril.getIdNotificacion().getPersona().getSexo().getValor() : null;
+                    String sexo = febril.getIdNotificacion().getPersona().getCodigoSexo() != null ? febril.getIdNotificacion().getPersona().getCodigoSexo() : null;
 
-                    String ocupacion = febril.getIdNotificacion().getPersona().getOcupacion() != null? febril.getIdNotificacion().getPersona().getOcupacion().getNombre(): "----------";
+                    //String ocupacion = febril.getIdNotificacion().getPersona().getOcupacion() != null ? febril.getIdNotificacion().getPersona().getOcupacion().getNombre() : "----------";
+                    //String ocupacion = febril.getIdNotificacion().getPersona().getOcupacion() != null ? febril.getIdNotificacion().getPersona().getOcupacion() : "----------";
 
-                    String tutor = febril.getNombPadre() != null? febril.getNombPadre(): "----------";
+                    String tutor = febril.getNombPadre() != null ? febril.getNombPadre() : "----------";
 
-                    String direccion = febril.getIdNotificacion().getDireccionResidencia() != null? febril.getIdNotificacion().getDireccionResidencia(): (febril.getIdNotificacion().getPersona().getDireccionResidencia()!=null?febril.getIdNotificacion().getPersona().getDireccionResidencia():"----------");//18072019
+                    String direccion = febril.getIdNotificacion().getDireccionResidencia() != null ? febril.getIdNotificacion().getDireccionResidencia() : (febril.getIdNotificacion().getPersona().getDireccionResidencia() != null ? febril.getIdNotificacion().getPersona().getDireccionResidencia() : "----------");//18072019
 
-                    String procedencia = febril.getCodProcedencia() != null? febril.getCodProcedencia().getValor(): null;
+                    //String procedencia = febril.getCodProcedencia() != null ? febril.getCodProcedencia().getValor() : null;
+                    String procedencia = febril.getCodProcedencia() != null ? febril.getCodProcedencia() : null;
 
-                    String viaje = febril.getViaje() != null? febril.getViaje().getValor() : "----";
+                    //String viaje = febril.getViaje() != null ? febril.getViaje().getValor() : "----";
+                    String viaje = febril.getViaje() != null ? febril.getViaje() : "----";
 
-                    String donde = febril.getDondeViaje() != null? febril.getDondeViaje(): "----------";
+                    String donde = febril.getDondeViaje() != null ? febril.getDondeViaje() : "----------";
 
-                    String emb = febril.getEmbarazo() != null? febril.getEmbarazo().getValor(): "----";
+                    //String emb = febril.getEmbarazo() != null ? febril.getEmbarazo().getValor() : "----";
+                    String emb = febril.getEmbarazo() != null ? febril.getEmbarazo() : "----";
 
-                    String mesesEmb = febril.getMesesEmbarazo() != 0 ? String.valueOf(febril.getMesesEmbarazo()): "--";
+                    String mesesEmb = febril.getMesesEmbarazo() != 0 ? String.valueOf(febril.getMesesEmbarazo()) : "--";
 
-                    String enfCronica = febril.getEnfCronica() != null ? febril.getEnfCronica():null;
+                    String enfCronica = febril.getEnfCronica() != null ? febril.getEnfCronica() : null;
 
-                    String numFicha = febril.getNumFicha()!= null? febril.getNumFicha():null;
-
+                    String numFicha = febril.getNumFicha() != null ? febril.getNumFicha() : null;
 
 
                     boolean asma = false;
@@ -795,7 +916,7 @@ public class SindFebrilController {
                             diab = true;
                         }
                         if (enfCronica.contains("CRONICAS|OTRA")) {
-                           otra = true;
+                            otra = true;
                         }
 
                         if (enfCronica.contains("CRONICAS|NING")) {
@@ -804,14 +925,14 @@ public class SindFebrilController {
 
                     }
 
-                    String eAguda = febril.getEnfAgudaAdicional() != null? febril.getEnfAgudaAdicional(): null;
+                    String eAguda = febril.getEnfAgudaAdicional() != null ? febril.getEnfAgudaAdicional() : null;
 
                     boolean neumonia = false;
                     boolean malaria = false;
                     boolean infeccionV = false;
                     boolean otraAguda = false;
 
-                    if(eAguda != null){
+                    if (eAguda != null) {
                         if (eAguda.contains("AGUDAS|NEU")) {
                             neumonia = true;
                         }
@@ -826,32 +947,32 @@ public class SindFebrilController {
                         }
                     }
 
-                    String fAgua = febril.getFuenteAgua() != null ? febril.getFuenteAgua(): null;
+                    String fAgua = febril.getFuenteAgua() != null ? febril.getFuenteAgua() : null;
 
                     boolean aguaP = false;
                     boolean puestoP = false;
                     boolean pozo = false;
                     boolean rio = false;
 
-                    if(fAgua != null){
-                        if(fAgua.contains("AGUA|APP")){
+                    if (fAgua != null) {
+                        if (fAgua.contains("AGUA|APP")) {
                             aguaP = true;
                         }
 
-                        if(fAgua.contains("AGUA|PP")){
+                        if (fAgua.contains("AGUA|PP")) {
                             puestoP = true;
                         }
 
-                        if(fAgua.contains("AGUA|POZO")){
+                        if (fAgua.contains("AGUA|POZO")) {
                             pozo = true;
                         }
 
-                        if(fAgua.contains("AGUA|RIO")){
+                        if (fAgua.contains("AGUA|RIO")) {
                             rio = true;
                         }
                     }
 
-                    String animales = febril.getAnimales() != null ? febril.getAnimales(): null;
+                    String animales = febril.getAnimales() != null ? febril.getAnimales() : null;
                     boolean perros = false;
                     boolean gatos = false;
                     boolean cerdos = false;
@@ -860,51 +981,51 @@ public class SindFebrilController {
                     boolean ratas = false;
                     boolean otrosAnim = false;
 
-                    if(animales != null){
-                        if(animales.contains("ANIM|PERRO")){
+                    if (animales != null) {
+                        if (animales.contains("ANIM|PERRO")) {
                             perros = true;
                         }
-                        if(animales.contains("ANIM|GATO")){
+                        if (animales.contains("ANIM|GATO")) {
                             gatos = true;
                         }
-                        if(animales.contains("ANIM|CERDO")){
+                        if (animales.contains("ANIM|CERDO")) {
                             cerdos = true;
                         }
-                        if(animales.contains("ANIM|GANADO")){
+                        if (animales.contains("ANIM|GANADO")) {
                             ganado = true;
                         }
-                        if(animales.contains("ANIM|RATON")){
-                           ratones = true;
+                        if (animales.contains("ANIM|RATON")) {
+                            ratones = true;
                         }
-                        if(animales.contains("ANIM|RATA")){
+                        if (animales.contains("ANIM|RATA")) {
                             ratas = true;
                         }
-                        if(animales.contains("ANIM|OTRA")){
+                        if (animales.contains("ANIM|OTRA")) {
                             otrosAnim = true;
                         }
 
                     }
 
-                    String fis = febril.getIdNotificacion().getFechaInicioSintomas() != null? DateUtil.DateToString(febril.getIdNotificacion().getFechaInicioSintomas(), "yyyy/MM/dd"): null;
-                    String dsa = febril.getSsDSA() != null? febril.getSsDSA(): null;
+                    String fis = febril.getIdNotificacion().getFechaInicioSintomas() != null ? DateUtil.DateToString(febril.getIdNotificacion().getFechaInicioSintomas(), "yyyy/MM/dd") : null;
+                    String dsa = febril.getSsDSA() != null ? febril.getSsDSA() : null;
 
                     List<DaTomaMx> muestras = tomaMxService.getTomaMxActivaByIdNoti(febril.getIdNotificacion().getIdNotificacion());
-                    String[] fechaTM =  null;
+                    String[] fechaTM = null;
                     String anioTM = "--";
-                    String mesTM =  "--";
-                    String diaTM =  "--";
-                    if (muestras.size()>0){
-                        String fechaTomaMx = muestras.get(0).getFechaHTomaMx() != null?DateUtil.DateToString(muestras.get(0).getFechaHTomaMx(), "yyyy/MM/dd"):null;
-                        if (fechaTomaMx!=null) fechaTM = fechaTomaMx.split("/");
-                        anioTM = fechaTM != null ? fechaTM[0]: "--";
-                        mesTM = fechaTM != null ? fechaTM[1]: "--";
-                        diaTM = fechaTM != null ? fechaTM[2]:"--";
+                    String mesTM = "--";
+                    String diaTM = "--";
+                    if (muestras.size() > 0) {
+                        String fechaTomaMx = muestras.get(0).getFechaHTomaMx() != null ? DateUtil.DateToString(muestras.get(0).getFechaHTomaMx(), "yyyy/MM/dd") : null;
+                        if (fechaTomaMx != null) fechaTM = fechaTomaMx.split("/");
+                        anioTM = fechaTM != null ? fechaTM[0] : "--";
+                        mesTM = fechaTM != null ? fechaTM[1] : "--";
+                        diaTM = fechaTM != null ? fechaTM[2] : "--";
                     }
 
-                    String[] fechaFis = fis != null ? fis.split("/"): null;
-                    String anioFis = fechaFis != null ? fechaFis[0]: "--";
-                    String mesFis = fechaFis != null ? fechaFis[1]: "--";
-                    String diaFis = fechaFis != null ? fechaFis[2]:"--";
+                    String[] fechaFis = fis != null ? fis.split("/") : null;
+                    String anioFis = fechaFis != null ? fechaFis[0] : "--";
+                    String mesFis = fechaFis != null ? fechaFis[1] : "--";
+                    String diaFis = fechaFis != null ? fechaFis[2] : "--";
 
                     boolean fiebre = false;
                     boolean cefalea = false;
@@ -915,94 +1036,94 @@ public class SindFebrilController {
                     boolean rash = false;
                     boolean pruebaTorn = false;
 
-                    if(dsa != null){
-                       if(dsa.contains("DSSA|FIE")){
-                        fiebre = true;
-                       }
-                        if(dsa.contains("DSSA|CEF")){
-                        cefalea = true;
+                    if (dsa != null) {
+                        if (dsa.contains("DSSA|FIE")) {
+                            fiebre = true;
                         }
-                        if(dsa.contains("DSSA|MIA")){
-                        mialgias = true;
+                        if (dsa.contains("DSSA|CEF")) {
+                            cefalea = true;
                         }
-
-                        if(dsa.contains("DSSA|DRO")){
-                        dolorRetro = true;
-                        }
-                        if(dsa.contains("DSSA|NAU")){
-                        nauseas = true;
-                        }
-                        if(dsa.contains("DSSA|RAS")){
-                        rash = true;
-                        }
-                        if(dsa.contains("DSSA|PTO")){
-                        pruebaTorn = true;
+                        if (dsa.contains("DSSA|MIA")) {
+                            mialgias = true;
                         }
 
-                        if(dsa.contains("DSSA|ART")){
-                        artralgias = true;
+                        if (dsa.contains("DSSA|DRO")) {
+                            dolorRetro = true;
+                        }
+                        if (dsa.contains("DSSA|NAU")) {
+                            nauseas = true;
+                        }
+                        if (dsa.contains("DSSA|RAS")) {
+                            rash = true;
+                        }
+                        if (dsa.contains("DSSA|PTO")) {
+                            pruebaTorn = true;
+                        }
+
+                        if (dsa.contains("DSSA|ART")) {
+                            artralgias = true;
                         }
                     }
 
-                    String dcsa = febril.getSsDCA() != null? febril.getSsDCA(): null;
+                    String dcsa = febril.getSsDCA() != null ? febril.getSsDCA() : null;
                     boolean dolorAbd = false;
                     boolean vomitos = false;
                     boolean hemorragias = false;
                     boolean letargia = false;
                     boolean hepatomegalia = false;
                     boolean acumulacion = false;
-                    if(dcsa != null){
-                        if(dcsa.contains("DCSA|ABD")){
-                        dolorAbd = true;
+                    if (dcsa != null) {
+                        if (dcsa.contains("DCSA|ABD")) {
+                            dolorAbd = true;
                         }
 
-                        if(dcsa.contains("DCSA|VOM")){
-                        vomitos = true;
+                        if (dcsa.contains("DCSA|VOM")) {
+                            vomitos = true;
                         }
 
-                        if(dcsa.contains("DCSA|HEM")){
-                        hemorragias = true;
+                        if (dcsa.contains("DCSA|HEM")) {
+                            hemorragias = true;
                         }
 
-                        if(dcsa.contains("DCSA|LET")){
-                        letargia = true;
+                        if (dcsa.contains("DCSA|LET")) {
+                            letargia = true;
                         }
 
-                        if(dcsa.contains("DCSA|HEP")){
-                        hepatomegalia = true;
+                        if (dcsa.contains("DCSA|HEP")) {
+                            hepatomegalia = true;
                         }
 
-                        if(dcsa.contains("DCSA|ACU")){
-                        acumulacion = true;
+                        if (dcsa.contains("DCSA|ACU")) {
+                            acumulacion = true;
                         }
 
                     }
 
-                    String dengueGrave = febril.getSsDS() != null ? febril.getSsDS():null;
+                    String dengueGrave = febril.getSsDS() != null ? febril.getSsDS() : null;
                     boolean pinzamiento = false;
                     boolean hipotension = false;
                     boolean shock = false;
                     boolean distres = false;
                     boolean fallaOrg = false;
-                    if(dengueGrave != null){
+                    if (dengueGrave != null) {
                         if (dengueGrave.contains("DGRA|PIN")) {
-                        pinzamiento = true;
+                            pinzamiento = true;
                         }
 
                         if (dengueGrave.contains("DGRA|HIP")) {
-                        hipotension = true;
+                            hipotension = true;
                         }
 
                         if (dengueGrave.contains("DGRA|SHO")) {
-                        shock = true;
+                            shock = true;
                         }
 
                         if (dengueGrave.contains("DGRA|DIS")) {
-                        distres = true;
+                            distres = true;
                         }
 
                         if (dengueGrave.contains("DGRA|ORG")) {
-                        fallaOrg = true;
+                            fallaOrg = true;
                         }
                     }
 
@@ -1125,33 +1246,35 @@ public class SindFebrilController {
                         }
                     }
 
-                    String hospitalizado = febril.getHosp() != null ? febril.getHosp().getValor(): "----";
+                    //String hospitalizado = febril.getHosp() != null ? febril.getHosp().getValor() : "----";
+                    String hospitalizado = febril.getHosp() != null ? febril.getHosp() : "----";
 
-                    String fechaIngreso = febril.getFechaIngreso() != null? DateUtil.DateToString(febril.getFechaIngreso(), "yyyy/MM/dd"): null;
+                    String fechaIngreso = febril.getFechaIngreso() != null ? DateUtil.DateToString(febril.getFechaIngreso(), "yyyy/MM/dd") : null;
 
 
-                    String[] fechaIn = fechaIngreso != null ? fechaIngreso.split("/"): null;
-                    String anioIn = fechaIn != null ? fechaIn[0]: "--";
-                    String mesIn = fechaIn != null ? fechaIn[1]: "--";
-                    String diaIn = fechaIn != null ? fechaIn[2]:"--";
+                    String[] fechaIn = fechaIngreso != null ? fechaIngreso.split("/") : null;
+                    String anioIn = fechaIn != null ? fechaIn[0] : "--";
+                    String mesIn = fechaIn != null ? fechaIn[1] : "--";
+                    String diaIn = fechaIn != null ? fechaIn[2] : "--";
 
-                    String fallecido = febril.getFallecido() != null ? febril.getFallecido().getValor(): "--";
+                    //String fallecido = febril.getFallecido() != null ? febril.getFallecido().getValor() : "--";
+                    String fallecido = febril.getFallecido() != null ? febril.getFallecido() : "--";
 
-                    String fechaFallecido = febril.getFechaFallecido() != null? DateUtil.DateToString(febril.getFechaFallecido(), "yyyy/MM/dd"): null;
+                    String fechaFallecido = febril.getFechaFallecido() != null ? DateUtil.DateToString(febril.getFechaFallecido(), "yyyy/MM/dd") : null;
 
-                    String[] fechaFa = fechaFallecido != null ? fechaFallecido.split("/"): null;
-                    String anioFa = fechaFa != null ? fechaFa[0]: "--";
-                    String mesFa = fechaFa != null ? fechaFa[1]: "--";
-                    String diaFa = fechaFa != null ? fechaFa[2]:"--";
+                    String[] fechaFa = fechaFallecido != null ? fechaFallecido.split("/") : null;
+                    String anioFa = fechaFa != null ? fechaFa[0] : "--";
+                    String mesFa = fechaFa != null ? fechaFa[1] : "--";
+                    String diaFa = fechaFa != null ? fechaFa[2] : "--";
 
-                    String dxPresuntivo = febril.getDxPresuntivo()!= null ? febril.getDxPresuntivo(): "----------";
-                    String temp = febril.getTemperatura()!= null? febril.getTemperatura().toString(): "--";
-                    String pad = febril.getPad()!= null? febril.getPad().toString():"--";
-                    String pas = febril.getPas()!= null? febril.getPas().toString():"--";
+                    String dxPresuntivo = febril.getDxPresuntivo() != null ? febril.getDxPresuntivo() : "----------";
+                    String temp = febril.getTemperatura() != null ? febril.getTemperatura().toString() : "--";
+                    String pad = febril.getPad() != null ? febril.getPad().toString() : "--";
+                    String pas = febril.getPas() != null ? febril.getPas().toString() : "--";
 
-                    String dxFinal = febril.getDxFinal() != null ? febril.getDxFinal() :"----------";
+                    String dxFinal = febril.getDxFinal() != null ? febril.getDxFinal() : "----------";
 
-                    String personFilledTab = febril.getNombreLlenoFicha() != null? febril.getNombreLlenoFicha(): "----------";
+                    String personFilledTab = febril.getNombreLlenoFicha() != null ? febril.getNombreLlenoFicha() : "----------";
 
 
                     float y = 667;
@@ -1160,623 +1283,615 @@ public class SindFebrilController {
                     float x = 86;
                     float x1 = 86;
                     float y3 = 0;
-                    if(numFicha!= null){
-                        GeneralUtils.drawTEXT(numFicha, y+18, x+405, stream,7, PDType1Font.TIMES_ROMAN);
+                    if (numFicha != null) {
+                        GeneralUtils.drawTEXT(numFicha, y + 18, x + 405, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     }
 
-                    GeneralUtils.drawTEXT(nombreS, y, x, stream,7, PDType1Font.TIMES_ROMAN);
-                    x1+= 122;
-                    GeneralUtils.drawTEXT(municipio,y,x1,stream, 7, PDType1Font.TIMES_ROMAN);
-                    x1+= 160;
-                    GeneralUtils.drawTEXT(us,y,x1,stream, 7, PDType1Font.TIMES_ROMAN);
-                    y-= m;
+                    GeneralUtils.drawTEXT(nombreS, y, x, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 += 122;
+                    GeneralUtils.drawTEXT(municipio, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 += 160;
+                    GeneralUtils.drawTEXT(us, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    y -= m;
                     x1 = x + 45;
-                    GeneralUtils.drawTEXT(nExp,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(nExp, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 += 199;
-                    GeneralUtils.drawTEXT(dia,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
-                    x1+= 23;
-                    GeneralUtils.drawTEXT(mes,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
-                    x1+= 25;
-                    GeneralUtils.drawTEXT(anio,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(dia, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 += 23;
+                    GeneralUtils.drawTEXT(mes, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 += 25;
+                    GeneralUtils.drawTEXT(anio, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-=28;
+                    y -= 28;
                     x1 = x + 55;
-                    GeneralUtils.drawTEXT(nombrePersona,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(nombrePersona, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-= 9;
+                    y -= 9;
                     x1 = x - 3;
-                    GeneralUtils.drawTEXT(anios,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(anios, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 += 16;
-                    GeneralUtils.drawTEXT(meses,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(meses, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 += 102;
-                    GeneralUtils.drawTEXT(diaNac,y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(diaNac, y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
                     x1 += 15;
-                    GeneralUtils.drawTEXT(mesNac,y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(mesNac, y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
                     x1 += 13;
-                    GeneralUtils.drawTEXT(anioNac,y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(anioNac, y, x1, stream, 6, PDType1Font.TIMES_ROMAN);
 
-                    if(sexo != null){
-                        if(sexo.equals("Hombre")){
+                    if (sexo != null) {
+                        if (sexo.equals("Hombre")) {
                             x1 += 78;
-                            GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null),y, x1, stream, 7, PDType1Font.TIMES_BOLD);
-                        }else if(sexo.equals("Mujer")){
+                            GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
+                        } else if (sexo.equals("Mujer")) {
                             x1 += 58;
-                            GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null),y, x1, stream, 7, PDType1Font.TIMES_BOLD);
+                            GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
 
                         }
                     }
 
-                    x1 = x +290;
-                    GeneralUtils.drawTEXT(ocupacion,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 = x + 290;
+                    //GeneralUtils.drawTEXT(ocupacion, y, x1, stream, 7, PDType1Font.TIMES_ROMAN); PENDIENTE
 
-                    y-= m;
+                    y -= m;
                     x1 = x + 75;
-                    GeneralUtils.drawTEXT(tutor,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(tutor, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-= 9;
-                    x1 = x+15;
-                    GeneralUtils.drawTEXT(direccion,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    y -= 9;
+                    x1 = x + 15;
+                    GeneralUtils.drawTEXT(direccion, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     y -= 9;
                     if (procedencia != null) {
                         if (procedencia.equals("Urbano")) {
 
-                            x1 = x+55;
+                            x1 = x + 55;
                             GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                         } else if (procedencia.equals("Rural")) {
-                            x1 = x+98;
+                            x1 = x + 98;
                             GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                         }
 
                     }
 
-                    x1 = x +210;
-                    GeneralUtils.drawTEXT(viaje,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    x1 = x + 210;
+                    GeneralUtils.drawTEXT(viaje, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 += 58;
-                    GeneralUtils.drawTEXT(donde,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(donde, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
 
-                    y-= 9;
-                    x1 = x+25;
-                    GeneralUtils.drawTEXT(emb,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    y -= 9;
+                    x1 = x + 25;
+                    GeneralUtils.drawTEXT(emb, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 += 100;
-                    GeneralUtils.drawTEXT(mesesEmb,y, x1, stream, 7, PDType1Font.COURIER);
+                    GeneralUtils.drawTEXT(mesesEmb, y, x1, stream, 7, PDType1Font.COURIER);
 
                     if (ninguna) {
-                        x1 +=  141;
+                        x1 += 141;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.none", null, null), y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     }
 
-                    if(asma){
-                        x1 = x+350;
+                    if (asma) {
+                        x1 = x + 350;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    y-= 9;
-                    if(alergiaR){
-                        x1 = x+15;
+                    y -= 9;
+                    if (alergiaR) {
+                        x1 = x + 15;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(alergiaD){
-                        x1 = x+117;
+                    if (alergiaD) {
+                        x1 = x + 117;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(diab){
-                        x1 = x+175;
+                    if (diab) {
+                        x1 = x + 175;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(otra){
-                        x1+= 110;
+                    if (otra) {
+                        x1 += 110;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(neumonia){
-                        x1 = x+420;
+                    if (neumonia) {
+                        x1 = x + 420;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    y-= 9;
-                    if(malaria){
-                        x1 = x+8;
+                    y -= 9;
+                    if (malaria) {
+                        x1 = x + 8;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(infeccionV){
-                        x1 = x+115;
+                    if (infeccionV) {
+                        x1 = x + 115;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(otraAguda){
-                        x1 = x+175;
+                    if (otraAguda) {
+                        x1 = x + 175;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    y-= 28;
+                    y -= 28;
 
-                    if(aguaP){
-                        x1 = x+143;
+                    if (aguaP) {
+                        x1 = x + 143;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
 
-                    }else{
-                        x1 = x+171;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(puestoP){
-                        x1 = x+260;
+                    } else {
+                        x1 = x + 171;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(pozo){
-                        x1 = x+318;
+                    if (puestoP) {
+                        x1 = x + 260;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(rio){
-                        x1 = x+370;
+                    if (pozo) {
+                        x1 = x + 318;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (rio) {
+                        x1 = x + 370;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-= 9;
+                    y -= 9;
 
-                    if(perros){
-                        x1 = x+130;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
-
-                    }
-
-                    if(gatos){
-                        x1 = x+172;
+                    if (perros) {
+                        x1 = x + 130;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
 
                     }
 
-                    if(cerdos){
-                        x1 = x+220;
+                    if (gatos) {
+                        x1 = x + 172;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
 
                     }
 
-                    if(ganado){
-                        x1 = x+272;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(ratones){
-                        x1 = x+323;
+                    if (cerdos) {
+                        x1 = x + 220;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
 
                     }
 
-                    if(ratas){
-                        x1 = x+365;
+                    if (ganado) {
+                        x1 = x + 272;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(otrosAnim){
-                        x1 = x+405;
+                    if (ratones) {
+                        x1 = x + 323;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
+
+                    }
+
+                    if (ratas) {
+                        x1 = x + 365;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
                     }
 
-                    y-= 37;
+                    if (otrosAnim) {
+                        x1 = x + 405;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.x", null, null), y, x1, stream, 7, PDType1Font.TIMES_BOLD);
+                    }
+
+                    y -= 37;
                     x1 = x + 88;
-                    GeneralUtils.drawTEXT(diaFis,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(diaFis, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 115;
-                    GeneralUtils.drawTEXT(mesFis,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(mesFis, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 150;
-                    GeneralUtils.drawTEXT(anioFis,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(anioFis, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 = x + 300;
-                    GeneralUtils.drawTEXT(diaTM,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(diaTM, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 325;
-                    GeneralUtils.drawTEXT(mesTM,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(mesTM, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 345;
-                    GeneralUtils.drawTEXT(anioTM,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(anioTM, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-= 22;
+                    y -= 22;
                     x1 = x + 25;
-                    GeneralUtils.drawTEXT(temp,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(temp, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 140;
-                    GeneralUtils.drawTEXT(pas,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(pas, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 = x + 170;
-                    GeneralUtils.drawTEXT(pad,y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
+                    GeneralUtils.drawTEXT(pad, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-= 47;
-                    if(fiebre){
-                        x1 = x+90;
+                    y -= 47;
+                    if (fiebre) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
+                    } else {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(dolorAbd){
-                        x1 = x+275;
+                    if (dolorAbd) {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-
-                    if(pinzamiento){
-                        x1 = x+388;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+388;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    y-= 9;
-                    if(cefalea){
-                        x1 = x+90;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(vomitos){
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    if(hipotension){
-                        x1 = x+388;
+                    if (pinzamiento) {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+388;
+                    } else {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    y-= 10;
-                    if(mialgias){
-                        x1 = x+90;
+                    y -= 9;
+                    if (cefalea) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
+                    } else {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-
-                    if(hemorragias){
-                        x1 = x+275;
+                    if (vomitos) {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-
-                    if(shock){
-                        x1 = x+388;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+388;
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-
-                    y-= 10;
-                    if(artralgias){
-                        x1 = x+90;
+                    if (hipotension) {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
+                    } else {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(letargia){
-                        x1 = x+275;
+                    y -= 10;
+                    if (mialgias) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-
-                    if(distres){
-                        x1 = x+388;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+388;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    y-= 9;
-                    if(dolorRetro){
-                        x1 = x+90;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(hepatomegalia){
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
+                    } else {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    if(fallaOrg){
-                        x1 = x+388;
+                    if (hemorragias) {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+388;
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-
-                    y-= 9;
-                    if(nauseas){
-                        x1 = x+90;
+                    if (shock) {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(acumulacion){
-                        x1 = x+275;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+275;
+                    } else {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-
-                    y-= 10;
-                    if(rash){
-                        x1 = x+90;
+                    y -= 10;
+                    if (artralgias) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
+                    } else {
+                        x1 = x + 90;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (letargia) {
+                        x1 = x + 275;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-= 9;
-                    if(pruebaTorn){
-                        x1 = x+90;
+                    if (distres) {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+90;
+                    } else {
+                        x1 = x + 388;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    y -= 9;
+                    if (dolorRetro) {
+                        x1 = x + 90;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 90;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (hepatomegalia) {
+                        x1 = x + 275;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-=37;
-
-                    if(cefaleaIn){
-                        x1 = x+127;
+                    if (fallaOrg) {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(difResp){
-                        x1 = x+264;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+264;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(fiebreChik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 388;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-=10;
-
-                    if(tos){
-                        x1 = x+127;
+                    y -= 9;
+                    if (nauseas) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
+                    } else {
+                        x1 = x + 90;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (acumulacion) {
+                        x1 = x + 275;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 275;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    if(hip2){
-                        x1 = x+264;
+                    y -= 10;
+                    if (rash) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+264;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(artritisChik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-
-                    y-=9;
-
-                    if(ictericia){
-                        x1 = x+127;
+                    y -= 9;
+                    if (pruebaTorn) {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
+                    } else {
+                        x1 = x + 90;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    if(dAbdIn){
-                        x1 = x+264;
+                    y -= 37;
+
+                    if (cefaleaIn) {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+264;
+                    } else {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(artralgiasChik){
-                        x1 = x+410;
+                    if (difResp) {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-
-
-                    y-=9;
-
-                    if(oliguria){
-                        x1 = x+127;
+                    if (fiebreChik) {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-
-                    if(dLumbar){
-                        x1 = x+264;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+264;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(edemaChik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
+                    y -= 10;
 
-                    y-=9;
-
-                    if(escalofrio){
-                        x1 = x+127;
+                    if (tos) {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
+                    } else {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    if(oliguria2){
-                        x1 = x+264;
+                    if (hip2) {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+264;
+                    } else {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(maniChik){
-                        x1 = x+410;
+                    if (artritisChik) {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-
-
-                    y-=10;
-
-                    if(dolorPant){
-                        x1 = x+127;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(mialgiaCHik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-=9;
+                    y -= 9;
 
-                    if(hematuria){
-                        x1 = x+127;
+                    if (ictericia) {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    if(dEspChik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 127;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
-                    y-=10;
-
-                    if(congestion){
-                        x1 = x+127;
+                    if (dAbdIn) {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+127;
+                    } else {
+                        x1 = x + 264;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
-                    if(cefaleaChik){
-                        x1 = x+410;
+                    if (artralgiasChik) {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }
-
-                    y-=10;
-
-                    if(meninChik){
-                        x1 = x+410;
-                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
-                    }else{
-                        x1 = x+410;
+                    } else {
+                        x1 = x + 410;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
                     }
 
 
+                    y -= 9;
 
-                    y-=27;
-                    x1 = x+ 35;
+                    if (oliguria) {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    if (dLumbar) {
+                        x1 = x + 264;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 264;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (edemaChik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    y -= 9;
+
+                    if (escalofrio) {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    if (oliguria2) {
+                        x1 = x + 264;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 264;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (maniChik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    y -= 10;
+
+                    if (dolorPant) {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (mialgiaCHik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    y -= 9;
+
+                    if (hematuria) {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (dEspChik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    y -= 10;
+
+                    if (congestion) {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 127;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    if (cefaleaChik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+                    y -= 10;
+
+                    if (meninChik) {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.yes", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    } else {
+                        x1 = x + 410;
+                        GeneralUtils.drawTEXT(messageSource.getMessage("lbl.abbreviation.no", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
+                    }
+
+
+                    y -= 27;
+                    x1 = x + 35;
                     GeneralUtils.drawTEXT(hospitalizado, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     x1 += 83;
                     GeneralUtils.drawTEXT(diaIn, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
@@ -1785,7 +1900,7 @@ public class SindFebrilController {
                     x1 += 30;
                     GeneralUtils.drawTEXT(anioIn, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    x1 = x+ 240;
+                    x1 = x + 240;
                     GeneralUtils.drawTEXT(fallecido, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
                     x1 += 88;
@@ -1795,11 +1910,11 @@ public class SindFebrilController {
                     x1 += 20;
                     GeneralUtils.drawTEXT(anioFa, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-=20;
-                    x1 = x+ 70;
+                    y -= 20;
+                    x1 = x + 70;
                     GeneralUtils.drawTEXT(dxPresuntivo, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    y-=26;
+                    y -= 26;
 
                     //load all the request by notification
 
@@ -1809,17 +1924,17 @@ public class SindFebrilController {
                     float y1 = 0;
 
 
-                    if(!diagnosticosList.isEmpty() || !estudiosList.isEmpty()){
+                    if (!diagnosticosList.isEmpty() || !estudiosList.isEmpty()) {
                         stream.close();
                         page = new PDPage(PDPage.PAGE_SIZE_A4);
                         doc.addPage(page);
                         stream = new PDPageContentStream(doc, page);
 
                         y = 770;
-                        x1 = x -35;
+                        x1 = x - 35;
                         GeneralUtils.drawTEXT(messageSource.getMessage("lbl.febril.lab.data", null, null), y, x1, stream, 8, PDType1Font.TIMES_BOLD);
 
-                        y-=10;
+                        y -= 10;
 
                         if (!diagnosticosList.isEmpty()) {
                             int con = 0;
@@ -1847,7 +1962,8 @@ public class SindFebrilController {
                                     //first record
                                     if (cont == 1) {
                                         if (det.getRespuesta() != null) {
-                                            if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
                                                 rFinal = det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
@@ -1855,7 +1971,8 @@ public class SindFebrilController {
                                                 rFinal = det.getRespuesta().getNombre() + ":" + " " + det.getValor();
                                             }
                                         } else {
-                                            if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
                                                 rFinal = det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
 
@@ -1867,20 +1984,22 @@ public class SindFebrilController {
                                         //no first record
                                     } else {
                                         if (det.getRespuesta() != null) {
-                                            if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
-                                                rFinal += "," + " "+ det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
+                                                rFinal += "," + " " + det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
                                             } else {
-                                                rFinal += "," + " "+ det.getRespuesta().getNombre() + ":" + " " + det.getValor();
+                                                rFinal += "," + " " + det.getRespuesta().getNombre() + ":" + " " + det.getValor();
                                             }
                                         } else {
-                                            if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
-                                                rFinal += "," + " "+ det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
+                                                rFinal += "," + " " + det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
 
                                             } else {
-                                                rFinal += "," + " "+ det.getRespuestaExamen().getNombre() + ":" + " " + det.getValor();
+                                                rFinal += "," + " " + det.getRespuestaExamen().getNombre() + ":" + " " + det.getValor();
                                             }
                                         }
                                     }
@@ -1908,7 +2027,8 @@ public class SindFebrilController {
                                             //first record
                                             if (contt == 1) {
                                                 fechaProcesamiento = DateUtil.DateToString(resExamen.getFechahProcesa(), "dd/MM/yyyy HH:mm:ss");
-                                                if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                //if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                if (resExamen.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                     Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(resExamen.getValor()));
                                                     rExamen = resExamen.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
@@ -1918,7 +2038,8 @@ public class SindFebrilController {
 
                                                 //no first record
                                             } else {
-                                                if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                //if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                if (resExamen.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                     Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(resExamen.getValor()));
                                                     rExamen += " " + resExamen.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
@@ -1937,9 +2058,9 @@ public class SindFebrilController {
 
                                 }
 
-                                float height1 =  drawTable(reqList, doc, page, y);
-                                y-= height1;
-                                float height2 = drawTable1(dxList,doc,page,y);
+                                float height1 = drawTable(reqList, doc, page, y);
+                                y -= height1;
+                                float height2 = drawTable1(dxList, doc, page, y);
                                 y1 = y - height2;
                                 y3 = y1;
 
@@ -1947,7 +2068,7 @@ public class SindFebrilController {
 
                         }
 
-                        if(!estudiosList.isEmpty()){
+                        if (!estudiosList.isEmpty()) {
                             int cn = 0;
                             for (DaSolicitudEstudio est : estudiosList) {
                                 List<String[]> reqList1 = new ArrayList<String[]>();
@@ -1981,7 +2102,8 @@ public class SindFebrilController {
                                     //first record
                                     if (cont1 == 1) {
                                         if (det.getRespuesta() != null) {
-                                            if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
                                                 rFinal = det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
@@ -1989,7 +2111,8 @@ public class SindFebrilController {
                                                 rFinal = det.getRespuesta().getNombre() + ":" + " " + det.getValor();
                                             }
                                         } else {
-                                            if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
                                                 rFinal = det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
 
@@ -2001,20 +2124,22 @@ public class SindFebrilController {
                                         //no first record
                                     } else {
                                         if (det.getRespuesta() != null) {
-                                            if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
-                                                rFinal += "," + " "+ det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
+                                                rFinal += "," + " " + det.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
                                             } else {
-                                                rFinal += "," + " "+ det.getRespuesta().getNombre() + ":" + " " + det.getValor();
+                                                rFinal += "," + " " + det.getRespuesta().getNombre() + ":" + " " + det.getValor();
                                             }
                                         } else {
-                                            if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            //if (det.getRespuestaExamen().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                            if (det.getRespuestaExamen().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                 Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(det.getValor()));
-                                                rFinal += "," + " "+ det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
+                                                rFinal += "," + " " + det.getRespuestaExamen().getNombre() + ":" + " " + valor.getValor();
 
                                             } else {
-                                                rFinal += "," + " "+ det.getRespuestaExamen().getNombre() + ":" + " " + det.getValor();
+                                                rFinal += "," + " " + det.getRespuestaExamen().getNombre() + ":" + " " + det.getValor();
                                             }
                                         }
                                     }
@@ -2041,7 +2166,8 @@ public class SindFebrilController {
                                             //first record
                                             if (cont2 == 1) {
                                                 fechaProcesamiento = DateUtil.DateToString(resExamen.getFechahProcesa(), "dd/MM/yyyy HH:mm:ss");
-                                                if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                //if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                if (resExamen.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                     Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(resExamen.getValor()));
                                                     rExamen = resExamen.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
@@ -2051,14 +2177,14 @@ public class SindFebrilController {
 
                                                 //no first record
                                             } else {
-                                                if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                //if (resExamen.getRespuesta().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                                                if (resExamen.getRespuesta().getConcepto().getTipo().equals("TPDATO|LIST")) {
                                                     Catalogo_Lista valor = respuestasExamenService.getCatalogoListaConceptoByIdLista(Integer.valueOf(resExamen.getValor()));
-                                                    rExamen +=  ","+ " " + resExamen.getRespuesta().getNombre() + ":" + " " + valor.getValor();
+                                                    rExamen += "," + " " + resExamen.getRespuesta().getNombre() + ":" + " " + valor.getValor();
 
                                                 } else {
-                                                    rExamen += ","+ " " + resExamen.getRespuesta().getNombre() + ":" + " " + resExamen.getValor();
+                                                    rExamen += "," + " " + resExamen.getRespuesta().getNombre() + ":" + " " + resExamen.getValor();
                                                 }
-
 
                                             }
 
@@ -2067,20 +2193,17 @@ public class SindFebrilController {
                                         examen1[2] = rExamen != null ? rExamen : "";
                                         dxList1.add(examen1);
 
-
                                     }
 
-
                                 }
-                                float height1 =  drawTable(reqList1, doc, page, y);
-                                y-= height1;
-                                float height2 = drawTable1(dxList1,doc,page,y);
+                                float height1 = drawTable(reqList1, doc, page, y);
+                                y -= height1;
+                                float height2 = drawTable1(dxList1, doc, page, y);
                                 y3 = y - height2;
 
 
                             }
                         }
-
 
                         //dx final
                         y = y3 - 20;
@@ -2090,13 +2213,13 @@ public class SindFebrilController {
                         GeneralUtils.drawTEXT(dxFinal, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
                     }
 
-                    y-= 10;
-                    x1 = x-25;
+                    y -= 10;
+                    x1 = x - 25;
                     GeneralUtils.drawTEXT(messageSource.getMessage("lbl.person.who.filled.tab", null, null), y, x1, stream, 8, PDType1Font.TIMES_ROMAN);
                     x1 += 180;
                     GeneralUtils.drawTEXT(personFilledTab, y, x1, stream, 7, PDType1Font.TIMES_ROMAN);
 
-                    //fecha impresión
+                    //fecha impresiï¿½n
                    /* GeneralUtils.drawTEXT(messageSource.getMessage("lbl.print.datetime", null, null), 100, 605, stream, 10, PDType1Font.HELVETICA_BOLD);
                     GeneralUtils.drawTEXT(fechaImpresion, 100, 900, stream, 10, PDType1Font.HELVETICA);*/
 
@@ -2106,8 +2229,8 @@ public class SindFebrilController {
                     doc.close();
                     // generate the file
                     res = Base64.encodeBase64String(output.toByteArray());
+                }
             }
-        }
         }
 
         return res;
@@ -2115,10 +2238,11 @@ public class SindFebrilController {
 
     /**
      * Dibujar tabla de solicitudes en el pdf
+     *
      * @param reqList datos de la tabla
-     * @param doc documento en que se dibujará la tabla
-     * @param page página actual del documento
-     * @param y coordenada "y" de la página
+     * @param doc     documento en que se dibujarï¿½ la tabla
+     * @param page    pï¿½gina actual del documento
+     * @param y       coordenada "y" de la pï¿½gina
      * @return nueva coordenada "y" justo donde termina la tabla
      * @throws IOException
      */
@@ -2143,7 +2267,6 @@ public class SindFebrilController {
 
         Cell cell;
         Row row;
-
 
         //Create Fact header row
         Row factHeaderrow = table.createRow(10f);
@@ -2178,7 +2301,6 @@ public class SindFebrilController {
         for (String[] fact : reqList) {
             row = table.createRow(10);
 
-
             for (String aFact : fact) {
                 cell = row.createCell(20, aFact);
                 cell.setFont(PDType1Font.TIMES_ROMAN);
@@ -2193,10 +2315,11 @@ public class SindFebrilController {
 
     /**
      * Dibujar tabla de resultado de examenes en el pdf
+     *
      * @param reqList datos de la tabla
-     * @param doc documento en que se dibujará la tabla
-     * @param page página actual del documento
-     * @param y coordenada "y" de la página
+     * @param doc     documento en que se dibujarï¿½ la tabla
+     * @param page    pï¿½gina actual del documento
+     * @param y       coordenada "y" de la pï¿½gina
      * @return nueva coordenada "y" justo donde termina la tabla
      * @throws IOException
      */
@@ -2222,7 +2345,6 @@ public class SindFebrilController {
         Cell cell;
         Row row;
 
-
         //Create Fact header row
         Row factHeaderrow = table.createRow(10f);
         cell = factHeaderrow.createCell(20, messageSource.getMessage("lbl.test", null, null));
@@ -2241,7 +2363,6 @@ public class SindFebrilController {
         cell.setFontSize(7);
 
         height = factHeaderrow.getHeight();
-
 
         //Add multiple rows with random facts about Belgium
         for (String[] fact : reqList) {
@@ -2263,15 +2384,10 @@ public class SindFebrilController {
                     }
 
                 }
-
-
             }
             height += row.getHeight();
         }
         table.draw();
         return height;
     }
-
-
-
 }

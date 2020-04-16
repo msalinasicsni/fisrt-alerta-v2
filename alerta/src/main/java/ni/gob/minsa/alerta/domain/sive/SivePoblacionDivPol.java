@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 
 @Entity
 @Table(name = "sive_poblacion_regiones", schema = "alerta")
@@ -21,7 +21,7 @@ public class SivePoblacionDivPol implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private Integer anio;
-	private Divisionpolitica divpol;
+	//private Divisionpolitica divpol;
 	private String grupo;
 	private Integer masculino;
 	private Integer femenino;
@@ -51,15 +51,15 @@ public class SivePoblacionDivPol implements Serializable{
 	public void setAnio(Integer anio) {
 		this.anio = anio;
 	}
-	@ManyToOne(optional = true)
+	/*@ManyToOne(optional = true)
     @JoinColumn(name = "REGION", referencedColumnName = "DIVISIONPOLITICA_ID")
-    @ForeignKey(name = "POBLACION_DIVPOL_FK")
-	public Divisionpolitica getDivpol() {
+    @ForeignKey(name = "POBLACION_DIVPOL_FK")*/
+	/*public Divisionpolitica getDivpol() {
 		return divpol;
-	}
-	public void setDivpol(Divisionpolitica divpol) {
+	}*/
+	/*public void setDivpol(Divisionpolitica divpol) {
 		this.divpol = divpol;
-	}
+	}*/
 	@Column(name = "MASCULINO", nullable = false)
 	public Integer getMasculino() {
 		return masculino;

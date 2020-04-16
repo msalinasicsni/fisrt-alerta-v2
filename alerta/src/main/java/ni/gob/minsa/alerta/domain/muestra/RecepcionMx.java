@@ -1,6 +1,6 @@
 package ni.gob.minsa.alerta.domain.muestra;
 
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.seguridadLab.User;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
@@ -21,17 +21,23 @@ public class RecepcionMx implements Serializable {
     String idRecepcion;
     DaTomaMx tomaMx;
     Timestamp fechaHoraRecepcion;
-    TipoRecepcionMx tipoRecepcionMx;
+    //TipoRecepcionMx tipoRecepcionMx;
     User usuarioRecepcion;
-    TipoTubo tipoTubo;
-    CalidadMx calidadMx;
+    //TipoTubo tipoTubo;
+    //CalidadMx calidadMx;
     boolean cantidadTubosCk;
     boolean tipoMxCk;
-    CausaRechazoMx causaRechazo;
+    //CausaRechazoMx causaRechazo;
     Laboratorio labRecepcion;
-    CondicionMx condicionMx;
+    //CondicionMx condicionMx;
     Date fechaRecibido;
     String horaRecibido;
+    /****/
+    private String tipoRecepcionMx;
+    private String tipoTubo;
+    private String calidadMx;
+    private String causaRechazo;
+    private String condicionMx;
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -55,7 +61,7 @@ public class RecepcionMx implements Serializable {
         this.fechaHoraRecepcion = fechaHoraRecepcion;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
     @JoinColumn(name = "TIPO_RECEPCION", referencedColumnName = "CODIGO")
     @ForeignKey(name = "RECEPCION_TIPORECEP_FK")
     public TipoRecepcionMx getTipoRecepcionMx() {
@@ -63,6 +69,14 @@ public class RecepcionMx implements Serializable {
     }
 
     public void setTipoRecepcionMx(TipoRecepcionMx tipoRecepcionMx) {
+        this.tipoRecepcionMx = tipoRecepcionMx;
+    }*/
+    @Column(name = "TIPO_RECEPCION")
+    public String getTipoRecepcionMx() {
+        return tipoRecepcionMx;
+    }
+
+    public void setTipoRecepcionMx(String tipoRecepcionMx) {
         this.tipoRecepcionMx = tipoRecepcionMx;
     }
 
@@ -89,7 +103,7 @@ public class RecepcionMx implements Serializable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_TIPO_TUBO", referencedColumnName = "CODIGO")
     @ForeignKey(name = "RECEPCION_TPTUBO_FK")
     public TipoTubo getTipoTubo() {
@@ -98,9 +112,17 @@ public class RecepcionMx implements Serializable {
 
     public void setTipoTubo(TipoTubo tipoTubo) {
         this.tipoTubo = tipoTubo;
+    }*/
+    @Column(name = "COD_TIPO_TUBO")
+    public String getTipoTubo() {
+        return tipoTubo;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    public void setTipoTubo(String tipoTubo) {
+        this.tipoTubo = tipoTubo;
+    }
+
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CALIDADMX", referencedColumnName = "CODIGO")
     @ForeignKey(name = "RECEPCION_CALIDADMX_FK")
     public CalidadMx getCalidadMx() {
@@ -108,6 +130,14 @@ public class RecepcionMx implements Serializable {
     }
 
     public void setCalidadMx(CalidadMx calidadMx) {
+        this.calidadMx = calidadMx;
+    }*/
+    @Column(name = "COD_CALIDADMX")
+    public String getCalidadMx() {
+        return calidadMx;
+    }
+
+    public void setCalidadMx(String calidadMx) {
         this.calidadMx = calidadMx;
     }
 
@@ -131,7 +161,7 @@ public class RecepcionMx implements Serializable {
         this.tipoMxCk = tipoMxCk;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "CAUSA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RECEPCION_CAUSARECHAZOMX_FK")
     public CausaRechazoMx getCausaRechazo() {
@@ -139,6 +169,15 @@ public class RecepcionMx implements Serializable {
     }
 
     public void setCausaRechazo(CausaRechazoMx causaRechazo) {
+        this.causaRechazo = causaRechazo;
+    }*/
+
+    @Column(name = "CAUSA", nullable = true)
+    public String getCausaRechazo() {
+        return causaRechazo;
+    }
+
+    public void setCausaRechazo(String causaRechazo) {
         this.causaRechazo = causaRechazo;
     }
 
@@ -153,7 +192,7 @@ public class RecepcionMx implements Serializable {
         this.labRecepcion = labRecepcion;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CONDICIONMX", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RECEPCION_CONDICIONMX_FK")
     public CondicionMx getCondicionMx() {
@@ -161,6 +200,14 @@ public class RecepcionMx implements Serializable {
     }
 
     public void setCondicionMx(CondicionMx condicionMx) {
+        this.condicionMx = condicionMx;
+    }*/
+    @Column(name = "COD_CONDICIONMX", nullable = true)
+    public String getCondicionMx() {
+        return condicionMx;
+    }
+
+    public void setCondicionMx(String condicionMx) {
         this.condicionMx = condicionMx;
     }
 

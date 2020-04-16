@@ -35,7 +35,7 @@ var SeleccionUnidad = function () {
             				var html='<option value=""></option>';
             				var len = data.length;
             				for ( var i = 0; i < len; i++) {
-            					html += '<option value="' + data[i].codigoNacional + '">'
+            					html += '<option value="' + data[i].codigoNacional + "," + data[i].id + '">'
             							+ data[i].nombre + '</option>';
             				}
             				html += '</option>';
@@ -50,8 +50,10 @@ var SeleccionUnidad = function () {
         	$('#codMunicipio').change(
             		function() {
             			bloquearUI(parametros.blockMess);
+                        var arrgMuni = $('#codMunicipio').val().split(",");
             			$.getJSON(parametros.unidadesUrl, {
-            				codMunicipio : $('#codMunicipio').val(),
+            				/*codMunicipio : $('#codMunicipio').val(),*/
+                            codMunicipio : arrgMuni[1],
             				codSilais: $('#codSilaisAtencion').val(),
             				ajax : 'true'
             			}, function(data) {
@@ -60,8 +62,10 @@ var SeleccionUnidad = function () {
             				var html='<option value=""></option>';
             				var len = data.length;
             				for ( var i = 0; i < len; i++) {
-            					html += '<option value="' + data[i].codigo + '">'
-            							+ data[i].nombre + '</option>';
+            					/*html += '<option value="' + data[i].codigo + '">'
+            							+ data[i].nombre + '</option>';*/
+                                html += '<option value="' + data[i].id + '">'
+                                    + data[i].nombre + '</option>';
             				}
             				html += '</option>';
             				$('#codUnidadAtencion').html(html);
@@ -85,7 +89,10 @@ var SeleccionUnidad = function () {
                     var html = '<option value=""></option>';
                     var len = data.length;
                     for (var i = 0; i < len; i++) {
-                        html += '<option value="' + data[i].codigoNacional + '">'
+                        /*html += '<option value="' + data[i].codigoNacional + '">'
+                            + data[i].nombre
+                            + '</option>';*/
+                        html += '<option value="' + data[i].id + '">'
                             + data[i].nombre
                             + '</option>';
                     }
@@ -107,15 +114,23 @@ var SeleccionUnidad = function () {
                     var html = '<option value=""></option>';
                     var len = data.length;
                     for (var i = 0; i < len; i++) {
-                        if(data[i].sector.unidad != null){
-                            html += '<option value="' + data[i].codigo +  '">'
+                       /* if(data[i].sector.unidad != null){
+                           *//* html += '<option value="' + data[i].codigo +  '">'
+                                + data[i].nombre + " - "+ data[i].sector.unidad.nombre
+                                + '</option>';*//*
+                            html += '<option value="' + data[i].id +  '">'
                                 + data[i].nombre + " - "+ data[i].sector.unidad.nombre
                                 + '</option>';
-                        }else{
-                            html += '<option value="' + data[i].codigo +  '">'
+
+                        }else{*/
+                            /*html += '<option value="' + data[i].codigo +  '">'
                                 + data[i].nombre + " - "+ data[i].sector.nombre
+                                + '</option>';*/
+                            html += '<option value="' + data[i].id +  '">'
+                                //+ data[i].nombre + " - "+ data[i].sector.nombre
+                                + data[i].nombre
                                 + '</option>';
-                        }
+                        //}
 
                     }
                     html += '</option>';

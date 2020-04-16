@@ -18,8 +18,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.persona.*;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.poblacion.Paises;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.MinsaServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
 import ni.gob.minsa.alerta.service.*;
 
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
@@ -83,6 +87,8 @@ public class PersonaController {
     @RequestMapping(value = "search", method = RequestMethod.GET)
     public String initSearchForm(Model model) throws ParseException { 	
     	logger.debug("Buscar una Persona");
+        model.addAttribute("personaByIdentificacion", MinsaServices.SEVICIO_PERSONAS_IDENTIFICACION);
+        model.addAttribute("personaByNombres", MinsaServices.SEVICIO_PERSONAS_NONBRES);
     	return  "personas/search";
 	}
 	
@@ -90,11 +96,12 @@ public class PersonaController {
      * Retorna una lista de personas. Acepta una solicitud GET para JSON
      * @return Un arreglo JSON de personas 
      */
-    @RequestMapping(value = "persons", method = RequestMethod.GET, produces = "application/json")
+    /*@RequestMapping(value = "persons", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> fetchPersonasJson(@RequestParam(value = "strFilter", required = true) String filtro,
                                                             @RequestParam(value = "pPaginaActual", required = true) int pPaginaActual) {
         logger.info("Obteniendo las personas en JSON");
-        List<SisPersona> personas = null;
+        //List<SisPersona> personas = null;
+        List<PersonaTmp> personas = null;
         try{
             personas = personaService.getPersonas(pPaginaActual,50,filtro);
         }catch(HibernateException he){
@@ -109,7 +116,7 @@ public class PersonaController {
             return createJsonResponse(map);
         }
         return createJsonResponse(personas);
-    }
+    }*/
 
     private ResponseEntity<String> createJsonResponse( Object o )
     {
@@ -128,8 +135,11 @@ public class PersonaController {
         mav.addObject("persona",persona);
         int edad = DateUtil.calcularEdadAnios(persona.getFechaNacimiento());
         mav.addObject("edad", edad + " años");
+        mav.addObject("personaByIdentificacion", MinsaServices.SEVICIO_PERSONAS_IDENTIFICACION);
+        mav.addObject("personaByNombres", MinsaServices.SEVICIO_PERSONAS_NONBRES);
         return mav;
     }
+
     @RequestMapping(value = "create", method = RequestMethod.GET)
     public ModelAndView initCreateForm(Model model, HttpServletRequest request) throws Exception, ParseException {
         logger.debug("Crear una Persona");
@@ -146,15 +156,23 @@ public class PersonaController {
         ModelAndView mav = new ModelAndView();
         if (urlValidacion.isEmpty()) {
             mav.setViewName("personas/create");
-            List <Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            //List <Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List <Departamento> departamentos = CallRestServices.getDepartamentos();
             List <Paises> paisesList = paisesService.getPaises();
-            List <Sexo> sexoList = catalogosService.getListaSexo();
-            List <EstadoCivil> estadoCivilList = catalogosService.getListaEstadoCivil();
-            List <Etnia> etniaList = catalogosService.getListaEtnia();
-            List <Escolaridad> escolaridadList = catalogosService.getListaEscolaridad();
+            //List <Sexo> sexoList = catalogosService.getListaSexo();
+           // List <EstadoCivil> estadoCivilList = catalogosService.getListaEstadoCivil();
+            //List <Etnia> etniaList = catalogosService.getListaEtnia();
+            //List <Escolaridad> escolaridadList = catalogosService.getListaEscolaridad();
             List <Ocupacion> ocupacionList = ocupacionService.getAllOcupaciones();
-            List <Identificacion> identificacionList = catalogosService.getListaTipoIdentificacion();
-            List <TipoAsegurado> tipoAseguradoList = catalogosService.getTiposAsegurados();
+            //List <Identificacion> identificacionList = catalogosService.getListaTipoIdentificacion();
+            //List <TipoAsegurado> tipoAseguradoList = catalogosService.getTiposAsegurados();
+
+            List <Catalogo> sexoList = CallRestServices.getCatalogos("SEXO");
+            List <Catalogo> estadoCivilList = CallRestServices.getCatalogos("ESTCV");
+            List <Catalogo> etniaList = CallRestServices.getCatalogos("ETNIA");
+            List <Catalogo> escolaridadList = CallRestServices.getCatalogos("ESCDA");
+            List <Catalogo> identificacionList = CallRestServices.getCatalogos("TPOID");
+            List <Catalogo> tipoAseguradoList = CallRestServices.getCatalogos("TPOAS");
 
             mav.addObject("departReside", departamentos);
             mav.addObject("paises",paisesList);
@@ -185,27 +203,38 @@ public class PersonaController {
             urlValidacion = "404";
         }
         ModelAndView mav = new ModelAndView();
+        PersonaTmp sisPersona = null;
         if (urlValidacion.isEmpty()) {
             mav.setViewName("personas/create");
-            List <Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            //List <Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List <Departamento> departamentos = CallRestServices.getDepartamentos();
             List <Paises> paisesList = paisesService.getPaises();
-            List <Sexo> sexoList = catalogosService.getListaSexo();
-            List <EstadoCivil> estadoCivilList = catalogosService.getListaEstadoCivil();
-            List <Etnia> etniaList = catalogosService.getListaEtnia();
-            List <Escolaridad> escolaridadList = catalogosService.getListaEscolaridad();
+            //List <Sexo> sexoList = catalogosService.getListaSexo();
+            //List <EstadoCivil> estadoCivilList = catalogosService.getListaEstadoCivil();
+            //List <Etnia> etniaList = catalogosService.getListaEtnia();
+            //List <Escolaridad> escolaridadList = catalogosService.getListaEscolaridad();
             List <Ocupacion> ocupacionList = ocupacionService.getAllOcupaciones();
-            List <Identificacion> identificacionList = catalogosService.getListaTipoIdentificacion();
-            List <TipoAsegurado> tipoAseguradoList = catalogosService.getTiposAsegurados();
+            //List <Identificacion> identificacionList = catalogosService.getListaTipoIdentificacion();
+            //List <TipoAsegurado> tipoAseguradoList = catalogosService.getTiposAsegurados();
+
+            List <Catalogo> sexoList = CallRestServices.getCatalogos("SEXO");
+            List <Catalogo> estadoCivilList = CallRestServices.getCatalogos("ESTCV");
+            List <Catalogo> etniaList = CallRestServices.getCatalogos("ETNIA");
+            List <Catalogo> escolaridadList = CallRestServices.getCatalogos("ESCDA");
+            List <Catalogo> identificacionList = CallRestServices.getCatalogos("TPOID");
+            List <Catalogo> tipoAseguradoList = CallRestServices.getCatalogos("TPOAS");
+            //Persona persona = new Persona();
             Persona persona = null;
             try {
-                SisPersona sisPersona = personaService.getPersona(idPerson);
-                 persona = personaService.ensamblarObjetoPersona(sisPersona);//.buscarPorId(idPerson);
+                //SisPersona sisPersona = personaService.getPersona(idPerson);
+                //sisPersona = personaService.getPersona(idPerson);
+                 //persona = personaService.ensamblarObjetoPersona(sisPersona);//.buscarPorId(idPerson);
             }catch (Exception ex){
                 logger.error(ex.getMessage());
             }
             String depaNac = "";
             String depaResi = "";
-            List<Divisionpolitica> municipiosNac = null;
+            /*List<Divisionpolitica> municipiosNac = null;
             if (persona !=null && persona.getMuniNacCodigoNac()!=null) {
                 Divisionpolitica departamentoNac = divisionPoliticaService.getDepartamentoByMunicipi(persona.getMuniNacCodigoNac());
                 depaNac = departamentoNac.getCodigoNacional();
@@ -216,17 +245,18 @@ public class PersonaController {
                 Divisionpolitica departamentoResi = divisionPoliticaService.getDepartamentoByMunicipi(persona.getMuniResiCodigoNac());
                 depaResi = departamentoResi.getCodigoNacional();
                 municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(depaResi);
-            }
+            }*/
             List<Comunidades> comunidadesesRes = null;
             if (persona !=null && persona.getMuniResiCodigoNac()!=null){
                 comunidadesesRes = comunidadesService.getComunidades(persona.getMuniResiCodigoNac());
             }
+
             mav.addObject("persona",persona);
             mav.addObject("departReside", departamentos);
             mav.addObject("depaResi",depaResi);
             mav.addObject("depaNac",depaNac);
-            mav.addObject("muniNac", municipiosNac);
-            mav.addObject("muniResi", municipiosResi);
+            /*mav.addObject("muniNac", municipiosNac);
+            mav.addObject("muniResi", municipiosResi);*/
             mav.addObject("comunidadesesRes",comunidadesesRes);
             mav.addObject("paises",paisesList);
             mav.addObject("sexo",sexoList);

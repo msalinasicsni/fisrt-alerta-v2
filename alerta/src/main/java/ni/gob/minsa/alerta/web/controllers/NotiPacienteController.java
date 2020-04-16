@@ -6,8 +6,12 @@ import ni.gob.minsa.alerta.domain.muestra.DatoSolicitudDetalle;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import ni.gob.minsa.alerta.domain.persona.Ocupacion;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.concepto.Catalogo_Lista;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.MinsaServices;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
@@ -55,7 +59,7 @@ public class NotiPacienteController {
 
     @RequestMapping(value = "create", method = RequestMethod.GET)
     public String initSearchForm(Model model, HttpServletRequest request) throws ParseException {
-        logger.debug("Crear/Buscar una ficha de sindromes febriles");
+        /*logger.debug("Crear/Buscar una ficha de sindromes febriles");
         String urlValidacion= "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
@@ -70,7 +74,11 @@ public class NotiPacienteController {
             return "paciente/search";
         }else{
             return urlValidacion;
-        }
+        }*/
+        logger.debug("Crear/Buscar una ficha de sindromes febriles");
+        model.addAttribute("personaByIdentificacion", MinsaServices.SEVICIO_PERSONAS_IDENTIFICACION);
+        model.addAttribute("personaByNombres", MinsaServices.SEVICIO_PERSONAS_NONBRES);
+        return "paciente/search";
     }
 
     /**
@@ -143,12 +151,17 @@ public class NotiPacienteController {
         ModelAndView mav = new ModelAndView();
         if(urlValidacion.isEmpty()){
             DaNotificacion notificacion = daNotificacionService.getNotifById(idNotificacion);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<Divisionpolitica> municipiosResi = null;
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //List<Divisionpolitica> municipiosResi = null;
+            List<Municipio> municipiosResi = null;
             List<Comunidades> comunidades = null;
-            if(notificacion.getPersona().getMunicipioResidencia()!=null){
-                municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(notificacion.getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
-                comunidades = comunidadesService.getComunidades(notificacion.getPersona().getMunicipioResidencia().getCodigoNacional());
+            //if(notificacion.getPersona().getMunicipioResidencia()!=null){
+            if(notificacion.getPersona().getIdMunicipioResidencia() != null){
+                //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(notificacion.getPersona().getMunicipioResidencia().getDependencia().getCodigoNacional());
+                municipiosResi = CallRestServices.getMunicipiosDepartamento(notificacion.getPersona().getIdMunicipioResidencia());
+                //comunidades = comunidadesService.getComunidades(notificacion.getPersona().getMunicipioResidencia().getCodigoNacional());
+                comunidades = comunidadesService.getComunidades(notificacion.getPersona().getNombreMunicipioResidencia());
             }
             List<Ocupacion> ocupaciones = ocupacionService.getAllOcupaciones();
             mav.addObject("notificacion",notificacion);
@@ -208,10 +221,12 @@ public class NotiPacienteController {
             Map<String, String> mapRes = new HashMap<String, String>();
             for (DatoSolicitudDetalle res : resultList) {
                 if (res.getDatoSolicitud() != null) {
-                    if (res.getDatoSolicitud().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    //if (res.getDatoSolicitud().getConcepto().getTipo().getCodigo().equals("TPDATO|LIST")) {
+                    if (res.getDatoSolicitud().getConcepto().getTipo().equals("TPDATO|LIST")) {
                         Catalogo_Lista cat_lista = datosSolicitudService.getCatalogoLista(res.getValor());
                         mapRes.put("valor", cat_lista.getValor());
-                    } else if (res.getDatoSolicitud().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
+                    } else if (res.getDatoSolicitud().getConcepto().getTipo().equals("TPDATO|LOG")) {
+                    //else if (res.getDatoSolicitud().getConcepto().getTipo().getCodigo().equals("TPDATO|LOG")) {
                         String valorBoleano = (Boolean.valueOf(res.getValor()) ? "lbl.yes" : "lbl.no");
                         mapRes.put("valor", messageSource.getMessage(valorBoleano, null, null));
                     } else {

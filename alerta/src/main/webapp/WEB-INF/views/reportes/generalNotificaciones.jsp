@@ -185,7 +185,8 @@
                                                             class="select2">
                                                         <option value=""><spring:message code="lbl.select" />...</option>
                                                         <c:forEach items="${entidades}" var="entidad">
-                                                            <option value="${entidad.entidadAdtvaId}">${entidad.nombre}</option>
+                                                            <%--<option value="${entidad.entidadAdtvaId}">${entidad.nombre}</option>--%>
+                                                            <option value="${entidad.id}">${entidad.nombre}</option>
                                                         </c:forEach>
                                                     </select>
                                                 </div>

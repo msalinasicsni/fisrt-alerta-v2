@@ -1,6 +1,6 @@
 package ni.gob.minsa.alerta.domain.concepto;
 
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.seguridadLab.User;
 import org.hibernate.annotations.ForeignKey;
 
@@ -18,9 +18,10 @@ public class Concepto implements Serializable {
     Integer idConcepto;
     String nombre;
     boolean pasivo;
-    TipoDatoCatalogo tipo;
+    //TipoDatoCatalogo tipo;
     User usuarioRegistro;
     Timestamp fechahRegistro;
+    String tipo;
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
@@ -55,7 +56,7 @@ public class Concepto implements Serializable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+   /* @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "TIPO_DATO_CATALOGO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "TPDATO_FK")
     public TipoDatoCatalogo getTipo() {
@@ -64,8 +65,16 @@ public class Concepto implements Serializable {
 
     public void setTipo(TipoDatoCatalogo tipo) {
         this.tipo = tipo;
+    }*/
+
+    @Column(name = "TIPO_DATO_CATALOGO", nullable = true)
+    public String getTipo() {
+        return tipo;
     }
 
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "USUARIO_REGISTRO", referencedColumnName = "username")

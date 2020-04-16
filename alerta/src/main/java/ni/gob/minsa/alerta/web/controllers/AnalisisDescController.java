@@ -1,13 +1,12 @@
 package ni.gob.minsa.alerta.web.controllers;
 
 import ni.gob.minsa.alerta.domain.agrupaciones.Grupo;
-import ni.gob.minsa.alerta.domain.catalogos.Anios;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
-import ni.gob.minsa.alerta.domain.catalogos.Semanas;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.ZonaEspecial;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.sive.SivePatologias;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import org.slf4j.Logger;
@@ -26,50 +25,56 @@ import java.util.List;
 
 /**
  * Controlador web de peticiones relacionadas a analisis
- * 
+ *
  * @author William Aviles
  */
 @Controller
 @RequestMapping("/analisis/*")
 public class AnalisisDescController {
-	private static final Logger logger = LoggerFactory.getLogger(AnalisisController.class);
-	@Resource(name="entidadAdmonService")
-	private EntidadAdmonService entidadAdmonService;
-	@Resource(name="catalogosService")
-	private CatalogoService catalogosService;
-	@Resource(name="analisisDescService")
-	private AnalisisDescService analisisDescService;
-	@Resource(name="sivePatologiasService")
-	private SivePatologiasService sivePatologiasService;
-	@Resource(name="divisionPoliticaService")
-	private DivisionPoliticaService divisionPoliticaService;
-    @Resource(name="seguridadService")
+    private static final Logger logger = LoggerFactory.getLogger(AnalisisController.class);
+    @Resource(name = "entidadAdmonService")
+    private EntidadAdmonService entidadAdmonService;
+    @Resource(name = "catalogosService")
+    private CatalogoService catalogosService;
+    @Resource(name = "analisisDescService")
+    private AnalisisDescService analisisDescService;
+    @Resource(name = "sivePatologiasService")
+    private SivePatologiasService sivePatologiasService;
+    @Resource(name = "divisionPoliticaService")
+    private DivisionPoliticaService divisionPoliticaService;
+    @Resource(name = "seguridadService")
     private SeguridadService seguridadService;
-    @Resource(name="admonPatoGroupService")
+    @Resource(name = "admonPatoGroupService")
     private AdmonPatoGroupService admonPatoGroupService;
-	
-	@RequestMapping(value = "agesex", method = RequestMethod.GET)
+
+    @RequestMapping(value = "agesex", method = RequestMethod.GET)
     public String initAgeSexPage(Model model, HttpServletRequest request) throws Exception {
-		logger.debug("presentar analisis por edad y sexo");
-        String urlValidacion="";
+        logger.debug("presentar analisis por edad y sexo");
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
             //List<AreaRep> areas = catalogosService.getAreaRep();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
-            List<Semanas> semanas = catalogosService.getSemanas();
-            List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
-            List<Anios> anios = catalogosService.getAnios();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 3, areasList);
+            //List<Semanas> semanas = catalogosService.getSemanas();
+            List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
+            //List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
+            List<Catalogo> zonas = CallRestServices.getCatalogos("ZONACM");
+            //List<Anios> anios = catalogosService.getAnios();
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
             List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
             List<Grupo> grupos = admonPatoGroupService.getGrupos();
             model.addAttribute("areas", areas);
@@ -78,62 +83,70 @@ public class AnalisisDescController {
             model.addAttribute("entidades", entidades);
             model.addAttribute("departamentos", departamentos);
             model.addAttribute("patologias", patologias);
-            model.addAttribute("zonas",zonas);
-            model.addAttribute("grupos",grupos);
+            model.addAttribute("zonas", zonas);
+            model.addAttribute("grupos", grupos);
             return "analisis/edadsexo";
-        }else{
-            return  urlValidacion;
+        } else {
+            return urlValidacion;
         }
     }
-	
-	/**
+
+    /**
      * Retorna una lista de datos. Acepta una solicitud GET para JSON
+     *
      * @return Un arreglo JSON
-	 * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(value = "agesexdata", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody List<Object[]> fetchAgeSexDataJson(@RequestParam(value = "codPato", required = true) String codPato,
-    		@RequestParam(value = "codArea", required = true) String codArea,
-    		@RequestParam(value = "semI", required = true) String semI,
-    		@RequestParam(value = "semF", required = true) String semF,
-    		@RequestParam(value = "anioI", required = true) String anioI,
-    		@RequestParam(value = "anioF", required = true) String anioF,
-    		@RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
-    		@RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
-    		@RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
-    		@RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
-            @RequestParam(value = "ckUS", required = false) boolean subunidades,
-            @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
+    public @ResponseBody
+    List<Object[]> fetchAgeSexDataJson(@RequestParam(value = "codPato", required = true) String codPato,
+                                       @RequestParam(value = "codArea", required = true) String codArea,
+                                       @RequestParam(value = "semI", required = true) String semI,
+                                       @RequestParam(value = "semF", required = true) String semF,
+                                       @RequestParam(value = "anioI", required = true) String anioI,
+                                       @RequestParam(value = "anioF", required = true) String anioF,
+                                       @RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
+                                       @RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
+                                       @RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
+                                       @RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
+                                       @RequestParam(value = "ckUS", required = false) boolean subunidades,
+                                       @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
         logger.info("Obteniendo los datos de edad y sexo en JSON");
-        List<Object[]> datos = analisisDescService.getDataEdadSexo(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad,semI,semF,anioI,anioF,codZona,subunidades);
-        if (datos == null){
-        	logger.debug("Nulo");
+        List<Object[]> datos = analisisDescService.getDataEdadSexo(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad, semI, semF, anioI, anioF, codZona, subunidades);
+        if (datos == null) {
+            logger.debug("Nulo");
         }
         return datos;
     }
-    
+
     @RequestMapping(value = "anasex", method = RequestMethod.GET)
-    public String initAnaSexPage(Model model,HttpServletRequest request ) throws Exception {
-		logger.debug("presentar analisis por sexo");
-        String urlValidacion="";
+    public String initAnaSexPage(Model model, HttpServletRequest request) throws Exception {
+        logger.debug("presentar analisis por sexo");
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
             //List<AreaRep> areas = catalogosService.getAreaRep();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
-            List<Semanas> semanas = catalogosService.getSemanas();
-            List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
-            List<Anios> anios = catalogosService.getAnios();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 3, areasList);
+            //List<Semanas> semanas = catalogosService.getSemanas();
+            List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
+            //List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
+            List<Catalogo> zonas = CallRestServices.getCatalogos("ZONACM");
+            //List<Anios> anios = catalogosService.getAnios();
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
             List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
             List<Grupo> grupos = admonPatoGroupService.getGrupos();
             model.addAttribute("areas", areas);
@@ -142,99 +155,109 @@ public class AnalisisDescController {
             model.addAttribute("entidades", entidades);
             model.addAttribute("departamentos", departamentos);
             model.addAttribute("patologias", patologias);
-            model.addAttribute("zonas",zonas);
-            model.addAttribute("grupos",grupos);
+            model.addAttribute("zonas", zonas);
+            model.addAttribute("grupos", grupos);
             return "analisis/anasexo";
-        }else{
-            return  urlValidacion;
+        } else {
+            return urlValidacion;
         }
     }
-    
+
     /**
      * Retorna una lista de datos. Acepta una solicitud GET para JSON
+     *
      * @return Un arreglo JSON
-	 * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(value = "anasexdata", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody List<Object[]> fetchAnaSexDataJson(@RequestParam(value = "codPato", required = true) String codPato,
-    		@RequestParam(value = "codArea", required = true) String codArea,
-    		@RequestParam(value = "semI", required = true) String semI,
-    		@RequestParam(value = "semF", required = true) String semF,
-    		@RequestParam(value = "anioI", required = true) String anioI,
-    		@RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
-    		@RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
-    		@RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
-    		@RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
-            @RequestParam(value = "ckUS", required = false) boolean subunidades,
-            @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
+    public @ResponseBody
+    List<Object[]> fetchAnaSexDataJson(@RequestParam(value = "codPato", required = true) String codPato,
+                                       @RequestParam(value = "codArea", required = true) String codArea,
+                                       @RequestParam(value = "semI", required = true) String semI,
+                                       @RequestParam(value = "semF", required = true) String semF,
+                                       @RequestParam(value = "anioI", required = true) String anioI,
+                                       @RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
+                                       @RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
+                                       @RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
+                                       @RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
+                                       @RequestParam(value = "ckUS", required = false) boolean subunidades,
+                                       @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
         logger.info("Obteniendo los datos de sexo en JSON");
-        List<Object[]> datos = analisisDescService.getDataAnaSexo(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad,semI,semF,anioI,codZona,subunidades);
-        if (datos == null){
-        	logger.debug("Nulo");
+        List<Object[]> datos = analisisDescService.getDataAnaSexo(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad, semI, semF, anioI, codZona, subunidades);
+        if (datos == null) {
+            logger.debug("Nulo");
         }
         return datos;
     }
-    
+
     @RequestMapping(value = "anapato", method = RequestMethod.GET)
     public String initAnaPatoPage(Model model, HttpServletRequest request) throws Exception {
-		logger.debug("presentar analisis por patologias");
-        String urlValidacion="";
+        logger.debug("presentar analisis por patologias");
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validación del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
-            if (urlValidacion.isEmpty()) {
+        if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-        //	List<AreaRep> areas = catalogosService.getAreaRep();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
-            List<Semanas> semanas = catalogosService.getSemanas();
-            List<Anios> anios = catalogosService.getAnios();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            //	List<AreaRep> areas = catalogosService.getAreaRep();
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,3);
+            List<Catalogo> areasList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int) idUsuario, 3, areasList);
+            //List<Semanas> semanas = catalogosService.getSemanas();
+            List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
+            //List<Anios> anios = catalogosService.getAnios();
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
             List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
-            List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
-                List<Grupo> grupos = admonPatoGroupService.getGrupos();
+            //List<ZonaEspecial> zonas = catalogosService.getZonasEspeciales();
+            List<Catalogo> zonas = CallRestServices.getCatalogos("ZONACM");
+            List<Grupo> grupos = admonPatoGroupService.getGrupos();
             model.addAttribute("areas", areas);
             model.addAttribute("semanas", semanas);
             model.addAttribute("anios", anios);
             model.addAttribute("entidades", entidades);
             model.addAttribute("departamentos", departamentos);
             model.addAttribute("patologias", patologias);
-            model.addAttribute("zonas",zonas);
-            model.addAttribute("grupos",grupos);
-    	    return "analisis/anapato";
-	    }else{
-            return  urlValidacion;
+            model.addAttribute("zonas", zonas);
+            model.addAttribute("grupos", grupos);
+            return "analisis/anapato";
+        } else {
+            return urlValidacion;
         }
     }
-    
+
     /**
      * Retorna una lista de datos. Acepta una solicitud GET para JSON
+     *
      * @return Un arreglo JSON
-	 * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(value = "anapatodata", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody List<Object[]> fetchAnaPatoDataJson(@RequestParam(value = "codPato", required = true) String codPato,
-    		@RequestParam(value = "codArea", required = true) String codArea,
-    		@RequestParam(value = "semI", required = true) String semI,
-    		@RequestParam(value = "semF", required = true) String semF,
-    		@RequestParam(value = "anioI", required = true) String anioI,
-    		@RequestParam(value = "anioF", required = true) String anioF,
-    		@RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
-    		@RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
-    		@RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
-    		@RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
-            @RequestParam(value = "ckUS", required = false) boolean subunidades,
-            @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
+    public @ResponseBody
+    List<Object[]> fetchAnaPatoDataJson(@RequestParam(value = "codPato", required = true) String codPato,
+                                        @RequestParam(value = "codArea", required = true) String codArea,
+                                        @RequestParam(value = "semI", required = true) String semI,
+                                        @RequestParam(value = "semF", required = true) String semF,
+                                        @RequestParam(value = "anioI", required = true) String anioI,
+                                        @RequestParam(value = "anioF", required = true) String anioF,
+                                        @RequestParam(value = "codSilaisAtencion", required = false) Long codSilais,
+                                        @RequestParam(value = "codDepartamento", required = false) Long codDepartamento,
+                                        @RequestParam(value = "codMunicipio", required = false) Long codMunicipio,
+                                        @RequestParam(value = "codUnidadAtencion", required = false) Long codUnidad,
+                                        @RequestParam(value = "ckUS", required = false) boolean subunidades,
+                                        @RequestParam(value = "codZona", required = false) String codZona) throws ParseException {
         logger.info("Obteniendo los datos de edad y sexo en JSON");
-        List<Object[]> datos = analisisDescService.getDataAnaPato(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad,semI,semF,anioI,anioF,codZona,subunidades);
-        if (datos == null){
-        	logger.debug("Nulo");
+        List<Object[]> datos = analisisDescService.getDataAnaPato(codPato, codArea, codSilais, codDepartamento, codMunicipio, codUnidad, semI, semF, anioI, anioF, codZona, subunidades);
+        if (datos == null) {
+            logger.debug("Nulo");
         }
         return datos;
     }

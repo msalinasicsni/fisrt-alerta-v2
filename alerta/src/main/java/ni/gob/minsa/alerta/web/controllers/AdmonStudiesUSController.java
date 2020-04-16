@@ -3,9 +3,11 @@ package ni.gob.minsa.alerta.web.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.Catalogo_Estudio;
 import ni.gob.minsa.alerta.domain.muestra.Estudio_UnidadSalud;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import org.apache.commons.lang3.text.translate.UnicodeEscaper;
@@ -174,9 +176,18 @@ public class AdmonStudiesUSController {
             for (Estudio_UnidadSalud us : usList) {
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("idEstudioUnidad", us.getIdEstudioUnidad().toString());
-                map.put("silais", us.getUnidad().getEntidadAdtva().getNombre());
+                /*map.put("silais", us.getUnidad().getEntidadAdtva().getNombre());
                 map.put("municipio", us.getUnidad().getMunicipio().getNombre());
-                map.put("nombreUS", us.getUnidad().getNombre());
+                map.put("nombreUS", us.getUnidad().getNombre());*/
+                Unidades unidades = null;
+                try {
+                    unidades = CallRestServices.getUnidadSalud(us.getUnidad());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                map.put("silais", unidades.getEntidadesadtvas().getNombre());
+                map.put("municipio", unidades.getMunicipio().getNombre());
+                map.put("nombreUS", unidades.getNombre());
                 mapResponse.put(indice, map);
                 indice++;
             }
@@ -231,8 +242,9 @@ public class AdmonStudiesUSController {
                         estUs.setFechaRegistro(new Date());
                         estUs.setUsuarioRegistro(usuarioService.getUsuarioById((int) idUsuario));
                         estUs.setEstudio(tomaMxService.getEstudioById(idEstudio));
-                        Unidades unidad = unidadesService.getUnidadByCodigo(us);
-                        estUs.setUnidad(unidad);
+                        //Unidades unidad = unidadesService.getUnidadByCodigo(us);
+                        Unidades unidad = CallRestServices.getUnidadSalud(us);
+                        estUs.setUnidad(Long.parseLong(unidad.getCodigo()));
                         estUs.setPasivo(false);
                         studiesUsService.addOrUpdateStudyUs(estUs);
                     } else {

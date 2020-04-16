@@ -1,12 +1,12 @@
 package ni.gob.minsa.alerta.web.controllers;
 
 import ni.gob.minsa.alerta.domain.agrupaciones.Grupo;
-import ni.gob.minsa.alerta.domain.catalogos.Anios;
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
-import ni.gob.minsa.alerta.domain.catalogos.Semanas;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.sive.SivePatologias;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import org.slf4j.Logger;
@@ -68,11 +68,16 @@ public class BoletinController {
         if (urlValidacion.isEmpty()) {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             List<EntidadesAdtvas> entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
-            List<Anios> anios = catalogosService.getAnios();
-            List<Semanas> semanas = catalogosService.getSemanas();
+            //List<Divisionpolitica> departamentos = divisionPoliticaService.getAllDepartamentos();
+            List<Departamento> departamentos = CallRestServices.getDepartamentos();
+            /*List<Anios> anios = catalogosService.getAnios();
+            List<Semanas> semanas = catalogosService.getSemanas();*/
+            List<Catalogo> anios = CallRestServices.getCatalogos("ANIOSEPI");
+            List<Catalogo> semanas = CallRestServices.getCatalogos("SEMANASEPI");
             List<SivePatologias> patologias = sivePatologiasService.getSivePatologias();
-            List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,1);
+            //List<AreaRep> areas = seguridadService.getAreasUsuario((int)idUsuario,1);
+            List<Catalogo> areaList = CallRestServices.getCatalogos("AREAREP");
+            List<Catalogo> areas = seguridadService.getAreasUsuario((int)idUsuario,1, areaList);
             List<Grupo> grupos = admonPatoGroupService.getGrupos();
             model.addAttribute("areas", areas);
             model.addAttribute("semanas", semanas);
@@ -117,6 +122,4 @@ public class BoletinController {
             logger.debug("Nulo");
         return datos;
     }
-
-
 }

@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.domain.sive;
 
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -17,13 +17,14 @@ public class UnidadesVwEntity implements Serializable {
     private String nombre;
     private String razonSocial;
     private long tipoUnidad;
-    private Divisionpolitica municipio;
+    //private Divisionpolitica municipio;
     private EntidadesAdtvas entidadAdtva;
     private long categoria;
     private long codigo;
     private char pasivo;
     private String zona;
     private Long unidadAdtva;
+    private String municipio;
 
 
 
@@ -60,12 +61,21 @@ public class UnidadesVwEntity implements Serializable {
 
     public void setTipoUnidad(long tipoUnidad) {  this.tipoUnidad = tipoUnidad;  }
 
-    @ManyToOne(optional=true)
+    /*@ManyToOne(optional=true)
     @JoinColumn(name="MUNICIPIO",referencedColumnName="CODIGO_NACIONAL", nullable=true)
     @ForeignKey(name = "UNIDAD_MUNICIPIO_FK")
     public Divisionpolitica getMunicipio() { return this.municipio; }
 
-    public void setMunicipio(Divisionpolitica municipio) { this.municipio = municipio; }
+    public void setMunicipio(Divisionpolitica municipio) { this.municipio = municipio; }*/
+    @Column(name="MUNICIPIO", nullable=true)
+    public String getMunicipio() {
+        return municipio;
+    }
+
+
+    public void setMunicipio(String municipio) {
+        this.municipio = municipio;
+    }
 
     @ManyToOne(optional=true)
     @JoinColumn(name="ENTIDAD_ADTVA",referencedColumnName="CODIGO", nullable=true)

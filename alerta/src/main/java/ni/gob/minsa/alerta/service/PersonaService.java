@@ -1,9 +1,10 @@
 package ni.gob.minsa.alerta.service;
 import ni.gob.minsa.alerta.domain.persona.*;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.poblacion.Paises;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
+import ni.gob.minsa.alerta.utilities.DateUtil;
 import ni.gob.minsa.ciportal.dto.InfoResultado;
 import ni.gob.minsa.ejbPersona.dto.Persona;
 import ni.gob.minsa.ejbPersona.servicios.PersonaBTMService;
@@ -26,20 +27,37 @@ import javax.naming.InitialContext;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
+import java.sql.Timestamp;
+import java.text.Normalizer;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service("personaService")
 @Transactional
 public class PersonaService {
 	
-	@Resource(name="sessionFactory")
+	/*@Resource(name="sessionFactory")
 	private SessionFactory sessionFactory;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PersonaService.class);
     private PersonaUTMService personaUTMService;
     private InitialContext initialContext;
+    private int rowCount = 0;*/
+    @Resource(name="sessionFactory")
+    private SessionFactory sessionFactory;
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PersonaService.class);
+    private PersonaUTMService personaUTMService;
+    private InitialContext initialContext;
+    public static final Pattern DIACRITICS_AND_FRIENDS
+            = Pattern.compile("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
     private int rowCount = 0;
+    private static String stripDiacritics(String str) {
+        str = Normalizer.normalize(str, Normalizer.Form.NFD);
+        str = DIACRITICS_AND_FRIENDS.matcher(str).replaceAll("");
+        return str;
+    }
 	@SuppressWarnings("unchecked")
-	public List<SisPersona> getPersonas(String filtro){
+	/*public List<SisPersona> getPersonas(String filtro){
 		try {
 			filtro = URLDecoder.decode(filtro, "utf-8");
 		} catch (UnsupportedEncodingException e) {
@@ -87,10 +105,11 @@ public class PersonaService {
 					 )
 				    .list();
         }
-	}
+	}*/
 
-    public List<SisPersona> getPersonas(int pPaginaActual,int pRegistrosPorPagina,String pFiltro){
-        List<SisPersona> personaList = null;
+    //public List<SisPersona> getPersonas(int pPaginaActual,int pRegistrosPorPagina,String pFiltro){
+    /*public List<PersonaTmp> getPersonas(int pPaginaActual,int pRegistrosPorPagina,String pFiltro){
+        List<PersonaTmp> personaList = null;
         try {
             pFiltro = URLDecoder.decode(pFiltro, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -112,11 +131,12 @@ public class PersonaService {
         }
 
         return personaList;
-    }
+    }*/
 
-    public List<SisPersona> getPersonasPorNombre(int pFilaActual,int pRegistrosPorPagina,String pNombrePersona,String pSexo){
-
-        List<SisPersona> personaList = null;
+   // public List<SisPersona> getPersonasPorNombre(int pFilaActual,int pRegistrosPorPagina,String pNombrePersona,String pSexo){
+   /*public List<PersonaTmp> getPersonasPorNombre(int pFilaActual,int pRegistrosPorPagina,String pNombrePersona,String pSexo){
+        //List<SisPersona> personaList = null;
+       List<PersonaTmp> personaList = null;
         pNombrePersona = pNombrePersona.trim().toUpperCase();
         String queryString = "";
 
@@ -145,7 +165,8 @@ public class PersonaService {
             this.rowCount = ((BigDecimal)session.createSQLQuery(queryConteo).list().get(0)).intValue();
             if(rowCount <= pFilaActual) pFilaActual -= rowCount;
             pFilaActual = rowCount <= pFilaActual ? 0 : pFilaActual;
-            personaList = (List<SisPersona>)session.createSQLQuery(queryString).addEntity("per", SisPersona.class).setFirstResult(pFilaActual).setMaxResults(pRegistrosPorPagina).list();
+            //personaList = (List<SisPersona>)session.createSQLQuery(queryString).addEntity("per", SisPersona.class).setFirstResult(pFilaActual).setMaxResults(pRegistrosPorPagina).list();
+            personaList = (List<PersonaTmp>)session.createSQLQuery(queryString).addEntity("per", PersonaTmp.class).setFirstResult(pFilaActual).setMaxResults(pRegistrosPorPagina).list();
 
             if(personaList == null){
                 this.rowCount=0;
@@ -157,15 +178,17 @@ public class PersonaService {
         }
 
         return personaList;
-    }
+    }*/
 
-    public List<SisPersona> getPersonasPorNumeroTelefono(int pPaginaActual,int pRegistrosPorPagina,String pNumeroTelefono,String pSexo){
-
-        List<SisPersona> personaList = null;
+    //public List<SisPersona> getPersonasPorNumeroTelefono(int pPaginaActual,int pRegistrosPorPagina,String pNumeroTelefono,String pSexo){
+    public List<PersonaTmp> getPersonasPorNumeroTelefono(int pPaginaActual,int pRegistrosPorPagina,String pNumeroTelefono,String pSexo){
+        //List<SisPersona> personaList = null;
+        List<PersonaTmp> personaList = null;
         Session session = sessionFactory.getCurrentSession();
         try{
             if(!pNumeroTelefono.trim().equals("")){
-                Criteria critPersonas = session.createCriteria(SisPersona.class);
+                //Criteria critPersonas = session.createCriteria(SisPersona.class);
+                Criteria critPersonas = session.createCriteria(PersonaTmp.class);
                 critPersonas.add(Restrictions.or(Restrictions.eq("telefonoResidencia",  pNumeroTelefono.trim().toUpperCase()), Restrictions.eq("telefonoMovil",  pNumeroTelefono.trim().toUpperCase())));
                 if(pSexo!=null) critPersonas.add(Restrictions.eq("codigoSexo", pSexo));
 
@@ -176,7 +199,8 @@ public class PersonaService {
                 critPersonas.setFirstResult(pPaginaActual);
                 critPersonas.setMaxResults(pRegistrosPorPagina);
                 critPersonas.addOrder(Order.asc("primerApellido"));
-                personaList = (List<SisPersona>) critPersonas.list();
+                //personaList = (List<SisPersona>) critPersonas.list();
+                personaList = (List<PersonaTmp>) critPersonas.list();
 
                 if(this.rowCount < 1){
                     personaList = null;
@@ -191,13 +215,15 @@ public class PersonaService {
         return personaList;
     }
 
-    public List<SisPersona> getPersonasPorIdentificacion(int pPaginaActual,int pRegistrosPorPagina,String pIdentificacion,String pSexo){
-
-        List<SisPersona> personaList = null;
+    //public List<SisPersona> getPersonasPorIdentificacion(int pPaginaActual,int pRegistrosPorPagina,String pIdentificacion,String pSexo){
+    /*public List<PersonaTmp> getPersonasPorIdentificacion(int pPaginaActual,int pRegistrosPorPagina,String pIdentificacion,String pSexo){
+        //List<SisPersona> personaList = null;
+        List<PersonaTmp> personaList = null;
         Session session = sessionFactory.getCurrentSession();
         try{
             if(!pIdentificacion.trim().equals("")){
-                Criteria critPersonas = session.createCriteria(SisPersona.class);
+                //Criteria critPersonas = session.createCriteria(SisPersona.class);
+                Criteria critPersonas = session.createCriteria(PersonaTmp.class);
                 critPersonas.add(Restrictions.eq("identificacion",  pIdentificacion.trim().toUpperCase()));
                 if(pSexo!=null) critPersonas.add(Restrictions.eq("codigoSexo", pSexo));
 
@@ -208,7 +234,8 @@ public class PersonaService {
                 critPersonas.setFirstResult(pPaginaActual);
                 critPersonas.setMaxResults(pRegistrosPorPagina);
                 critPersonas.addOrder(Order.asc("primerApellido"));
-                personaList = (List<SisPersona>) critPersonas.list();
+                //personaList = (List<SisPersona>) critPersonas.list();
+                personaList = (List<PersonaTmp>) critPersonas.list();
 
                 if(this.rowCount < 1){
                     personaList = null;
@@ -220,23 +247,26 @@ public class PersonaService {
         }
 
         return personaList;
-    }
+    }*/
 
-    public SisPersona getPersona(long idPerson){
+   //public SisPersona getPersona(long idPerson){
+   public PersonaTmp getPersona(long idPerson){
 		// Retrieve session from Hibernate
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM SisPersona p where p.personaId = :idPerson");
+		//Query query = session.createQuery("FROM SisPersona p where p.personaId = :idPerson");
+       Query query = session.createQuery("FROM PersonaTmp p where p.personaId = :idPerson");
 		query.setParameter("idPerson", idPerson);
-		SisPersona persona = (SisPersona) query.uniqueResult();
+		//SisPersona persona = (SisPersona) query.uniqueResult();
+       PersonaTmp persona = (PersonaTmp) query.uniqueResult();
 		return persona;
-		
+
 	}
 
     /**
-     * @param dto
+    // * @param dto
      * @throws Exception
      */
-    public void saveOrUpdatePerson(SisPersona dto) throws Exception {
+    /*public void saveOrUpdatePerson(SisPersona dto) throws Exception {
         try {
             if (dto != null) {
                 Session session = sessionFactory.getCurrentSession();
@@ -247,7 +277,7 @@ public class PersonaService {
         }catch (Exception ex){
             throw ex;
         }
-    }
+    }*/
 
 
     public void iniciarTransaccion() throws Exception {
@@ -301,7 +331,7 @@ public class PersonaService {
         return persona;
     }
 
-    public SisPersona ensamblarObjetoSisPersona(Persona pPersona){
+    /*public SisPersona ensamblarObjetoSisPersona(Persona pPersona) {
         SisPersona persona = null;
 
         if(pPersona!=null){
@@ -417,9 +447,9 @@ public class PersonaService {
         }
 
         return persona;
-    }
+    }*/
 
-    public Persona ensamblarObjetoPersona(SisPersona pPersona){
+    /*public Persona ensamblarObjetoPersona(SisPersona pPersona){
         Persona persona = null;
 
         if(pPersona!=null){
@@ -437,19 +467,92 @@ public class PersonaService {
             persona.setAseguradoNumero(pPersona.getNumeroAsegurado());
             persona.setTelefonoResi(pPersona.getTelefonoResidencia());
             persona.setTelefonoMovil(pPersona.getTelefonoMovil());
-            persona.setSexoCodigo(pPersona.getSexo()!=null ? pPersona.getSexo().getCodigo() : null);
-            persona.setEtniaCodigo(pPersona.getEtnia()!=null ?pPersona.getEtnia().getCodigo() : null);
+            *//*persona.setSexoCodigo(pPersona.getSexo()!=null ? pPersona.getSexo().getCodigo() : null);
+            persona.setEtniaCodigo(pPersona.getEtnia()!=null ?pPersona.getEtnia().getCodigo() : null);*//*
+            persona.setSexoCodigo(pPersona.getCodigoSexo() !=null ? pPersona.getCodigoSexo() : null);
+            persona.setEtniaCodigo(pPersona.getCodigoEtnia() !=null ? pPersona.getCodigoEtnia() : null);
             persona.setOcupacionCodigo(pPersona.getOcupacion()!=null ? pPersona.getOcupacion().getCodigo() : null);
-            persona.setTipoAsegCodigo(pPersona.getTipoAsegurado()!=null? pPersona.getTipoAsegurado().getCodigo() : null);
+            *//*persona.setTipoAsegCodigo(pPersona.getTipoAsegurado()!=null? pPersona.getTipoAsegurado().getCodigo() : null);
             persona.setIdentCodigo(pPersona.getTipoIdentificacion()!=null ? pPersona.getTipoIdentificacion().getCodigo() : null);
             persona.setEscolaridadCodigo(pPersona.getEscolaridad()!=null ? pPersona.getEscolaridad().getCodigo() : null);
-            persona.setEstadoCivilCodigo(pPersona.getEstadoCivil()!=null ? pPersona.getEstadoCivil().getCodigo() : null);
-            persona.setPaisNacCodigoAlfados(pPersona.getPaisNacimiento()!=null ? pPersona.getPaisNacimiento().getCodigoAlfados() : null);
-            persona.setMuniNacCodigoNac(pPersona.getMunicipioNacimiento()!=null ? pPersona.getMunicipioNacimiento().getCodigoNacional() : null);
-            persona.setMuniResiCodigoNac(pPersona.getMunicipioResidencia()!=null ? pPersona.getMunicipioResidencia().getCodigoNacional() : null);
-            persona.setComuResiCodigo(pPersona.getComunidadResidencia()!=null ? pPersona.getComunidadResidencia().getCodigo() : null);
+            persona.setEstadoCivilCodigo(pPersona.getEstadoCivil()!=null ? pPersona.getEstadoCivil().getCodigo() : null);*//*
+            persona.setTipoAsegCodigo(pPersona.getCodigoTipoAsegurado() !=null ? pPersona.getCodigoTipoAsegurado() : null);
+            persona.setIdentCodigo(pPersona.getIdTipoIdentificacion() !=null ? pPersona.getIdTipoIdentificacion() : null);
+            persona.setEscolaridadCodigo(pPersona.getCodigoEscolaridad() !=null ? pPersona.getCodigoEscolaridad() : null);
+            persona.setEstadoCivilCodigo(pPersona.getCodigoEstadoCivil() !=null ? pPersona.getCodigoEstadoCivil() : null);
+            persona.setPaisNacCodigoAlfados(pPersona.getPaisNacimiento() !=null ? pPersona.getPaisNacimiento().getCodigoAlfados() : null);
+            persona.setMuniNacCodigoNac(pPersona.getMunicipioNacimiento() !=null ? pPersona.getMunicipioNacimiento().getCodigoNacional() : null);
+            persona.setMuniResiCodigoNac(pPersona.getMunicipioResidencia() !=null ? pPersona.getMunicipioResidencia().getCodigoNacional() : null);
+            persona.setComuResiCodigo(pPersona.getComunidadResidencia() !=null ? pPersona.getComunidadResidencia().getCodigo() : null);
         }
 
         return persona;
+    }*/
+
+    public PersonaTmp parsePersonaMinsaToDatosPersona(ni.gob.minsa.alerta.restServices.entidades.Persona persona) throws Exception{
+        PersonaTmp personaTmp = new PersonaTmp();
+        if (persona !=null) {
+
+            personaTmp.setPersonaId(persona.getId());
+            personaTmp.setPersonaIdentificada(persona.isIdentificada());
+            if (persona.getPaciente() !=null && persona.getPaciente().getCodigoExpediente()!=null) {
+                personaTmp.setCodigoExpUnico(persona.getPaciente().getCodigoExpediente().getValor());
+            }
+            if (persona.getIdentificacion()!=null) {
+                personaTmp.setIdTipoIdentificacion(persona.getIdentificacion().getCodigo());
+                personaTmp.setNombreTipoIdentificacion(persona.getIdentificacion().getNombre());
+                personaTmp.setIdentificacion(persona.getIdentificacion().getValor());
+            }
+            personaTmp.setPrimerNombre(persona.getPrimerNombre());
+            personaTmp.setPrimerApellido(persona.getPrimerApellido());
+            personaTmp.setSegundoNombre(persona.getSegundoNombre());
+            personaTmp.setSegundoApellido(persona.getSegundoApellido());
+            if (persona.getFechaNacimiento()!=null)
+                personaTmp.setFechaNacimiento(DateUtil.StringToDate(persona.getFechaNacimiento(), "yyyy-MM-dd"));
+            if (persona.getSexo()!=null) {
+                personaTmp.setCodigoSexo(persona.getSexo().getCodigo());
+                personaTmp.setDescSexo(persona.getSexo().getValor());
+            }
+            if (persona.getFallecimiento()!=null)
+                personaTmp.setFallecida(persona.getFallecimiento().isFallecido()?1L:0L);
+
+            if (persona.getDivisionPolitica() != null) {
+                if (persona.getDivisionPolitica().getNacimiento() != null) {
+                    personaTmp.setIdPaisNacimiento(persona.getDivisionPolitica().getNacimiento().getPais().getId());
+                    personaTmp.setNombrePaisNacimiento(persona.getDivisionPolitica().getNacimiento().getPais().getNombre());
+                    personaTmp.setIdRegionNacimiento(persona.getDivisionPolitica().getNacimiento().getRegion().getId());
+                    personaTmp.setNombreRegionNacimiento(persona.getDivisionPolitica().getNacimiento().getRegion().getNombre());
+                    personaTmp.setIdDepartamentoNacimiento(persona.getDivisionPolitica().getNacimiento().getDepartamento().getId());
+                    personaTmp.setNombreDepartamentoNacimiento(persona.getDivisionPolitica().getNacimiento().getDepartamento().getNombre());
+                    personaTmp.setIdMunicipioNacimiento(persona.getDivisionPolitica().getNacimiento().getMunicipio().getId());
+                    personaTmp.setNombreMunicipioNacimiento(persona.getDivisionPolitica().getNacimiento().getMunicipio().getNombre());
+                }
+                if (persona.getDivisionPolitica().getResidencia() != null) {
+                    //personaTmp.setIdPaisResidencia();
+                    //personaTmp.setNombrePaisResidencia();
+                    personaTmp.setIdRegionResidencia(persona.getDivisionPolitica().getResidencia().getRegion().getId());
+                    personaTmp.setNombreRegionResidencia(persona.getDivisionPolitica().getResidencia().getRegion().getNombre());
+                    personaTmp.setIdDepartamentoResidencia(persona.getDivisionPolitica().getResidencia().getDepartamento().getId());
+                    personaTmp.setNombreDepartamentoResidencia(persona.getDivisionPolitica().getResidencia().getDepartamento().getNombre());
+                    personaTmp.setIdMunicipioResidencia(persona.getDivisionPolitica().getResidencia().getMunicipio().getId());
+                    personaTmp.setNombreMunicipioResidencia(persona.getDivisionPolitica().getResidencia().getMunicipio().getNombre());
+                    personaTmp.setIdComunidadResidencia(persona.getDivisionPolitica().getResidencia().getComunidad().getId());
+                    personaTmp.setNombreComunidadResidencia(persona.getDivisionPolitica().getResidencia().getComunidad().getNombre());
+                    personaTmp.setDireccionResidencia(persona.getDivisionPolitica().getResidencia().getPersonaDireccion());
+                }
+            }
+
+            //personaTmp.telefonoResidencia;
+            //personaTmp.telefonoMovil;
+            personaTmp.setFechaRegistro(new Timestamp(new Date().getTime()));
+            //personaTmp.setUsuarioRegistro();
+            personaTmp.setPasivo(0);
+        }
+        return personaTmp;
+    }
+
+    public void saveOrUpdateDatosPersona(PersonaTmp obj) throws Exception{
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(obj);
     }
 }

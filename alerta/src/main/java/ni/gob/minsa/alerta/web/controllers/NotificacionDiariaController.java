@@ -3,10 +3,12 @@ package ni.gob.minsa.alerta.web.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.sive.SiveInformeDiario;
 import ni.gob.minsa.alerta.domain.sive.SivePatologias;
 import ni.gob.minsa.alerta.domain.sive.UnidadesVwEntity;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
@@ -225,7 +227,8 @@ public class NotificacionDiariaController {
         JsonObject jObjectJson = new Gson().fromJson(json, JsonObject.class);
 
         EntidadesAdtvas silais = null;
-        Divisionpolitica municipio = null;
+        //Divisionpolitica municipio = null;
+        Municipio municipio = null;
         UnidadesVwEntity unidadSalud = null;
         Date fecha = null;
         Integer semanaEpi = null;
@@ -265,7 +268,8 @@ public class NotificacionDiariaController {
             silais =  entidadAdmonService.getSilaisByCodigo(jObjectJson.get("codSilaisAtencion").getAsInt());
 
         if (jObjectJson.get("codMunicipio")!=null && !jObjectJson.get("codMunicipio").getAsString().isEmpty())
-           municipio =   divisionPoliticaService.getDivisionPolitiacaById(jObjectJson.get("codMunicipio").getAsLong());
+           //municipio =   divisionPoliticaService.getDivisionPolitiacaById(jObjectJson.get("codMunicipio").getAsLong());
+            municipio = CallRestServices.getMunicipio(jObjectJson.get("codMunicipio").getAsLong());
 
         if (jObjectJson.get("codUnidadAtencion")!=null && !jObjectJson.get("codUnidadAtencion").getAsString().isEmpty())
             unidadSalud =   notifacionDiariaService.getUnidadSive(jObjectJson.get("codUnidadAtencion").getAsInt());
@@ -370,7 +374,8 @@ public class NotificacionDiariaController {
             totalF = jObjectJson.get("totalFem").getAsInt();
 
         notiD.setSilais(String.valueOf(silais.getCodigo()));
-        notiD.setMunicipio(String.valueOf(municipio.getDivisionpoliticaId()));
+        //notiD.setMunicipio(String.valueOf(municipio.getDivisionpoliticaId()));
+        notiD.setMunicipio(String.valueOf(municipio.getCodigo()));
         notiD.setUnidad(unidadSalud);
         notiD.setFechaNotificacion(fecha);
         notiD.setSemana(semanaEpi);
@@ -513,7 +518,8 @@ public class NotificacionDiariaController {
         if (urlValidacion.isEmpty()) {
             //entidades admon
             List<EntidadesAdtvas> entidades = null;
-            List<Divisionpolitica> munic = null;
+            //List<Divisionpolitica> munic = null;
+            List<Municipio> munic = null;
             List<UnidadesVwEntity> unidades = null;
             List<SivePatologias> patologias;
             String silais;
@@ -541,7 +547,8 @@ public class NotificacionDiariaController {
             }
 
             if(silais!= null){
-                munic = divisionPoliticaService.getMunicipiosBySilais(Long.parseLong(silais));
+                //munic = divisionPoliticaService.getMunicipiosBySilais(Long.parseLong(silais));
+                munic = CallRestServices.getMunicipiosEntidad(Long.parseLong(silais));
 
                 if(munic != null){
                     unidades = notifacionDiariaService.getPUnitsHospByMuniAndSilais(Long.valueOf(municipio), HealthUnitType.UnidadesSIVE.getDiscriminator().split(","), Long.parseLong(silais));

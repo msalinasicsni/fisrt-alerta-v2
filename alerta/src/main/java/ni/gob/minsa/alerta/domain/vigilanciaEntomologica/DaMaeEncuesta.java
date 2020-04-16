@@ -1,10 +1,10 @@
 package ni.gob.minsa.alerta.domain.vigilanciaEntomologica;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
@@ -21,15 +21,15 @@ import java.util.Date;
 @Table(name = "da_mae_encuesta", schema = "alerta")
 public class DaMaeEncuesta implements Auditable {
     private String encuestaId;
-    private Divisionpolitica municipio;
+    //private Divisionpolitica municipio;
     private String codDistrito;
     private String codArea;
-    private Unidades unidadSalud;
-    private Procedencia procedencia;
+    //private Unidades unidadSalud;
+    //private Procedencia procedencia;
     private Date feInicioEncuesta;
     private Date feFinEncuesta;
-    private Ordinal ordinalEncuesta;
-    private ModeloEncuesta modeloEncuesta;
+    //private Ordinal ordinalEncuesta;
+    //private ModeloEncuesta modeloEncuesta;
     private Integer semanaEpi;
     private Integer mesEpi;
     private Integer anioEpi;
@@ -38,6 +38,15 @@ public class DaMaeEncuesta implements Auditable {
     private Usuarios usuario;
 
     private String actor;
+
+    /****/
+    private String procedencia;
+    private String ordinalEncuesta;
+    private String modeloEncuesta;
+    private Long unidad;
+    private String municipio;
+    private String depatamento;
+    private String nombreUnidadSalud;
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -149,18 +158,7 @@ public class DaMaeEncuesta implements Auditable {
         this.usuario = usuario;
     }
 
-    @ManyToOne(optional=false)
-    @JoinColumn(name="COD_UNIDAD_SALUD", referencedColumnName = "CODIGO")
-    @ForeignKey(name = "MAENCUESTA_UNIDADES_FK")
-    public Unidades getUnidadSalud() {
-        return unidadSalud;
-    }
-
-    public void setUnidadSalud(Unidades unidadSalud) {
-        this.unidadSalud = unidadSalud;
-    }
-
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
     @JoinColumn(name="COD_ORDINAL_ENCU", referencedColumnName = "CODIGO")
     @ForeignKey(name = "MAENCUESTA_ORDINALENCUESTA_FK")
     public Ordinal getOrdinalEncuesta() {
@@ -169,9 +167,18 @@ public class DaMaeEncuesta implements Auditable {
 
     public void setOrdinalEncuesta(Ordinal ordinalEncuesta) {
         this.ordinalEncuesta = ordinalEncuesta;
+    }*/
+
+    @Column(name="COD_ORDINAL_ENCU")
+    public String getOrdinalEncuesta() {
+        return ordinalEncuesta;
     }
 
-    @ManyToOne(optional=false,fetch=FetchType.LAZY,targetEntity=Catalogo.class)
+    public void setOrdinalEncuesta(String ordinalEncuesta) {
+        this.ordinalEncuesta = ordinalEncuesta;
+    }
+
+    /*@ManyToOne(optional=false,fetch=FetchType.LAZY,targetEntity=Catalogo.class)
     @JoinColumn(name="COD_MODELO_ENCU", referencedColumnName = "CODIGO")
     @ForeignKey(name = "MAENCUESTA_MODELOENCUESTA_FK")
     public ModeloEncuesta getModeloEncuesta() {
@@ -180,9 +187,18 @@ public class DaMaeEncuesta implements Auditable {
 
     public void setModeloEncuesta(ModeloEncuesta modeloEncuesta) {
         this.modeloEncuesta = modeloEncuesta;
+    }*/
+
+    @Column(name="COD_MODELO_ENCU")
+    public String getModeloEncuesta() {
+        return modeloEncuesta;
     }
 
-    @ManyToOne(optional=false,fetch=FetchType.LAZY,targetEntity=Catalogo.class)
+    public void setModeloEncuesta(String modeloEncuesta) {
+        this.modeloEncuesta = modeloEncuesta;
+    }
+
+    /*@ManyToOne(optional=false,fetch=FetchType.LAZY,targetEntity=Catalogo.class)
     @JoinColumn(name="COD_PROCEDENCIA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "MAENCUESTA_PROCEDENCIA_FK")
     public Procedencia getProcedencia() {
@@ -191,17 +207,15 @@ public class DaMaeEncuesta implements Auditable {
 
     public void setProcedencia(Procedencia procedencia) {
         this.procedencia = procedencia;
+    }*/
+
+    @Column(name="COD_PROCEDENCIA", nullable = true)
+    public String getProcedencia() {
+        return procedencia;
     }
 
-    @ManyToOne(optional=false)
-    @JoinColumn(name="COD_MUNICIPIO", referencedColumnName = "CODIGO_NACIONAL")
-    @ForeignKey(name = "MAENCUESTA_MUNICIPIO_FK")
-    public Divisionpolitica getMunicipio() {
-        return municipio;
-    }
-
-    public void setMunicipio(Divisionpolitica municipio) {
-        this.municipio = municipio;
+    public void setProcedencia(String procedencia) {
+        this.procedencia = procedencia;
     }
 
     @Override
@@ -219,6 +233,43 @@ public class DaMaeEncuesta implements Auditable {
     @Override
     public void setActor(String actor) {
         this.actor = actor;
+    }
+
+    @Column(name="UNIDAD", nullable=true)
+    public Long getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Long unidad) {
+        this.unidad = unidad;
+    }
+
+    @Column(name="MUNICIPIO", nullable=true)
+    public String getMunicipio() {
+        return municipio;
+    }
+
+
+    public void setMunicipio(String municipio) {
+        this.municipio = municipio;
+    }
+
+    @Column(name="DEPARTAMENTO", nullable=true)
+    public String getDepatamento() {
+        return depatamento;
+    }
+
+    public void setDepatamento(String depatamento) {
+        this.depatamento = depatamento;
+    }
+
+    @Column(name="NOMBRE_UNIDAD_SALUD", nullable=true)
+    public String getNombreUnidadSalud() {
+        return nombreUnidadSalud;
+    }
+
+    public void setNombreUnidadSalud(String nombreUnidadSalud) {
+        this.nombreUnidadSalud = nombreUnidadSalud;
     }
 
     @Override

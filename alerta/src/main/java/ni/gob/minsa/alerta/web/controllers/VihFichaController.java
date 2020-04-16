@@ -6,8 +6,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.vih.VihFicha;
 import ni.gob.minsa.alerta.service.*;
 //import ni.gob.minsa.alerta.utilities.typeAdapter.MaestroEncuestaTypeAdapter;
@@ -61,10 +61,10 @@ public class VihFichaController {
     private VihFichaService vihFichaService;
 
     Map<String, Object> mapModel;
-    List<Divisionpolitica> municipios;
+    //List<Divisionpolitica> municipios;
     List<EntidadesAdtvas> silais;
-    List<Divisionpolitica> departamentos;
-    List<Unidades> unidadesSalud;
+    //List<Divisionpolitica> departamentos;
+    //List<Unidades> unidadesSalud;
 
     /**
      * Método que inicaliza la pantalla de búsqueda de fichas vih

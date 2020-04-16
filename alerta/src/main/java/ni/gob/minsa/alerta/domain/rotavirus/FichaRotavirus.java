@@ -1,9 +1,9 @@
 package ni.gob.minsa.alerta.domain.rotavirus;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
-import ni.gob.minsa.alerta.domain.irag.CondicionEgreso;
-import ni.gob.minsa.alerta.domain.irag.Respuesta;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+//import ni.gob.minsa.alerta.domain.irag.CondicionEgreso;
+//import ni.gob.minsa.alerta.domain.irag.Respuesta;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
@@ -28,20 +28,20 @@ public class FichaRotavirus implements Serializable, Auditable {
     //datos clínicos
     Date fechaInicioDiarrea;
     Integer noEvacuaciones24Hrs;
-    Respuesta fiebre;
-    Respuesta vomito;
+    //Respuesta fiebre;
+    //Respuesta vomito;
     Integer noVomito24Hrs;
     Date fechaInicioVomito;
-    CaracteristaHeces caracteristaHeces;
+    //CaracteristaHeces caracteristaHeces;
     String otraCaracteristicaHeces;
-    GradoDeshidratacion gradoDeshidratacion;
+    //GradoDeshidratacion gradoDeshidratacion;
     Integer diasHospitalizacion;
     Date fechaAlta;
     //tratamiento
-    Respuesta usoAntibioticoPrevio;
+    //Respuesta usoAntibioticoPrevio;
     Boolean planB;
     Boolean planC;
-    Respuesta antibioticoHospital;
+    //Respuesta antibioticoHospital;
     String cualAntibiotico;
     Boolean UCI;
     Integer diasUCI;
@@ -49,9 +49,9 @@ public class FichaRotavirus implements Serializable, Auditable {
     Date fechaTerminoDiarrea;
     Boolean ignoradoFechaTD;
     //historia vacunacion
-    Respuesta vacunado;
-    RegistroVacuna registroVacuna;
-    TipoVacunaRotavirus tipoVacunaRotavirus;
+    //Respuesta vacunado;
+    //RegistroVacuna registroVacuna;
+    //TipoVacunaRotavirus tipoVacunaRotavirus;
     Boolean dosi1;
     Date fechaAplicacionDosis1;
     Boolean dosi2;
@@ -59,20 +59,35 @@ public class FichaRotavirus implements Serializable, Auditable {
     Boolean dosi3;
     Date fechaAplicacionDosis3;
     //datos laboratorio
-    Respuesta tomoMuestraHeces;
+    //Respuesta tomoMuestraHeces;
     //Clasificación final
-    ClasificacionFinalRotavirus clasificacionFinal;
-    CondicionEgreso condicionEgreso;
+    //ClasificacionFinalRotavirus clasificacionFinal;
+    //CondicionEgreso condicionEgreso;
     //Responsable Información
     String nombreLlenaFicha;
     String nombreTomoMx;
     String epidemiologo;
 
-    SalaRotaVirus sala;
+    //SalaRotaVirus sala;
     Date fechaIngreso;
 
     private String actor;
     private String id;
+
+    /****/
+    private String fiebre;
+    private String vomito;
+    private String caracteristaHeces;
+    private String gradoDeshidratacion;
+    private String usoAntibioticoPrevio;
+    private String antibioticoHospital;
+    private String vacunado;
+    private String registroVacuna;
+    private String tipoVacunaRotavirus;
+    private String tomoMuestraHeces;
+    private String clasificacionFinal;
+    private String condicionEgreso;
+    private String sala;
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -142,7 +157,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.noEvacuaciones24Hrs = noEvacuaciones24Hrs;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="FIEBRE", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_FIEBRE_FK")
     public Respuesta getFiebre() {
@@ -151,9 +166,18 @@ public class FichaRotavirus implements Serializable, Auditable {
 
     public void setFiebre(Respuesta fiebre) {
         this.fiebre = fiebre;
+    }*/
+
+    @Column(name="FIEBRE", nullable = true)
+    public String getFiebre() {
+        return fiebre;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    public void setFiebre(String fiebre) {
+        this.fiebre = fiebre;
+    }
+
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="VOMITO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_VOMITO_FK")
     public Respuesta getVomito() {
@@ -161,6 +185,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setVomito(Respuesta vomito) {
+        this.vomito = vomito;
+    }*/
+
+    @Column(name="VOMITO", nullable = true)
+    public String getVomito() {
+        return vomito;
+    }
+
+    public void setVomito(String vomito) {
         this.vomito = vomito;
     }
 
@@ -184,7 +217,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.fechaInicioVomito = fechaInicioVomito;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="HECES", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_HECES_FK")
     public CaracteristaHeces getCaracteristaHeces() {
@@ -193,9 +226,18 @@ public class FichaRotavirus implements Serializable, Auditable {
 
     public void setCaracteristaHeces(CaracteristaHeces caracteristaHeces) {
         this.caracteristaHeces = caracteristaHeces;
+    }*/
+
+    @Column(name="HECES", nullable = true)
+    public String getCaracteristaHeces() {
+        return caracteristaHeces;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    public void setCaracteristaHeces(String caracteristaHeces) {
+        this.caracteristaHeces = caracteristaHeces;
+    }
+
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="GRADO_DESHIDRATACION", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_GRADODH_FK")
     public GradoDeshidratacion getGradoDeshidratacion() {
@@ -203,6 +245,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setGradoDeshidratacion(GradoDeshidratacion gradoDeshidratacion) {
+        this.gradoDeshidratacion = gradoDeshidratacion;
+    }*/
+
+    @Column(name="GRADO_DESHIDRATACION", nullable = true)
+    public String getGradoDeshidratacion() {
+        return gradoDeshidratacion;
+    }
+
+    public void setGradoDeshidratacion(String gradoDeshidratacion) {
         this.gradoDeshidratacion = gradoDeshidratacion;
     }
 
@@ -226,7 +277,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.fechaAlta = fechaAlta;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="USO_ANTIB_PREVIO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_ANTIBIOTICO_PREVIO_FK")
     public Respuesta getUsoAntibioticoPrevio() {
@@ -234,6 +285,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setUsoAntibioticoPrevio(Respuesta usoAntibioticoPrevio) {
+        this.usoAntibioticoPrevio = usoAntibioticoPrevio;
+    }*/
+
+    @Column(name="USO_ANTIB_PREVIO", nullable = true)
+    public String getUsoAntibioticoPrevio() {
+        return usoAntibioticoPrevio;
+    }
+
+    public void setUsoAntibioticoPrevio(String usoAntibioticoPrevio) {
         this.usoAntibioticoPrevio = usoAntibioticoPrevio;
     }
 
@@ -257,7 +317,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.planC = planC;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="ANTIBIOTICO_HOSP", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_ANTIBIOTICO_HOSP_FK")
     public Respuesta getAntibioticoHospital() {
@@ -265,6 +325,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setAntibioticoHospital(Respuesta antibioticoHospital) {
+        this.antibioticoHospital = antibioticoHospital;
+    }*/
+
+    @Column(name="ANTIBIOTICO_HOSP", nullable = true)
+    public String getAntibioticoHospital() {
+        return antibioticoHospital;
+    }
+
+    public void setAntibioticoHospital(String antibioticoHospital) {
         this.antibioticoHospital = antibioticoHospital;
     }
 
@@ -318,7 +387,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.fechaTerminoDiarrea = fechaTerminoDiarrea;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="VACUNADO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_VACUNADO_FK")
     public Respuesta getVacunado() {
@@ -327,9 +396,18 @@ public class FichaRotavirus implements Serializable, Auditable {
 
     public void setVacunado(Respuesta vacunado) {
         this.vacunado = vacunado;
+    }*/
+
+    @Column(name="VACUNADO", nullable = true)
+    public String getVacunado() {
+        return vacunado;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    public void setVacunado(String vacunado) {
+        this.vacunado = vacunado;
+    }
+
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="REGISTRO_VACUNA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_REG_VACUNA_FK")
     public RegistroVacuna getRegistroVacuna() {
@@ -338,9 +416,18 @@ public class FichaRotavirus implements Serializable, Auditable {
 
     public void setRegistroVacuna(RegistroVacuna registroVacuna) {
         this.registroVacuna = registroVacuna;
+    }*/
+
+    @Column(name="REGISTRO_VACUNA", nullable = true)
+    public String getRegistroVacuna() {
+        return registroVacuna;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    public void setRegistroVacuna(String registroVacuna) {
+        this.registroVacuna = registroVacuna;
+    }
+
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="TIPO_VACUNA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_TIPO_VACUNA_FK")
     public TipoVacunaRotavirus getTipoVacunaRotavirus() {
@@ -348,6 +435,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setTipoVacunaRotavirus(TipoVacunaRotavirus tipoVacunaRotavirus) {
+        this.tipoVacunaRotavirus = tipoVacunaRotavirus;
+    }*/
+
+    @Column(name="TIPO_VACUNA", nullable = true)
+    public String getTipoVacunaRotavirus() {
+        return tipoVacunaRotavirus;
+    }
+
+    public void setTipoVacunaRotavirus(String tipoVacunaRotavirus) {
         this.tipoVacunaRotavirus = tipoVacunaRotavirus;
     }
 
@@ -411,7 +507,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.fechaAplicacionDosis3 = fechaAplicacionDosis3;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="CLASIFICACION_FINAL", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_CLASIFICACION_FINAL_FK")
     public ClasificacionFinalRotavirus getClasificacionFinal() {
@@ -420,9 +516,18 @@ public class FichaRotavirus implements Serializable, Auditable {
 
     public void setClasificacionFinal(ClasificacionFinalRotavirus clasificacionFinal) {
         this.clasificacionFinal = clasificacionFinal;
+    }*/
+
+    @Column(name="CLASIFICACION_FINAL", nullable = true)
+    public String getClasificacionFinal() {
+        return clasificacionFinal;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    public void setClasificacionFinal(String clasificacionFinal) {
+        this.clasificacionFinal = clasificacionFinal;
+    }
+
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="CONDICION_EGRESO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_CONDICION_EGRESO_FK")
     public CondicionEgreso getCondicionEgreso() {
@@ -430,6 +535,14 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setCondicionEgreso(CondicionEgreso condicionEgreso) {
+        this.condicionEgreso = condicionEgreso;
+    }*/
+    @Column(name="CONDICION_EGRESO", nullable = true)
+    public String getCondicionEgreso() {
+        return condicionEgreso;
+    }
+
+    public void setCondicionEgreso(String condicionEgreso) {
         this.condicionEgreso = condicionEgreso;
     }
 
@@ -453,7 +566,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.epidemiologo = epidemiologo;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="SALA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_SALA_FK")
     public SalaRotaVirus getSala() {
@@ -461,6 +574,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setSala(SalaRotaVirus sala) {
+        this.sala = sala;
+    }*/
+
+    @Column(name="SALA", nullable = true)
+    public String getSala() {
+        return sala;
+    }
+
+    public void setSala(String sala) {
         this.sala = sala;
     }
 
@@ -484,7 +606,7 @@ public class FichaRotavirus implements Serializable, Auditable {
         this.otraCaracteristicaHeces = otraCaracteristicaHeeces;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="MX_HECES", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "RT_TOMOMUESTRAHECES_FK")
     public Respuesta getTomoMuestraHeces() {
@@ -492,6 +614,15 @@ public class FichaRotavirus implements Serializable, Auditable {
     }
 
     public void setTomoMuestraHeces(Respuesta tomoMuestraHeces) {
+        this.tomoMuestraHeces = tomoMuestraHeces;
+    }*/
+
+    @Column(name="MX_HECES", nullable = true)
+    public String getTomoMuestraHeces() {
+        return tomoMuestraHeces;
+    }
+
+    public void setTomoMuestraHeces(String tomoMuestraHeces) {
         this.tomoMuestraHeces = tomoMuestraHeces;
     }
 

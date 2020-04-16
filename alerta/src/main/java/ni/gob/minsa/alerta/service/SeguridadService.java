@@ -1,12 +1,16 @@
 package ni.gob.minsa.alerta.service;
 
-import ni.gob.minsa.alerta.domain.catalogos.AreaRep;
+import com.google.common.base.Predicate;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.Estudio_UnidadSalud;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.UtilityProperties;
+import ni.gob.minsa.alerta.utilities.reportes.FilterLists;
+import ni.gob.minsa.alerta.utilities.reportes.ResultadoVigilancia;
 import ni.gob.minsa.ciportal.dto.*;
 import ni.gob.minsa.ciportal.servicios.PortalService;
 import org.hibernate.Query;
@@ -22,6 +26,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -77,10 +82,10 @@ public class SeguridadService {
             infoSesion.setUsername("jpalacios");
             infoSesion.setSistemaSesion("ALERTA");
             */
-            /*infoSesion.setUsuarioId(4772);
+            infoSesion.setUsuarioId(4772);
             infoSesion.setNombre("Admin Alerta");
             infoSesion.setUsername("admalerta");
-            infoSesion.setSistemaSesion("ALERTA");*/
+            infoSesion.setSistemaSesion("ALERTA");
             //usuario de desarrollo
             /*infoSesion.setUsuarioId(170);
             infoSesion.setNombre("Adm Alerta");
@@ -125,7 +130,7 @@ public class SeguridadService {
         String urlRetorno="";
         if (seguridadHabilitada()) { //Si es false no se realiza ninguna validaci�n
             if (!esUsuarioAutenticado(request.getSession())) {
-                String bdSessionId = "";  // esta variable dejarla en blanco par activar la seguridad
+                String bdSessionId = "a";  // esta variable dejarla en blanco par activar la seguridad
                 Cookie[] cookies = request.getCookies();
                 if (cookies != null) {
                     for (int i = 0; i < cookies.length; i++) {
@@ -221,7 +226,8 @@ public class SeguridadService {
      * @return TRUE: si es de nivel central  o la seguridad esta deshabilitada, FALSE: no es nivel central o sucedi� un error
      */
     public boolean esUsuarioNivelCentral(long pUsuarioId, String pSistema) {
-        boolean nivelCentral=false;
+        //boolean nivelCentral=false;
+        boolean nivelCentral=true;
         if (seguridadHabilitada()) {
             try {
                 InitialContext ctx = new InitialContext();
@@ -245,8 +251,8 @@ public class SeguridadService {
      * @return long con Id del usuario almacenado en sesi�n o O si no se encontr�
      */
     public long obtenerIdUsuario(HttpServletRequest request){
-        long idUsuario =0 ;
-
+        //long idUsuario =0 ;
+        long idUsuario = 4772;
         if(ConstantsSecurity.ENABLE_SECURITY){
             InfoSesion infoSesion = (InfoSesion) request.getSession().getAttribute("infoSesionActual");
 
@@ -461,7 +467,7 @@ public class SeguridadService {
      * @param tipoUnidades tipos de unidades a carga. Eje: Primarias , Primarias+Hospitales
      * @return List<Unidades>
      */
-    public List<Unidades> obtenerUnidadesPorUsuario(Integer pUsuarioId, String pCodigoSis, String tipoUnidades){
+    /*public List<Unidades> obtenerUnidadesPorUsuario(Integer pUsuarioId, String pCodigoSis, String tipoUnidades){
         List<Unidades> unidadesList = new ArrayList<Unidades>();
         try {
             String query = "select uni from Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
@@ -490,7 +496,7 @@ public class SeguridadService {
             e.printStackTrace();
         }
         return unidadesList;
-    }
+    }*/
 
     /**
      * M�todo que valida si el usuario logueado tiene autorizaci�n sobre una unidad de salud determinada
@@ -542,7 +548,7 @@ public class SeguridadService {
      * @param tipoUnidades tipos de unidades a carga. Eje: Primarias , Primarias+Hospitales
      * @return List<Unidades>
      */
-    public List<Unidades> obtenerUnidadesPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis, String tipoUnidades){
+    /*public List<Unidades> obtenerUnidadesPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis, String tipoUnidades){
         List<Unidades> unidadesList = new ArrayList<Unidades>();
         try {
             String query = "select uni from Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
@@ -572,7 +578,7 @@ public class SeguridadService {
             e.printStackTrace();
         }
         return unidadesList;
-    }
+    }*/
 
     /**
      * M�todo que obtiene todas las unidades de salud a las que tiene autorizaci�n el usuario en el sistema seg�n el SILAIS
@@ -581,7 +587,7 @@ public class SeguridadService {
      * @param pCodigoSis c�digo del sistema, ALERTA
      * @return List<Unidades>
      */
-    public List<Unidades> obtenerUnidadesPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis){
+    /*public List<Unidades> obtenerUnidadesPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis){
         List<Unidades> unidadesList = new ArrayList<Unidades>();
         try {
             String query = "select uni from Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
@@ -612,7 +618,7 @@ public class SeguridadService {
         }
         return unidadesList;
     }
-
+*/
     /**
      * M�todo que obtiene todas las unidades de salud a las que tiene autorizaci�n el usuario en el sistema seg�n el SILAIS y municipio
      * @param pUsuarioId id del usuario autenticado
@@ -622,7 +628,7 @@ public class SeguridadService {
      * @param tipoUnidades tipos de unidades a carga. Eje: Primarias , Primarias+Hospitales
      * @return List<Unidades>
      */
-    public List<Unidades> obtenerUnidadesPorUsuarioEntidadMunicipio(Integer pUsuarioId, long pCodSilais, String pCodMunicipio, String pCodigoSis, String tipoUnidades){
+   public List<Unidades> obtenerUnidadesPorUsuarioEntidadMunicipio(Integer pUsuarioId, long pCodSilais, String pCodMunicipio, String pCodigoSis, String tipoUnidades){
         List<Unidades> unidadesList = new ArrayList<Unidades>();
         try {
             //se obtienen todas las unidades del los silais asociados directamente
@@ -664,10 +670,10 @@ public class SeguridadService {
      * @param pCodigoSis c�digo del sistema, ALERTA
      * @return List<Divisionpolitica>
      */
-    public List<Divisionpolitica> obtenerMunicipiosPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis){
-        /*String query = "select distinct muni from Divisionpolitica as muni, Unidades as uni " +
+    /*public List<Divisionpolitica> obtenerMunicipiosPorUsuarioEntidad(Integer pUsuarioId, long pCodSilais, String pCodigoSis){
+        *//*String query = "select distinct muni from Divisionpolitica as muni, Unidades as uni " +
                 "where muni.pasivo = :pasivo and  uni.entidadAdtva = :pCodSilais and uni.municipio = muni.codigoNacional order by muni.nombre"; // muni.dependenciaSilais =:idSilas";
-        */
+        *//*
         List<Divisionpolitica> resultado = new ArrayList<Divisionpolitica>();
         String query = "select distinct muni from Divisionpolitica as muni, Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
                 "where uni.unidadId = usuni.unidad.unidadId and usu.usuarioId = usuni.usuario.usuarioId and usuni.sistema.id = sis.id " +
@@ -697,7 +703,7 @@ public class SeguridadService {
             resultado = q.list();
         }
         return resultado;
-    }
+    }*/
 
     /**
      * M�todo que valida si el usuario tiene asignada una unidad de salud, que tiene asignado alg�n estudio para permitir toma de muestra de estudio
@@ -735,9 +741,9 @@ public class SeguridadService {
                 return "SILAIS";
             }
 
-            query = "select uni from Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
+            /*query = "select uni from Unidades uni, UsuarioUnidad usuni, Usuarios usu, Sistema sis " +
                     "where uni.unidadId = usuni.unidad.unidadId and usu.usuarioId = usuni.usuario.usuarioId and usuni.sistema.id = sis.id " +
-                    "and sis.codigo = :pCodigoSis and usu.usuarioId = :pUsuarioId and uni.pasivo = :pasivo order by uni.nombre";
+                    "and sis.codigo = :pCodigoSis and usu.usuarioId = :pUsuarioId and uni.pasivo = :pasivo order by uni.nombre";*/
 
             q = session.createQuery(query);
             q.setParameter("pUsuarioId", idUsuario);
@@ -757,7 +763,7 @@ public class SeguridadService {
      * @param menorNivelPermitido nivel mas bajo permitido a obtener areas: 1=PAIS, 2=SILAIS, 3=UNIDAD
      * @return
      */
-    public List<AreaRep> getAreasUsuario(Integer idUsuario, int menorNivelPermitido){
+   /* public List<AreaRep> getAreasUsuario(Integer idUsuario, int menorNivelPermitido){
         List<AreaRep> areaRepList = new ArrayList<AreaRep>();
         Session session = sessionFactory.getCurrentSession();
         String query = "from AreaRep as a ";
@@ -790,11 +796,11 @@ public class SeguridadService {
                     break;
                 }
                 case "SILAIS" : {
-                    /*if (menorNivelPermitido >= 2) {
+                    *//*if (menorNivelPermitido >= 2) {
                         query += " where a.codigo not in ('AREAREP|PAIS','AREAREP|DEPTO') "; // no incluir pais y departamento
                     }else{
                         query += " where 1 = 0";  // ninguno
-                    }*/
+                    } *//*
                     switch (menorNivelPermitido){
                         case 1 :{
                             query += " where 1 = 0";  // ninguno
@@ -836,11 +842,11 @@ public class SeguridadService {
                         }
                         default: break;
                     }
-                    /*if (menorNivelPermitido==3) {
+                    *//*if (menorNivelPermitido==3) {
                         query += " where a.codigo in ('AREAREP|UNI') "; // s�lo unidad
                     }else {
                         query += " where 1 = 0";  // ninguno
-                    }*/
+                    }*//*
                     break;
                 }
                 default: break;
@@ -850,5 +856,139 @@ public class SeguridadService {
             areaRepList = q.list();
         }
         return  areaRepList;
+    }*/
+    public List<Catalogo> getAreasUsuario(Integer idUsuario, int menorNivelPermitido, List<Catalogo> catalogoList) {
+        String nivelUsuario = getNivelUsuario(idUsuario);
+        List<Catalogo> areaRepList = null;
+        if (nivelUsuario != null) {
+            switch (nivelUsuario) {
+                case "PAIS": {
+                    switch (menorNivelPermitido) {
+                        case 1: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() == "AREAREP|PAIS" || cat.getCodigo() == "AREAREP|DEPTO" || cat.getCodigo() == "AREAREP|SILAIS");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo in ('AREAREP|PAIS','AREAREP|DEPTO','AREAREP|SILAIS') "; // no incluir municipios, ni unidad, ni zona
+                            break;
+                        }
+                        case 2: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() != "AREAREP|UNI");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo not in ('AREAREP|UNI') "; // s�lo no incluir unidad
+                            break;
+                        }
+                        case 3: {
+                            areaRepList = catalogoList;
+                            //query += " where 1 = 1";  // todos
+                            break;
+                        }
+                        case 4: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() == "AREAREP|PAIS" || cat.getCodigo() == "AREAREP|SILAIS");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo in ('AREAREP|PAIS','AREAREP|SILAIS') "; // no incluir municipios, ni unidad, ni zona, ni departamento
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case "SILAIS": {
+                    switch (menorNivelPermitido) {
+                        case 1: {
+                            areaRepList = new ArrayList<Catalogo>();
+                            //query += " where 1 = 0";  // ninguno
+                            break;
+                        }
+                        case 2: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() == "AREAREP|SILAIS");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo in ('AREAREP|SILAIS') "; // solo silais//query += " where a.codigo not in ('AREAREP|PAIS','AREAREP|DEPTO','AREAREP|UNI') "; // no incluir pais, departamento y unidades
+                            break;
+                        }
+                        case 3: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() != "AREAREP|PAIS" || cat.getCodigo() != "AREAREP|DEPTO");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo not in ('AREAREP|PAIS','AREAREP|DEPTO') "; // no incluir pais y departamento
+                            break;
+                        }
+                        case 4: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() == "AREAREP|PAIS");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo in ('AREAREP|SILAIS') "; // solo silais
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case "UNIDAD": {
+                    switch (menorNivelPermitido) {
+                        case 1: {
+                            areaRepList = new ArrayList<Catalogo>();
+                            //query += " where 1 = 0";  // ninguno
+                            break;
+                        }
+                        case 2: {
+                            areaRepList = new ArrayList<Catalogo>();
+                            //query += " where 1 = 0";  // ninguno
+                            break;
+                        }
+                        case 3: {
+                            Predicate<Catalogo> predicateCatalogs = new Predicate<Catalogo>() {
+                                @Override
+                                public boolean apply(Catalogo cat) {
+                                    return (cat.getCodigo() != null && cat.getCodigo() == "AREAREP|UNI");
+                                }
+                            };
+                            areaRepList = (List<Catalogo>) FilterLists.filter(catalogoList, predicateCatalogs);
+                            //query += " where a.codigo in ('AREAREP|UNI') "; // s�lo unidad
+                            break;
+                        }
+                        case 4: {
+                            areaRepList = new ArrayList<Catalogo>();
+                            //query += " where 1 = 0";  // ninguno
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        return areaRepList;
     }
 }

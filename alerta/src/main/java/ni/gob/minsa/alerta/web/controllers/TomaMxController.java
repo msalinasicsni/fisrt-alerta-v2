@@ -5,15 +5,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.muestra.*;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import ni.gob.minsa.alerta.domain.resultados.DetalleResultadoFinal;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
+import ni.gob.minsa.alerta.utilities.Utils;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
 import ni.gob.minsa.alerta.utilities.typeAdapter.StringUtil;
 import org.apache.commons.lang3.text.translate.UnicodeEscaper;
@@ -61,12 +66,12 @@ public class TomaMxController {
     @Qualifier(value = "seguridadService")
     private SeguridadService seguridadService;
 
-    @Resource(name="tomaMxService")
+    @Resource(name = "tomaMxService")
     private TomaMxService tomaMxService;
 
-    @Resource(name="daIragService")
+    @Resource(name = "daIragService")
     private DaIragService daIragService;
-    @Resource(name="usuarioService")
+    @Resource(name = "usuarioService")
     public UsuarioService usuarioService;
 
     @Resource(name = "catalogosService")
@@ -75,10 +80,10 @@ public class TomaMxController {
     @Resource(name = "daNotificacionService")
     public DaNotificacionService daNotificacionService;
 
-    @Resource(name="entidadAdmonService")
+    @Resource(name = "entidadAdmonService")
     private EntidadAdmonService entidadAdmonService;
 
-    @Resource(name="divisionPoliticaService")
+    @Resource(name = "divisionPoliticaService")
     private DivisionPoliticaService divisionPoliticaService;
 
     @Resource(name = "unidadesService")
@@ -97,20 +102,20 @@ public class TomaMxController {
     public String initSearchForm(Model model, HttpServletRequest request) throws ParseException {
         logger.debug("Crear/Buscar Toma de Mx");
 
-        String urlValidacion= "";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaci�n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
 
-        if(urlValidacion.isEmpty()){
+        if (urlValidacion.isEmpty()) {
             return "tomaMx/search";
-        }else{
+        } else {
             return urlValidacion;
         }
 
@@ -118,6 +123,7 @@ public class TomaMxController {
 
     /**
      * Retorna una lista de notificaciones
+     *
      * @return Un arreglo JSON de notificaciones
      */
     @RequestMapping(value = "notices", method = RequestMethod.GET, produces = "application/json")
@@ -136,13 +142,13 @@ public class TomaMxController {
      */
     @RequestMapping("create/{idNotificacion}")
     public ModelAndView createTomaMx(@PathVariable("idNotificacion") String idNotificacion, HttpServletRequest request) throws Exception {
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaci�n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
@@ -159,14 +165,15 @@ public class TomaMxController {
             long idUsuario = seguridadService.obtenerIdUsuario(request);
 
             //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
-            if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
+            if (seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
                 entidades = entidadAdmonService.getAllEntidadesAdtvas();
-            }else {
+            } else {
                 entidades = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
 
             if (noti != null) {
-                catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion().getCodigo());
+                //catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion().getCodigo());
+                catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion());
 
                 mav.addObject("noti", noti);
                 mav.addObject("tomaMx", tomaMx);
@@ -178,7 +185,7 @@ public class TomaMxController {
             } else {
                 mav.setViewName("404");
             }
-        }else{
+        } else {
             mav.setViewName(urlValidacion);
         }
 
@@ -188,7 +195,8 @@ public class TomaMxController {
 
     /**
      * Retorna una lista de dx seg�n el tipo de muestra y de notificaci�n
-     * @param codMx tipo de muestra
+     *
+     * @param codMx    tipo de muestra
      * @param tipoNoti tipo de notificaci�n
      * @return Un arreglo JSON de dx
      * @throws Exception
@@ -203,6 +211,7 @@ public class TomaMxController {
 
     /**
      * Obtener tomas de muestra de una notificaci�n
+     *
      * @param idNotificacion de la notificaci�n a consultar
      * @return List<DaTomaMx>
      * @throws Exception
@@ -224,7 +233,7 @@ public class TomaMxController {
                           @RequestParam(value = "dxs", required = true) String dxs) throws Exception {
         logger.info("Realizando validacion de Toma de Mx.");
         String respuesta = "OK";
-        if (existeTomaMx(idNotificacion, fechaToma, dxs)){
+        if (existeTomaMx(idNotificacion, fechaToma, dxs)) {
             respuesta = messageSource.getMessage("msg.existe.toma", null, null);
         }
         Map<String, String> map = new HashMap<String, String>();
@@ -233,15 +242,15 @@ public class TomaMxController {
         return jsonResponse;
     }
 
-    private boolean existeTomaMx(String idNotificacion, String fechaToma, String dxs) throws Exception{
+    private boolean existeTomaMx(String idNotificacion, String fechaToma, String dxs) throws Exception {
         int totalEncontrados = 0;
         boolean respuesta = false;
         String[] dxArray = dxs.split(",");
         Date fecha1 = DateUtil.StringToDate(fechaToma, "dd/MM/yyyy");
         List<DaTomaMx> muestras = tomaMxService.getTomaMxActivaByIdNoti(idNotificacion);
-        for(DaTomaMx muestra : muestras){
+        for (DaTomaMx muestra : muestras) {
             List<DaSolicitudDx> solicitudDxList = tomaMxService.getSoliDxByIdMxFechaToma(muestra.getIdTomaMx(), fecha1);
-            for(String dx : dxArray) {
+            for (String dx : dxArray) {
                 for (DaSolicitudDx solicitudDx : solicitudDxList) {
                     if (solicitudDx.getCodDx().getIdDiagnostico().equals(Integer.valueOf(dx))) {
                         totalEncontrados++;
@@ -260,24 +269,25 @@ public class TomaMxController {
 
     /**
      * Guardar toma de muestra de diagn�stico
+     *
      * @return ResponseEntity<String>
      * @throws Exception
      */
     @RequestMapping(value = "/saveToma", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveTomaMx(HttpServletRequest request,
-              @RequestParam(value = "dx", required = false) String dx
+                                             @RequestParam(value = "dx", required = false) String dx
             , @RequestParam(value = "fechaHTomaMx", required = false) String fechaHTomaMx
             , @RequestParam(value = "horaTomaMx", required = false) String horaTomaMx
             , @RequestParam(value = "codTipoMx", required = false) String codTipoMx
             , @RequestParam(value = "canTubos", required = false) Integer canTubos
             , @RequestParam(value = "volumen", required = false) String volumen
             , @RequestParam(value = "horaRefrigeracion", required = false) String horaRefrigeracion
-            , @RequestParam(value = "mxSeparada", required = false) Integer  mxSeparada
+            , @RequestParam(value = "mxSeparada", required = false) Integer mxSeparada
             , @RequestParam(value = "idNotificacion", required = false) String idNotificacion
             , @RequestParam(value = "codUnidadAtencion", required = false) Integer codUnidadAtencion
             , @RequestParam(value = "codSilaisAtencion", required = false) Integer codSilaisAtencion
 
-    )  {
+    ) {
         logger.debug("Guardando datos de Toma de Muestra");
         try {
             DaTomaMx tomaMx = new DaTomaMx();
@@ -313,14 +323,20 @@ public class TomaMxController {
             tomaMx.setFechaRegistro(new Timestamp(new Date().getTime()));
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             tomaMx.setUsuario(usuarioService.getUsuarioById((int) idUsuario));
-            tomaMx.setEstadoMx(catalogoService.getEstadoMx("ESTDMX|PEND"));
+            //tomaMx.setEstadoMx(catalogoService.getEstadoMx("ESTDMX|PEND"));
+            tomaMx.setEstadoMx("ESTDMX|PEND");
+            List<Catalogo> estadoMxList = CallRestServices.getCatalogos("ESTDMX");
+            String  descEstadoMx = Utils.getDescripcion(estadoMxList, "ESTDMX|PEND");
+            tomaMx.setDesEstadoMx(descEstadoMx);
 
             if (codSilaisAtencion == null && codUnidadAtencion == null) {
                 tomaMx.setCodSilaisAtencion(notifi.getCodSilaisAtencion());
                 tomaMx.setCodUnidadAtencion(notifi.getCodUnidadAtencion());
             } else {
                 tomaMx.setCodSilaisAtencion(entidadAdmonService.getSilaisByCodigo(codSilaisAtencion));
-                tomaMx.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+                Unidades unidades = CallRestServices.getUnidadSalud(codUnidadAtencion);
+                //tomaMx.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+                tomaMx.setCodUnidadAtencion(Long.valueOf(unidades.getCodigo()));
             }
 
             String codigo = generarCodigoUnicoMx();
@@ -333,7 +349,7 @@ public class TomaMxController {
                 saveDxRequest(tomaMx.getIdTomaMx(), dx, request);
                 return createJsonResponse(tomaMx);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("error", ex.getMessage());
             return createErrorJsonResponse(map);
@@ -343,9 +359,10 @@ public class TomaMxController {
 
     /**
      * Guardar solicitudes de dx para una muestra
+     *
      * @param idTomaMx a la que pertenecen las solicitudes
-     * @param dx c�digod de los dx solicitados
-     * @param request con los datos de autenticaci�n
+     * @param dx       c�digod de los dx solicitados
+     * @param request  con los datos de autenticaci�n
      * @throws Exception
      */
     private void saveDxRequest(String idTomaMx, String dx, HttpServletRequest request) throws Exception {
@@ -391,16 +408,17 @@ public class TomaMxController {
 
     /**
      * M�todo para generar un string alfanum�rico de 8 caracteres, que se usar� como c�digo �nico de muestra
+     *
      * @return String codigoUnicoMx
      */
-    private String generarCodigoUnicoMx(){
+    private String generarCodigoUnicoMx() {
         DaTomaMx validaC;
         //Se genera el c�digo
         String codigoUnicoMx = StringUtil.getCadenaAlfanumAleatoria(8);
         //Se consulta BD para ver si existe toma de Mx que tenga mismo c�digo
         validaC = tomaMxService.getTomaMxByCodUnicoMx(codigoUnicoMx);
         //si existe, de manera recursiva se solicita un nuevo c�digo
-        if (validaC!=null){
+        if (validaC != null) {
             codigoUnicoMx = generarCodigoUnicoMx();
         }
         //si no existe se retorna el �ltimo c�digo generado
@@ -416,24 +434,24 @@ public class TomaMxController {
     public ModelAndView initSearchFormEstudio(Model model, HttpServletRequest request) throws ParseException {
         logger.debug("Crear/Buscar Toma de Mx");
 
-        String urlValidacion= "";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaci�n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, false);
-            if (!seguridadService.esUsuarioAutorizadoTomaMxEstudio((int)seguridadService.obtenerIdUsuario(request), ConstantsSecurity.SYSTEM_CODE)){
+            if (!seguridadService.esUsuarioAutorizadoTomaMxEstudio((int) seguridadService.obtenerIdUsuario(request), ConstantsSecurity.SYSTEM_CODE)) {
                 urlValidacion = "403";
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
         ModelAndView view = new ModelAndView();
-        if(urlValidacion.isEmpty()){
+        if (urlValidacion.isEmpty()) {
             view.setViewName("tomaMx/search");
-            view.addObject("esEstudio",true);
-        }else{
+            view.addObject("esEstudio", true);
+        } else {
             view.setViewName(urlValidacion);
         }
         return view;
@@ -447,16 +465,16 @@ public class TomaMxController {
      */
     @RequestMapping("createStudy/{idNotificacion}")
     public ModelAndView createTomaMxStudy(@PathVariable("idNotificacion") String idNotificacion, HttpServletRequest request) throws Exception {
-        String urlValidacion="";
+        String urlValidacion = "";
         try {
             urlValidacion = seguridadService.validarLogin(request);
             //si la url esta vacia significa que la validaci�n del login fue exitosa
             if (urlValidacion.isEmpty())
                 urlValidacion = seguridadService.validarAutorizacionUsuario(request, ConstantsSecurity.SYSTEM_CODE, true);
-            if (!seguridadService.esUsuarioAutorizadoTomaMxEstudio((int)seguridadService.obtenerIdUsuario(request), ConstantsSecurity.SYSTEM_CODE)){
+            if (!seguridadService.esUsuarioAutorizadoTomaMxEstudio((int) seguridadService.obtenerIdUsuario(request), ConstantsSecurity.SYSTEM_CODE)) {
                 urlValidacion = "403";
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             urlValidacion = "404";
         }
@@ -469,18 +487,20 @@ public class TomaMxController {
             DaNotificacion noti = daNotificacionService.getNotifById(idNotificacion);
 
             if (noti != null) {
-                catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion().getCodigo());
-                List<CategoriaMx> categoriasMx = catalogoService.getCategoriasMx();
+                //catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion().getCodigo());
+                catTipoMx = tomaMxService.getTipoMxByTipoNoti(noti.getCodTipoNotificacion());
+                //List<CategoriaMx> categoriasMx = catalogoService.getCategoriasMx();
+                List<Catalogo> categoriasMx = CallRestServices.getCatalogos("CATEGMX");
                 mav.addObject("noti", noti);
                 mav.addObject("tomaMx", tomaMx);
                 mav.addObject("catTipoMx", catTipoMx);
-                mav.addObject("categMxList",categoriasMx);
+                mav.addObject("categMxList", categoriasMx);
                 mav.addAllObjects(mapModel);
                 mav.setViewName("tomaMx/enterFormStudy");
             } else {
                 mav.setViewName("404");
             }
-        }else{
+        } else {
             mav.setViewName(urlValidacion);
         }
         return mav;
@@ -488,6 +508,7 @@ public class TomaMxController {
 
     /**
      * Retorna una lista de estudios por tipo de muestra y notificaci�n
+     *
      * @return Un arreglo JSON de dx
      */
     @RequestMapping(value = "getStudiesBySampleAndNoti", method = RequestMethod.GET, produces = "application/json")
@@ -502,7 +523,8 @@ public class TomaMxController {
 
     /**
      * Guardar tomas de muestra de estudio
-     * @param request con los datos de autenticaci�n y datos de la muestra a guardar
+     *
+     * @param request  con los datos de autenticaci�n y datos de la muestra a guardar
      * @param response con el resultado de la operaci�n
      * @throws ServletException
      * @throws IOException
@@ -511,20 +533,20 @@ public class TomaMxController {
     protected void saveTomaMxStudy(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String json = "";
         String resultado = "";
-        String fechaHTomaMx="";
-        String idNotificacion="";
-        String codTipoMx="";
-        String codigoUnicoMx="";
-        Integer canTubos=null;
-        String volumen=null;
-        String horaRefrigeracion="";
-        Integer mxSeparada=null;
-        String estudios="";
-        String categoriaMx="";
-        String horaTomaMx="";
+        String fechaHTomaMx = "";
+        String idNotificacion = "";
+        String codTipoMx = "";
+        String codigoUnicoMx = "";
+        Integer canTubos = null;
+        String volumen = null;
+        String horaRefrigeracion = "";
+        Integer mxSeparada = null;
+        String estudios = "";
+        String categoriaMx = "";
+        String horaTomaMx = "";
         try {
             logger.debug("Guardando datos de Toma de Muestra");
-            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(),"UTF8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF8"));
             json = br.readLine();
             //Recuperando Json enviado desde el cliente
             JsonObject jsonpObject = new Gson().fromJson(json, JsonObject.class);
@@ -533,16 +555,16 @@ public class TomaMxController {
             codTipoMx = jsonpObject.get("codTipoMx").getAsString();
             codigoUnicoMx = jsonpObject.get("codigoUnicoMx").getAsString();
 
-            if (jsonpObject.get("canTubos")!=null && !jsonpObject.get("canTubos").getAsString().isEmpty())
+            if (jsonpObject.get("canTubos") != null && !jsonpObject.get("canTubos").getAsString().isEmpty())
                 canTubos = jsonpObject.get("canTubos").getAsInt();
 
-            if (jsonpObject.get("volumen")!=null && !jsonpObject.get("volumen").getAsString().isEmpty())
+            if (jsonpObject.get("volumen") != null && !jsonpObject.get("volumen").getAsString().isEmpty())
                 volumen = jsonpObject.get("volumen").getAsString();
-            if (jsonpObject.get("mxSeparada")!=null && !jsonpObject.get("mxSeparada").getAsString().isEmpty())
+            if (jsonpObject.get("mxSeparada") != null && !jsonpObject.get("mxSeparada").getAsString().isEmpty())
                 mxSeparada = jsonpObject.get("mxSeparada").getAsInt();
-            if (jsonpObject.get("categoriaMx")!=null && !jsonpObject.get("categoriaMx").getAsString().isEmpty())
+            if (jsonpObject.get("categoriaMx") != null && !jsonpObject.get("categoriaMx").getAsString().isEmpty())
                 categoriaMx = jsonpObject.get("categoriaMx").getAsString();
-            if (jsonpObject.get("horaTomaMx")!=null && !jsonpObject.get("horaTomaMx").getAsString().isEmpty())
+            if (jsonpObject.get("horaTomaMx") != null && !jsonpObject.get("horaTomaMx").getAsString().isEmpty())
                 horaTomaMx = jsonpObject.get("horaTomaMx").getAsString();
 
             horaRefrigeracion = jsonpObject.get("horaRefrigeracion").getAsString();
@@ -554,23 +576,23 @@ public class TomaMxController {
             tomaMx.setIdNotificacion(notificacion);
             tomaMx.setCodSilaisAtencion(notificacion.getCodSilaisAtencion());
             tomaMx.setCodUnidadAtencion(notificacion.getCodUnidadAtencion());
-            if(fechaHTomaMx != null){
+            if (fechaHTomaMx != null) {
                 tomaMx.setFechaHTomaMx(StringToTimestamp(fechaHTomaMx));
             }
-            if (horaTomaMx != null){
+            if (horaTomaMx != null) {
                 tomaMx.setHoraTomaMx(horaTomaMx);
             }
 
             tomaMx.setCodTipoMx(tomaMxService.getTipoMxById(codTipoMx));
             tomaMx.setCanTubos(canTubos);
 
-            if(volumen != null){
+            if (volumen != null) {
                 tomaMx.setVolumen(Float.valueOf(volumen));
             }
 
             tomaMx.setHoraRefrigeracion(horaRefrigeracion);
 
-            if (mxSeparada!=null) {
+            if (mxSeparada != null) {
                 if (mxSeparada == 1) {
                     tomaMx.setMxSeparada(true);
                 } else {
@@ -580,12 +602,20 @@ public class TomaMxController {
 
             tomaMx.setFechaRegistro(new Timestamp(new Date().getTime()));
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            Usuarios usuarioRegistro = usuarioService.getUsuarioById((int)idUsuario);
+            Usuarios usuarioRegistro = usuarioService.getUsuarioById((int) idUsuario);
             tomaMx.setUsuario(usuarioRegistro);
-            tomaMx.setEstadoMx(catalogoService.getEstadoMx("ESTDMX|PEND"));
+            //tomaMx.setEstadoMx(catalogoService.getEstadoMx("ESTDMX|PEND"));
+            List<Catalogo> estadoMxList = CallRestServices.getCatalogos("ESTDMX");
+            tomaMx.setEstadoMx("ESTDMX|PEND");
+            String descEstadoMx = Utils.getDescripcion(estadoMxList, "ESTDMX|PEND");
+            tomaMx.setDesEstadoMx(descEstadoMx);
             tomaMx.setCodigoUnicoMx(codigoUnicoMx);
             tomaMx.setCodigoLab(null);
-            tomaMx.setCategoriaMx(catalogoService.getCategoriaMx(categoriaMx));
+            //tomaMx.setCategoriaMx(catalogoService.getCategoriaMx(categoriaMx));
+            List<Catalogo> categoriaMxList = CallRestServices.getCatalogos("CATEGMX");
+            tomaMx.setCategoriaMx(categoriaMx);
+            String descCategoriaMx = Utils.getDescripcion(categoriaMxList, categoriaMx);
+            tomaMx.setDesCategoriaMx(descCategoriaMx);
             tomaMxService.addTomaMx(tomaMx);
             DaSolicitudEstudio soli = new DaSolicitudEstudio();
             soli.setTipoEstudio(tomaMxService.getEstudioById(Integer.valueOf(idEstudio)));
@@ -597,23 +627,23 @@ public class TomaMxController {
 
             //saveSolicitudesEstudio(tomaMx.getIdTomaMx(), jsonArray, request);
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),ex);
+            logger.error(ex.getMessage(), ex);
             ex.printStackTrace();
-            resultado =  messageSource.getMessage("lbl.messagebox.error.saving",null,null);
-            resultado=resultado+". \n "+ex.getMessage();
+            resultado = messageSource.getMessage("lbl.messagebox.error.saving", null, null);
+            resultado = resultado + ". \n " + ex.getMessage();
 
-        }finally {
+        } finally {
             Map<String, String> map = new HashMap<String, String>();
-            map.put("idNotificacion",idNotificacion);
-            map.put("canTubos",String.valueOf(canTubos));
-            map.put("volumen",volumen);
-            map.put("mensaje",resultado);
+            map.put("idNotificacion", idNotificacion);
+            map.put("canTubos", String.valueOf(canTubos));
+            map.put("volumen", volumen);
+            map.put("mensaje", resultado);
             map.put("fechaHTomaMx", fechaHTomaMx);
-            map.put("estudios",estudios);
-            map.put("mxSeparada",String.valueOf(mxSeparada));
-            map.put("codTipoMx",codTipoMx);
+            map.put("estudios", estudios);
+            map.put("mxSeparada", String.valueOf(mxSeparada));
+            map.put("codTipoMx", codTipoMx);
             map.put("horaRefrigeracion", horaRefrigeracion);
-            map.put("horaTomaMx",horaTomaMx);
+            map.put("horaTomaMx", horaTomaMx);
             String jsonResponse = new Gson().toJson(map);
             response.getOutputStream().write(jsonResponse.getBytes());
             response.getOutputStream().close();
@@ -688,6 +718,7 @@ public class TomaMxController {
 
     /**
      * Convierte un JSON con los filtros de b�squeda a objeto FiltroMx
+     *
      * @param strJson JSON
      * @return FiltroMx
      * @throws Exception
@@ -754,8 +785,8 @@ public class TomaMxController {
         boolean esEstudio;
         for (DaTomaMx tomaMx : tomaMxList) {
             //mostrar solo las muestras asociadas a los silais que tiene acceso el usuario
-            if ((tomaMx.getCodSilaisAtencion()!=null && ( nivelCentral || entidades.contains(tomaMx.getCodSilaisAtencion())))
-                    || (tomaMx.getIdNotificacion().getCodSilaisAtencion()!=null && entidades.contains(tomaMx.getIdNotificacion().getCodSilaisAtencion()))) {
+            if ((tomaMx.getCodSilaisAtencion() != null && (nivelCentral || entidades.contains(tomaMx.getCodSilaisAtencion())))
+                    || (tomaMx.getIdNotificacion().getCodSilaisAtencion() != null && entidades.contains(tomaMx.getIdNotificacion().getCodSilaisAtencion()))) {
                 esEstudio = tomaMxService.getSolicitudesEstudioByIdTomaMx(tomaMx.getIdTomaMx()).size() > 0;
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("idTomaMx", tomaMx.getIdTomaMx());
@@ -769,18 +800,21 @@ public class TomaMxController {
                     map.put("codSilais", "");
                 }
                 if (tomaMx.getIdNotificacion().getCodUnidadAtencion() != null) {
-                    map.put("codUnidadSalud", tomaMx.getIdNotificacion().getCodUnidadAtencion().getNombre());
+                    //map.put("codUnidadSalud", tomaMx.getIdNotificacion().getCodUnidadAtencion().getNombre());
+                    map.put("codUnidadSalud", tomaMx.getIdNotificacion().getNombreUnidadAtencion());
                 } else {
                     map.put("codUnidadSalud", "");
                 }
-                map.put("tipoNoti", tomaMx.getIdNotificacion().getCodTipoNotificacion().getValor());
+                //map.put("tipoNoti", tomaMx.getIdNotificacion().getCodTipoNotificacion().getValor());
+                map.put("tipoNoti", tomaMx.getIdNotificacion().getCodTipoNotificacion());
                 //laboratorio y area
                 if (tomaMx.getEnvio() != null) {
                     map.put("laboratorio", tomaMx.getEnvio().getLaboratorioDestino().getNombre());
                 } else {
                     map.put("laboratorio", "");
                 }
-                map.put("estadoMx", tomaMx.getEstadoMx().getValor());
+                //map.put("estadoMx", tomaMx.getEstadoMx().getValor());
+                map.put("estadoMx", tomaMx.getEstadoMx());
 
                 //Si hay persona
                 if (tomaMx.getIdNotificacion().getPersona() != null) {
@@ -847,7 +881,7 @@ public class TomaMxController {
      * @throws Exception
      */
     @RequestMapping(value = "editMx/{idMx}")
-    public ModelAndView editMxForm( @PathVariable("idMx") String idMx, HttpServletRequest request) throws Exception {
+    public ModelAndView editMxForm(@PathVariable("idMx") String idMx, HttpServletRequest request) throws Exception {
         logger.debug("editar muestras");
         String urlValidacion;
         DaTomaMx tomaMx = new DaTomaMx();
@@ -864,23 +898,26 @@ public class TomaMxController {
         ModelAndView mav = new ModelAndView();
         if (urlValidacion.isEmpty()) {
             List<EntidadesAdtvas> entidadesAdtvases = entidadAdmonService.getAllEntidadesAdtvas();
-            List<Divisionpolitica> municipios = null;
-            if (tomaMx.getCodSilaisAtencion()!=null){
-                municipios = divisionPoliticaService.getMunicipiosBySilais(tomaMx.getCodSilaisAtencion().getCodigo());
+            //List<Divisionpolitica> municipios = null;
+            List<Municipio> municipios = null;
+            if (tomaMx.getCodSilaisAtencion() != null) {
+                //municipios = divisionPoliticaService.getMunicipiosBySilais(tomaMx.getCodSilaisAtencion().getCodigo());
+                municipios = CallRestServices.getMunicipiosEntidad(tomaMx.getCodSilaisAtencion().getCodigo());
             }
             List<Unidades> unidades = null;
-            if (tomaMx.getCodUnidadAtencion()!=null && tomaMx.getCodSilaisAtencion()!=null){
-                unidades = unidadesService.getPrimaryUnitsByMunicipio_Silais(tomaMx.getCodUnidadAtencion().getMunicipio().getCodigoNacional(),
+            if (tomaMx.getCodUnidadAtencion() != null && tomaMx.getCodSilaisAtencion() != null) {
+                //unidades = unidadesService.getPrimaryUnitsByMunicipio_Silais(tomaMx.getCodUnidadAtencion().getMunicipio().getCodigoNacional(),
+                unidades = CallRestServices.getUnidadesByEntidadMunicipioTipo(tomaMx.getCodUnidadAtencion(),
                         tomaMx.getCodSilaisAtencion().getCodigo(), HealthUnitType.UnidadesPrimarias.getDiscriminator().split(","));
             }
             //se determina si es una muestra para estudio o para vigilancia rutinaria(Dx)
             List<DaSolicitudEstudio> solicitudEstudioList = tomaMxService.getSolicitudesEstudioByIdTomaMx(tomaMx.getIdTomaMx());
-            boolean esEstudio = solicitudEstudioList.size()>0;
+            boolean esEstudio = solicitudEstudioList.size() > 0;
             mav.addObject("entidades", entidadesAdtvases);
-            mav.addObject("municipios",municipios);
-            mav.addObject("unidades",unidades);
+            mav.addObject("municipios", municipios);
+            mav.addObject("unidades", unidades);
             mav.addObject("muestra", tomaMx);
-            mav.addObject("esEstudio",esEstudio);
+            mav.addObject("esEstudio", esEstudio);
             mav.setViewName("tomaMx/editForm");
         } else
             mav.setViewName(urlValidacion);
@@ -901,22 +938,23 @@ public class TomaMxController {
 
     /**
      * M�todo para convertir una lista de solicitudes dx o estudios a un string con estructura Json
-     * @param dxList lista con las solicitudes de diagn�sticos a convertir
+     *
+     * @param dxList      lista con las solicitudes de diagn�sticos a convertir
      * @param estudioList lista con las solicitudes de estudio a convertir
      * @return String
      * @throws java.io.UnsupportedEncodingException
      */
     private String SolicitudesToJson(List<DaSolicitudDx> dxList, List<DaSolicitudEstudio> estudioList) throws UnsupportedEncodingException {
-        String jsonResponse="";
+        String jsonResponse = "";
         Map<Integer, Object> mapResponse = new HashMap<Integer, Object>();
-        Integer indice=0;
-        for(DaSolicitudDx dx : dxList){
+        Integer indice = 0;
+        for (DaSolicitudDx dx : dxList) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("idTomaMx", dx.getIdTomaMx().getIdTomaMx());
             map.put("idSolicitud", dx.getIdSolicitudDx());
             map.put("nombre", dx.getCodDx().getNombre());
             map.put("fechaSolicitud", DateUtil.DateToString(dx.getFechaHSolicitud(), "dd/MM/yyyy hh:mm:ss a"));
-            map.put("tipo", messageSource.getMessage("lbl.routine",null,null));
+            map.put("tipo", messageSource.getMessage("lbl.routine", null, null));
             if (dx.getAprobada() != null) {
                 if (dx.getAprobada().equals(true)) {
                     map.put("estado", (messageSource.getMessage("lbl.approval.result", null, null)));
@@ -932,17 +970,16 @@ public class TomaMxController {
                 }
             }
             mapResponse.put(indice, map);
-            indice ++;
+            indice++;
         }
 
-        for(DaSolicitudEstudio estudio : estudioList)
-        {
+        for (DaSolicitudEstudio estudio : estudioList) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("idTomaMx", estudio.getIdTomaMx().getIdTomaMx());
-            map.put("idSolicitud", estudio.getIdSolicitudEstudio() );
+            map.put("idSolicitud", estudio.getIdSolicitudEstudio());
             map.put("nombre", estudio.getTipoEstudio().getNombre());
             map.put("fechaSolicitud", DateUtil.DateToString(estudio.getFechaHSolicitud(), "dd/MM/yyyy hh:mm:ss a"));
-            map.put("tipo",messageSource.getMessage("lbl.study",null,null));
+            map.put("tipo", messageSource.getMessage("lbl.study", null, null));
             if (estudio.getAprobada() != null) {
                 if (estudio.getAprobada().equals(true)) {
                     map.put("estado", (messageSource.getMessage("lbl.approval.result", null, null)));
@@ -958,17 +995,18 @@ public class TomaMxController {
                 }
             }
             mapResponse.put(indice, map);
-            indice ++;
+            indice++;
         }
         jsonResponse = new Gson().toJson(mapResponse);
         //escapar caracteres especiales, escape de los caracteres con valor num�rico mayor a 127
-        UnicodeEscaper escaper     = UnicodeEscaper.above(127);
+        UnicodeEscaper escaper = UnicodeEscaper.above(127);
         return escaper.translate(jsonResponse);
     }
 
     /**
      * M�todo para anular una orden de examen
-     * @param request para obtener informaci�n de la petici�n del cliente. Contiene en un par�metro la estructura json del registro a anular
+     *
+     * @param request  para obtener informaci�n de la petici�n del cliente. Contiene en un par�metro la estructura json del registro a anular
      * @param response para notificar al cliente del resultado de la operaci�n
      * @throws Exception
      */
@@ -978,47 +1016,47 @@ public class TomaMxController {
         String urlValidacion;
         String idSolicitud = "";
         String causaAnulacion = "";
-        String json="";
+        String json = "";
         String resultado = "";
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(),"UTF8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF8"));
             json = br.readLine();
             JsonObject jsonpObject = new Gson().fromJson(json, JsonObject.class);
             idSolicitud = jsonpObject.get("idSolicitud").getAsString();
             causaAnulacion = jsonpObject.get("causaAnulacion").getAsString();
             DaSolicitudDx solicitudDx = tomaMxService.getSolicitudDxByIdSolicitud(idSolicitud);
-            if(solicitudDx!=null){
-                try{
-                    tomaMxService.bajaSolicitudDx(seguridadService.obtenerNombreUsuario(request),idSolicitud, causaAnulacion);
-                }catch (Exception ex){
-                    logger.error("Error al anular solicitud dx",ex);
+            if (solicitudDx != null) {
+                try {
+                    tomaMxService.bajaSolicitudDx(seguridadService.obtenerNombreUsuario(request), idSolicitud, causaAnulacion);
+                } catch (Exception ex) {
+                    logger.error("Error al anular solicitud dx", ex);
                     resultado = messageSource.getMessage("msg.request.cancel.error2", null, null);
                     resultado = resultado + ". \n " + ex.getMessage();
                 }
-            }else{
+            } else {
                 DaSolicitudEstudio solicitudEst = tomaMxService.getSolicitudEstByIdSolicitud(idSolicitud);
-                if(solicitudEst!=null){
-                    try{
-                        tomaMxService.bajaSolicitudEstudio(seguridadService.obtenerNombreUsuario(request),idSolicitud, causaAnulacion);
-                    }catch (Exception ex){
-                        logger.error("Error al anular solicitud de estudio",ex);
+                if (solicitudEst != null) {
+                    try {
+                        tomaMxService.bajaSolicitudEstudio(seguridadService.obtenerNombreUsuario(request), idSolicitud, causaAnulacion);
+                    } catch (Exception ex) {
+                        logger.error("Error al anular solicitud de estudio", ex);
                         resultado = messageSource.getMessage("msg.request.cancel.error2", null, null);
                         resultado = resultado + ". \n " + ex.getMessage();
                     }
-                }else{
+                } else {
                     throw new Exception(messageSource.getMessage("msg.request.notfound", null, null));
                 }
             }
 
-        }catch (Exception ex){
-            logger.error("Sucedio un error al anular solicitud",ex);
+        } catch (Exception ex) {
+            logger.error("Sucedio un error al anular solicitud", ex);
             resultado = messageSource.getMessage("msg.request.cancel.error1", null, null);
             resultado = resultado + ". \n " + ex.getMessage();
         } finally {
             Map<String, String> map = new HashMap<String, String>();
             map.put("idSolicitud", idSolicitud);
-            map.put("causaAnulacion",causaAnulacion);
-            map.put("mensaje",resultado);
+            map.put("causaAnulacion", causaAnulacion);
+            map.put("mensaje", resultado);
             String jsonResponse = new Gson().toJson(map);
             response.getOutputStream().write(jsonResponse.getBytes());
             response.getOutputStream().close();
@@ -1027,7 +1065,8 @@ public class TomaMxController {
 
     /**
      * M�todo para agregar una solicitud de dx o estudio para una mx
-     * @param request para obtener informaci�n de la petici�n del cliente. Contiene en un par�metro la estructura json del registro a agregar
+     *
+     * @param request  para obtener informaci�n de la petici�n del cliente. Contiene en un par�metro la estructura json del registro a agregar
      * @param response para notificar al cliente del resultado de la operaci�n
      * @throws ServletException
      * @throws IOException
@@ -1036,31 +1075,31 @@ public class TomaMxController {
     protected void agregarSolicitud(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String json;
         String resultado = "";
-        boolean esEstudio=false;
+        boolean esEstudio = false;
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(),"UTF8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF8"));
             json = br.readLine();
             //Recuperando Json enviado desde el cliente
             JsonObject jsonpObject = new Gson().fromJson(json, JsonObject.class);
             esEstudio = jsonpObject.get("esEstudio").getAsBoolean();
-            if(esEstudio)
+            if (esEstudio)
                 resultado = agregarSolicitudEstudio(jsonpObject, request);
             else
                 resultado = agregarSolicitudDx(jsonpObject, request);
 
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),ex);
+            logger.error(ex.getMessage(), ex);
             ex.printStackTrace();
-            resultado =  messageSource.getMessage("msg.request.error",null,null);
-            resultado=resultado+". \n "+ex.getMessage();
+            resultado = messageSource.getMessage("msg.request.error", null, null);
+            resultado = resultado + ". \n " + ex.getMessage();
 
-        }finally {
+        } finally {
             Map<String, String> map = new HashMap<String, String>();
-            map.put("idTomaMx","tmp");
+            map.put("idTomaMx", "tmp");
             map.put("idDiagnostico", "tmp");
             map.put("idEstudio", "tmp");
-            map.put("esEstudio",String.valueOf(esEstudio));
-            map.put("mensaje",resultado);
+            map.put("esEstudio", String.valueOf(esEstudio));
+            map.put("mensaje", resultado);
             String jsonResponse = new Gson().toJson(map);
             response.getOutputStream().write(jsonResponse.getBytes());
             response.getOutputStream().close();
@@ -1076,24 +1115,24 @@ public class TomaMxController {
         DaTomaMx tomaMx = tomaMxService.getTomaMxById(idTomaMx);
         //se valida si existe una orden activa para la muestra, el diagn�stico y el examen
         DaSolicitudDx solicitudDx = tomaMxService.getSolicitudesDxByMxDx(idTomaMx, idDiagnostico);
-        if (solicitudDx!=null){
-            if (tomaMx.getEstadoMx().getCodigo().equalsIgnoreCase("ESTDMX|PEND")
-                    || (solicitudDx.getLabProcesa() !=null && solicitudDx.getLabProcesa().getCodigo().equalsIgnoreCase(solicitudDx.getIdTomaMx().getEnvio().getLaboratorioDestino().getCodigo()))){
+        if (solicitudDx != null) {
+            //if (tomaMx.getEstadoMx().getCodigo().equalsIgnoreCase("ESTDMX|PEND")
+            if (tomaMx.getEstadoMx().equalsIgnoreCase("ESTDMX|PEND")
+                    || (solicitudDx.getLabProcesa() != null && solicitudDx.getLabProcesa().getCodigo().equalsIgnoreCase(solicitudDx.getIdTomaMx().getEnvio().getLaboratorioDestino().getCodigo()))) {
                 Catalogo_Dx dx = tomaMxService.getDxById(String.valueOf(idDiagnostico));
                 resultado = messageSource.getMessage("msg.add.request.error2", null, null);
                 resultado = resultado.replace("{0}", dx.getNombre());
             }
 
-        }else{
+        } else {
             try {
-
                 DaSolicitudDx soli = new DaSolicitudDx();
                 soli.setCodDx(tomaMxService.getDxById(String.valueOf(idDiagnostico)));
                 soli.setFechaHSolicitud(new Timestamp(new Date().getTime()));
-                    soli.setUsarioRegistro(usuarioService.getUsuarioById((int)seguridadService.obtenerIdUsuario(request)));
+                soli.setUsarioRegistro(usuarioService.getUsuarioById((int) seguridadService.obtenerIdUsuario(request)));
                 soli.setIdTomaMx(tomaMx);
                 soli.setAprobada(false);
-                if (tomaMx.getEnvio()!=null) {
+                if (tomaMx.getEnvio() != null) {
                     soli.setLabProcesa(tomaMx.getEnvio().getLaboratorioDestino());
                 }
                 soli.setControlCalidad(false);
@@ -1108,7 +1147,7 @@ public class TomaMxController {
 
         }
 
-        UnicodeEscaper escaper     = UnicodeEscaper.above(127);
+        UnicodeEscaper escaper = UnicodeEscaper.above(127);
         return escaper.translate(resultado);
     }
 
@@ -1120,16 +1159,16 @@ public class TomaMxController {
         idEstudio = jsonpObject.get("idEstudio").getAsInt();
         //se valida si existe una orden activa para la muestra, el diagn�stico y el examen
         DaSolicitudEstudio solicitudEstudio = tomaMxService.getSolicitudesEstudioByMxEst(idTomaMx, idEstudio);
-        if (solicitudEstudio!=null){
+        if (solicitudEstudio != null) {
             Catalogo_Estudio estudio = tomaMxService.getEstudioById(idEstudio);
             resultado = messageSource.getMessage("msg.add.request.error2", null, null);
             resultado = resultado.replace("{0}", estudio.getNombre());
-        }else{
+        } else {
             try {
                 DaSolicitudEstudio soli = new DaSolicitudEstudio();
                 soli.setTipoEstudio(tomaMxService.getEstudioById(idEstudio));
                 soli.setFechaHSolicitud(new Timestamp(new Date().getTime()));
-                soli.setUsarioRegistro(usuarioService.getUsuarioById((int)seguridadService.obtenerIdUsuario(request)));
+                soli.setUsarioRegistro(usuarioService.getUsuarioById((int) seguridadService.obtenerIdUsuario(request)));
                 soli.setIdTomaMx(tomaMxService.getTomaMxById(idTomaMx));
                 soli.setAprobada(false);
                 tomaMxService.addSolicitudEstudio(soli);
@@ -1142,12 +1181,13 @@ public class TomaMxController {
 
         }
 
-        UnicodeEscaper escaper     = UnicodeEscaper.above(127);
+        UnicodeEscaper escaper = UnicodeEscaper.above(127);
         return escaper.translate(resultado);
     }
 
     /**
      * Guardar toma de muestra de diagn�stico
+     *
      * @return ResponseEntity<String>
      * @throws Exception
      */
@@ -1158,7 +1198,7 @@ public class TomaMxController {
             , @RequestParam(value = "canTubos", required = false) Integer canTubos
             , @RequestParam(value = "volumen", required = false) String volumen
             , @RequestParam(value = "horaRefrigeracion", required = false) String horaRefrigeracion
-            , @RequestParam(value = "mxSeparada", required = false) Integer  mxSeparada
+            , @RequestParam(value = "mxSeparada", required = false) Integer mxSeparada
             , @RequestParam(value = "idTomaMx", required = true) String idTomaMx
             , @RequestParam(value = "codUnidadAtencion", required = false) Integer codUnidadAtencion
             , @RequestParam(value = "codSilaisAtencion", required = false) Integer codSilaisAtencion
@@ -1167,37 +1207,39 @@ public class TomaMxController {
         logger.debug("Guardando datos de Toma de Muestra");
 
         DaTomaMx tomaMx = tomaMxService.getTomaMxById(idTomaMx);
-        if(fechaHTomaMx != null){
+        if (fechaHTomaMx != null) {
             tomaMx.setFechaHTomaMx(StringToTimestamp(fechaHTomaMx));
         }
 
-        if(horaTomaMx != null){
+        if (horaTomaMx != null) {
             tomaMx.setHoraTomaMx(horaTomaMx);
         }
 
         tomaMx.setCanTubos(canTubos);
 
-        if(volumen != null && !volumen.equals("")){
+        if (volumen != null && !volumen.equals("")) {
             tomaMx.setVolumen(Float.valueOf(volumen));
         }
 
         tomaMx.setHoraRefrigeracion(horaRefrigeracion);
 
 
-        if(mxSeparada != null){
-            if(mxSeparada == 1){
+        if (mxSeparada != null) {
+            if (mxSeparada == 1) {
                 tomaMx.setMxSeparada(true);
-            }else {
+            } else {
                 tomaMx.setMxSeparada(false);
             }
         }
 
-        if(codSilaisAtencion == null && codUnidadAtencion == null){
+        if (codSilaisAtencion == null && codUnidadAtencion == null) {
             tomaMx.setCodSilaisAtencion(tomaMx.getIdNotificacion().getCodSilaisAtencion());
             tomaMx.setCodUnidadAtencion(tomaMx.getIdNotificacion().getCodUnidadAtencion());
-        }else{
+        } else {
             tomaMx.setCodSilaisAtencion(entidadAdmonService.getSilaisByCodigo(codSilaisAtencion));
-            tomaMx.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+            //tomaMx.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+            Unidades unidades = CallRestServices.getUnidadSalud(codUnidadAtencion);
+            tomaMx.setCodUnidadAtencion(Long.valueOf(unidades.getCodigo()));
         }
 
         tomaMxService.addTomaMx(tomaMx);
@@ -1208,18 +1250,19 @@ public class TomaMxController {
     protected void anularMuestra(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String json;
         String resultado = "";
-        String idMx=null;
+        String idMx = null;
         String causaAnulacion = "";
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(),"UTF8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF8"));
             json = br.readLine();
             //Recuperando Json enviado desde el cliente
             JsonObject jsonpObject = new Gson().fromJson(json, JsonObject.class);
             idMx = jsonpObject.get("idMx").getAsString();
             causaAnulacion = jsonpObject.get("causaAnulacion").getAsString();
             DaTomaMx tomaMx = tomaMxService.getTomaMxById(idMx);
-            if (tomaMx!=null) {
-                if (tomaMx.getEstadoMx().getCodigo().equalsIgnoreCase("ESTDMX|PEND")) {
+            if (tomaMx != null) {
+                //if (tomaMx.getEstadoMx().getCodigo().equalsIgnoreCase("ESTDMX|PEND")) {
+                if (tomaMx.getEstadoMx().equalsIgnoreCase("ESTDMX|PEND")) {
                     tomaMx.setAnulada(true);
                     tomaMx.setFechaAnulacion(new Timestamp(new Date().getTime()));
                     tomaMxService.updateTomaMx(tomaMx);
@@ -1227,24 +1270,23 @@ public class TomaMxController {
                     for (DaSolicitudDx solicitudDx : solicitudDxList) {
                         tomaMxService.bajaSolicitudDx(seguridadService.obtenerNombreUsuario(request), solicitudDx.getIdSolicitudDx(), causaAnulacion);
                     }
-                }else
-                {
-                    throw new Exception(messageSource.getMessage("msg.sample.already.sent.lab",null,null));
+                } else {
+                    throw new Exception(messageSource.getMessage("msg.sample.already.sent.lab", null, null));
                 }
 
-            }else{
-                throw new Exception(messageSource.getMessage("msg.tomamx.notfound",null,null));
+            } else {
+                throw new Exception(messageSource.getMessage("msg.tomamx.notfound", null, null));
             }
 
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),ex);
+            logger.error(ex.getMessage(), ex);
             ex.printStackTrace();
-            resultado =  messageSource.getMessage("msg.override.tomamx.error",null,null);
-            resultado=resultado+". \n "+ex.getMessage();
-        }finally {
+            resultado = messageSource.getMessage("msg.override.tomamx.error", null, null);
+            resultado = resultado + ". \n " + ex.getMessage();
+        } finally {
             Map<String, String> map = new HashMap<String, String>();
-            map.put("idMx",String.valueOf(idMx));
-            map.put("mensaje",resultado);
+            map.put("idMx", String.valueOf(idMx));
+            map.put("mensaje", resultado);
             String jsonResponse = new Gson().toJson(map);
             response.getOutputStream().write(jsonResponse.getBytes());
             response.getOutputStream().close();

@@ -1,10 +1,8 @@
 package ni.gob.minsa.alerta.domain.vigilanciaSindFebril;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
-import ni.gob.minsa.alerta.domain.irag.Respuesta;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Procedencia;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,10 +32,10 @@ public class DaSindFebril implements Serializable, Auditable{
     private Integer anioEpi;
     
     private String nombPadre;
-    private Procedencia codProcedencia;
-    private Respuesta viaje;
+    //private Procedencia codProcedencia;
+    //private Respuesta viaje;
     private String dondeViaje;
-    private Respuesta embarazo;
+    //private Respuesta embarazo;
     private int mesesEmbarazo=0;
     private String enfCronica;
     private String otraCronica;
@@ -61,10 +59,10 @@ public class DaSindFebril implements Serializable, Auditable{
     private String ssHV;
     private String ssCK;
     
-    private Respuesta hosp;
+    //private Respuesta hosp;
     private Date fechaIngreso;
     
-    private Respuesta fallecido;
+    //private Respuesta fallecido;
     private Date fechaFallecido;
     
     private String dxPresuntivo;
@@ -74,6 +72,19 @@ public class DaSindFebril implements Serializable, Auditable{
 
     private String actor;
     private String id;
+
+    /****/
+	private String codProcedencia;
+    private String viaje;
+	private String embarazo;
+	private String hosp;
+	private String fallecido;
+
+	/*private String descProcedencia;
+	private String descViaje;
+	private String descEmbarazo;
+	private String descHosp;
+	private String descFallecido;*/
 
     public DaSindFebril() {
 		super();
@@ -170,7 +181,7 @@ public class DaSindFebril implements Serializable, Auditable{
 		this.nombPadre = nombPadre;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
+	/*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
     @JoinColumn(name="COD_PROCEDENCIA",referencedColumnName="CODIGO", nullable=true)
     @ForeignKey(name = "SF_PROC_FK")
 	public Procedencia getCodProcedencia() {
@@ -179,9 +190,17 @@ public class DaSindFebril implements Serializable, Auditable{
 
 	public void setCodProcedencia(Procedencia codProcedencia) {
 		this.codProcedencia = codProcedencia;
+	}*/
+	@Column(name="COD_PROCEDENCIA", nullable=true)
+	public String getCodProcedencia() {
+		return codProcedencia;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+	public void setCodProcedencia(String codProcedencia) {
+		this.codProcedencia = codProcedencia;
+	}
+
+	/*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="COD_VIAJO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "SF_VIAJE_FK")
 	public Respuesta getViaje() {
@@ -190,7 +209,16 @@ public class DaSindFebril implements Serializable, Auditable{
 
 	public void setViaje(Respuesta viaje) {
 		this.viaje = viaje;
-	}
+	}*/
+
+    @Column(name="COD_VIAJO", nullable = true, length = 32)
+    public String getViaje() {
+        return viaje;
+    }
+
+    public void setViaje(String viaje) {
+        this.viaje = viaje;
+    }
 
 	@Column(name = "DONDE_VIAJO", nullable = true, length = 250)
 	public String getDondeViaje() {
@@ -201,7 +229,7 @@ public class DaSindFebril implements Serializable, Auditable{
 		this.dondeViaje = dondeViaje;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+	/*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="EMBARAZO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "SF_EMBARAZO_FK")
 	public Respuesta getEmbarazo() {
@@ -209,6 +237,15 @@ public class DaSindFebril implements Serializable, Auditable{
 	}
 
 	public void setEmbarazo(Respuesta embarazo) {
+		this.embarazo = embarazo;
+	}*/
+
+	@Column(name="EMBARAZO", nullable = true)
+	public String getEmbarazo() {
+		return embarazo;
+	}
+
+	public void setEmbarazo(String embarazo) {
 		this.embarazo = embarazo;
 	}
 
@@ -383,7 +420,7 @@ public class DaSindFebril implements Serializable, Auditable{
 		this.ssCK = ssCK;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+	/*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="HOSPITALIZADO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "SF_HOSPITALIZADO_FK")
 	public Respuesta getHosp() {
@@ -391,6 +428,15 @@ public class DaSindFebril implements Serializable, Auditable{
 	}
 
 	public void setHosp(Respuesta hosp) {
+		this.hosp = hosp;
+	}*/
+
+	@Column(name="HOSPITALIZADO", nullable = true)
+	public String getHosp() {
+		return hosp;
+	}
+
+	public void setHosp(String hosp) {
 		this.hosp = hosp;
 	}
 
@@ -403,7 +449,7 @@ public class DaSindFebril implements Serializable, Auditable{
 		this.fechaIngreso = fechaIngreso;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
+	/*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class, optional = true)
     @JoinColumn(name="FALLECIDO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "SF_FALLECIDO_FK")
 	public Respuesta getFallecido() {
@@ -411,6 +457,16 @@ public class DaSindFebril implements Serializable, Auditable{
 	}
 
 	public void setFallecido(Respuesta fallecido) {
+		this.fallecido = fallecido;
+	}*/
+
+	@Column(name="FALLECIDO", nullable = true)
+	@ForeignKey(name = "SF_FALLECIDO_FK")
+	public String getFallecido() {
+		return fallecido;
+	}
+
+	public void setFallecido(String fallecido) {
 		this.fallecido = fallecido;
 	}
 
@@ -491,4 +547,50 @@ public class DaSindFebril implements Serializable, Auditable{
     public int hashCode() {
         return id.hashCode();
     }
+
+
+	/*@Column(name = "DESC_PROCEDENCIA", nullable = true, length = 100)
+	public String getDescProcedencia() {
+		return descProcedencia;
+	}
+
+	public void setDescProcedencia(String descProcedencia) {
+		this.descProcedencia = descProcedencia;
+	}
+
+	@Column(name = "DESC_VIAJE", nullable = true, length = 100)
+	public String getDescViaje() {
+		return descViaje;
+	}
+
+	public void setDescViaje(String descViaje) {
+		this.descViaje = descViaje;
+	}
+
+	@Column(name = "DESC_EMBARAZO", nullable = true, length = 100)
+	public String getDescEmbarazo() {
+		return descEmbarazo;
+	}
+
+	public void setDescEmbarazo(String descEmbarazo) {
+		this.descEmbarazo = descEmbarazo;
+	}
+
+	@Column(name = "DESC_HOSP", nullable = true, length = 100)
+	public String getDescHosp() {
+		return descHosp;
+	}
+
+	public void setDescHosp(String descHosp) {
+		this.descHosp = descHosp;
+	}
+
+	@Column(name = "DESC_FALLECIDO", nullable = true, length = 100)
+	public String getDescFallecido() {
+		return descFallecido;
+	}
+
+	public void setDescFallecido(String descFallecido) {
+		this.descFallecido = descFallecido;
+	}*/
 }

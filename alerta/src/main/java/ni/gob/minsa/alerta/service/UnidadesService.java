@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.service;
 
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -43,7 +43,7 @@ public class UnidadesService {
      * @return una lista de  Unidades
      * @throws Exception
      */
-    @Deprecated
+    /*@Deprecated
     public List<Unidades> getAllUnidades() throws Exception {
         String query = "from Unidades where pasivo = :pasivo order by nombre asc";
         Session session = sessionFactory.getCurrentSession();
@@ -59,14 +59,14 @@ public class UnidadesService {
         q.setInteger("idEntidad",idEntidad);
         q.setParameter("pasivo", '0');
         return q.list();
-    }
+    }*/
 
     /**
      * @param codUnidad Id para obtener un objeto en especifico del tipo <code>Unidades</code>
      * @return retorna un objeto filtrado del tipo <code>Unidades</code>
      * @throws Exception
      */
-    public Unidades getUnidadByCodigo(Integer codUnidad) throws Exception {
+   /* public Unidades getUnidadByCodigo(Integer codUnidad) throws Exception {
         Session session = sessionFactory.getCurrentSession();
         String query = "from Unidades as a where codigo=:idUnidad order by nombre asc";
         Query q = session.createQuery(query);
@@ -95,9 +95,9 @@ public class UnidadesService {
             ex.printStackTrace();
         }
         return res;
-    }
+    }*/
 
-    public List<Unidades> getPrimaryUnitsBySilais(long codSilais, String[] codTiposUnidades) throws Exception {
+    /*public List<Unidades> getPrimaryUnitsBySilais(long codSilais, String[] codTiposUnidades) throws Exception {
         List<Unidades> res = new ArrayList<Unidades>();
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -116,9 +116,9 @@ public class UnidadesService {
             ex.printStackTrace();
         }
         return res;
-    }
+    }*/
 
-    public List<Unidades> getPUnitsHospByMuniAndSilais(String codMunicipio, String[] codTiposUnidades, long codSilais) throws Exception {
+    /*public List<Unidades> getPUnitsHospByMuniAndSilais(String codMunicipio, String[] codTiposUnidades, long codSilais) throws Exception {
         List<Unidades> res = new ArrayList<Unidades>();
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -139,5 +139,5 @@ public class UnidadesService {
         }
 
         return res;
-    }
+    }*/
 }

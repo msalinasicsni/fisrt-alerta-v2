@@ -3,17 +3,22 @@ package ni.gob.minsa.alerta.web.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
-import ni.gob.minsa.alerta.domain.irag.CondicionEgreso;
-import ni.gob.minsa.alerta.domain.irag.Respuesta;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
-import ni.gob.minsa.alerta.domain.persona.SisPersona;
+import ni.gob.minsa.alerta.domain.persona.PersonaTmp;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.rotavirus.*;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.MinsaServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.DateUtil;
+import ni.gob.minsa.alerta.utilities.Utils;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
 import ni.gob.minsa.ciportal.dto.InfoResultado;
 import ni.gob.minsa.ejbPersona.dto.Persona;
@@ -27,9 +32,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -82,31 +87,49 @@ public class RotavirusController {
     MessageSource messageSource;
 
     List<EntidadesAdtvas> entidades;
-    List<Divisionpolitica> departamentos;
-    List<ClasificacionFinalRotavirus> catClasif;
+    //List<Divisionpolitica> departamentos;
+    List<Departamento> departamentos;
+    List<Catalogo> catClasif;
+    List<Catalogo> gradoDeshidratacions;
+    List<Catalogo> catResp;
+    List<Catalogo> caracteristaHeceses;
+    List<Catalogo> registroVacunas;
+    List<Catalogo> tipoVacunaRotavirus;
+    List<Catalogo> condicionEgresos;
+    List<Catalogo> salaRotaVirusList;
+    /*List<ClasificacionFinalRotavirus> catClasif;
     List<GradoDeshidratacion> gradoDeshidratacions;
     List<Respuesta> catResp;
     List<CaracteristaHeces> caracteristaHeceses;
     List<RegistroVacuna> registroVacunas;
     List<TipoVacunaRotavirus> tipoVacunaRotavirus;
     List<CondicionEgreso> condicionEgresos;
-    List<SalaRotaVirus> salaRotaVirusList;
+    List<SalaRotaVirus> salaRotaVirusList;*/
     Map<String, Object> mapModel;
 
 
     void Initialize() throws Exception {
         try {
 
-
-            departamentos = divisionPoliticaService.getAllDepartamentos();
-            catClasif = catalogoService.getClasificacionesFinalRotavirus();
+            //departamentos = divisionPoliticaService.getAllDepartamentos();
+            /*catClasif = catalogoService.getClasificacionesFinalRotavirus();
             catResp = catalogoService.getRespuesta();
             registroVacunas = catalogoService.getRegistrosVacuna();
             tipoVacunaRotavirus = catalogoService.getTiposVacunasRotavirus();
             caracteristaHeceses = catalogoService.getCaracteristasHeces();
             gradoDeshidratacions = catalogoService.getGradosDeshidratacion();
             condicionEgresos = catalogoService.getCondicionEgreso();
-            salaRotaVirusList = catalogoService.getSalasRotaVirus();
+            salaRotaVirusList = catalogoService.getSalasRotaVirus();*/
+
+            departamentos = CallRestServices.getDepartamentos();
+            catClasif = CallRestServices.getCatalogos("CLASFIRT");
+            catResp = CallRestServices.getCatalogos("RESP");
+            registroVacunas = CallRestServices.getCatalogos("REGVACRT");
+            tipoVacunaRotavirus = CallRestServices.getCatalogos("TIPOVACRT");
+            caracteristaHeceses = CallRestServices.getCatalogos("CARHECESRT");
+            gradoDeshidratacions = CallRestServices.getCatalogos("GRADODESH");
+            condicionEgresos = CallRestServices.getCatalogos("CONEGRE");
+            salaRotaVirusList = CallRestServices.getCatalogos("SALART");
 
             mapModel = new HashMap<>();
 
@@ -127,8 +150,8 @@ public class RotavirusController {
     }
 
     @RequestMapping(value = "create", method = RequestMethod.GET)
-    public String initSearchForm(HttpServletRequest request) throws ParseException {
-        logger.debug("Crear/Buscar una ficha de Rotavirus");
+    public String initSearchForm(HttpServletRequest request, Model model) throws ParseException {
+        /*logger.debug("Crear/Buscar una ficha de Rotavirus");
 
         String urlValidacion= "";
         try {
@@ -145,8 +168,11 @@ public class RotavirusController {
             return "rotavirus/search";
         }else{
             return urlValidacion;
-        }
-
+        }*/
+        logger.debug("Crear/Buscar una ficha de sindromes febriles");
+        model.addAttribute("personaByIdentificacion", MinsaServices.SEVICIO_PERSONAS_IDENTIFICACION);
+        model.addAttribute("personaByNombres", MinsaServices.SEVICIO_PERSONAS_NONBRES);
+        return "rotavirus/search";
     }
 
     /**
@@ -171,7 +197,7 @@ public class RotavirusController {
 
         if(urlValidacion.isEmpty()){
             List<FichaRotavirus> results = rotaVirusService.getFichaByPersonaId(idPerson);
-
+            boolean identificada = true;
             long idUsuario = seguridadService.obtenerIdUsuario(request);
 
             if (results.size() == 0) {
@@ -179,7 +205,10 @@ public class RotavirusController {
                 FichaRotavirus fichaRotavirus = new FichaRotavirus();
                 DaNotificacion noti = new DaNotificacion();
                 Initialize();
-                SisPersona persona = personaService.getPersona(idPerson);
+                //SisPersona persona = personaService.getPersona(idPerson);
+                ni.gob.minsa.alerta.restServices.entidades.Persona per = CallRestServices.getPersonasById(String.valueOf(idPerson), (identificada?"1":"0"));
+                PersonaTmp persona = personaService.getPersona(idPerson);
+
 
                 //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
                 if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
@@ -191,19 +220,21 @@ public class RotavirusController {
                 if (persona != null) {
                     noti.setPersona(persona);
                     fichaRotavirus.setDaNotificacion(noti);
-                    Divisionpolitica departamentoProce = null;
-                    List<Divisionpolitica> municipiosResi = new ArrayList<Divisionpolitica>();
+                    //Divisionpolitica departamentoProce = null;
+                    //List<Divisionpolitica> municipiosResi = new ArrayList<Divisionpolitica>();
                     List<Comunidades> comunidades = new ArrayList<Comunidades>();
-                    if (fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia()!=null) {
-                        departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
-                        municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
-                        comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                    //if (fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia()!=null) {
+                    if (fichaRotavirus.getDaNotificacion().getPersona().getIdMunicipioResidencia() != null) {
+                        //departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                        //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
+                        //comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                        comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getNombreMunicipioResidencia());
                     }
 
                     mav.addObject("entidades", entidades);
                     mav.addObject("autorizado", autorizado);
-                    mav.addObject("departamentoProce", departamentoProce);
-                    mav.addObject("municipiosResi", municipiosResi);
+                    //mav.addObject("departamentoProce", departamentoProce);
+                    //mav.addObject("municipiosResi", municipiosResi);
                     mav.addObject("comunidades", comunidades);
                     mav.addObject("fichaRotavirus", fichaRotavirus);
                     mav.addAllObjects(mapModel);
@@ -218,7 +249,8 @@ public class RotavirusController {
                         if (seguridadService.esUsuarioAutorizadoEntidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE,
                                 rt.getDaNotificacion().getCodSilaisAtencion().getCodigo()) &&
                                 seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE,
-                                        rt.getDaNotificacion().getCodUnidadAtencion().getCodigo())) {
+                                        //rt.getDaNotificacion().getCodUnidadAtencion().getCodigo())) {
+                                        rt.getDaNotificacion().getCodUnidadAtencion())) {
                             fichaRotavirusAutorizadas.add(rt.getDaNotificacion().getIdNotificacion());
                         }
                     }
@@ -258,7 +290,8 @@ public class RotavirusController {
             FichaRotavirus fichaRotavirus = new FichaRotavirus();
             DaNotificacion noti = new DaNotificacion();
             Initialize();
-            SisPersona persona = personaService.getPersona(idPerson);
+            //SisPersona persona = personaService.getPersona(idPerson);
+            PersonaTmp persona = personaService.getPersona(idPerson);
 
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
@@ -271,14 +304,15 @@ public class RotavirusController {
             if (persona != null) {
                 noti.setPersona(persona);
                 fichaRotavirus.setDaNotificacion(noti);
-                Divisionpolitica departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
-                List<Divisionpolitica> municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
-                List<Comunidades> comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                //Divisionpolitica departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                //List<Divisionpolitica> municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
+                //List<Comunidades> comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional());
+                List<Comunidades> comunidades = comunidadesService.getComunidades(fichaRotavirus.getDaNotificacion().getPersona().getNombreMunicipioResidencia());
 
                 mav.addObject("entidades", entidades);
                 mav.addObject("autorizado", autorizado);
-                mav.addObject("departamentoProce", departamentoProce);
-                mav.addObject("municipiosResi", municipiosResi);
+                //mav.addObject("departamentoProce", departamentoProce);
+                //mav.addObject("municipiosResi", municipiosResi);
                 mav.addObject("comunidades", comunidades);
                 mav.addObject("fichaRotavirus", fichaRotavirus);
                 mav.addAllObjects(mapModel);
@@ -330,7 +364,8 @@ public class RotavirusController {
                         autorizado = seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE) ||
                                 ((fichaRotavirus.getDaNotificacion().getCodSilaisAtencion()!=null && fichaRotavirus.getDaNotificacion().getCodUnidadAtencion()!=null) &&
                                         seguridadService.esUsuarioAutorizadoEntidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo()) &&
-                                        seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getCodigo()));
+                                        //seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getCodigo()));
+                                        seguridadService.esUsuarioAutorizadoUnidad((int) idUsuario, ConstantsSecurity.SYSTEM_CODE, fichaRotavirus.getDaNotificacion().getCodUnidadAtencion()));
                     }
 
                     entidades = seguridadService.obtenerEntidadesPorUsuario((int)idUsuario, ConstantsSecurity.SYSTEM_CODE);
@@ -339,35 +374,52 @@ public class RotavirusController {
                         entidades.add(fichaRotavirus.getDaNotificacion().getCodSilaisAtencion());
                     }
 
-                    Divisionpolitica municipio = divisionPoliticaService.getMunicipiosByUnidadSalud(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional());
-                    List<Divisionpolitica> munic = divisionPoliticaService.getMunicipiosBySilais(fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo());
+                    //Divisionpolitica municipio = divisionPoliticaService.getMunicipiosByUnidadSalud(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional());
+                    //List<Divisionpolitica> munic = divisionPoliticaService.getMunicipiosBySilais(fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo());
+                    List<Municipio> muni = CallRestServices.getMunicipiosEntidad(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion());
+                    Municipio municipio = muni.get(0);
+                    //List<Municipio> munic = divisionPoliticaService.getMunicipiosBySilais(fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo());
+                    List<Municipio> munic = CallRestServices.getMunicipiosEntidad(fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo());
 
                     List<Unidades> uni = null;
                     if (seguridadService.esUsuarioNivelCentral(idUsuario,ConstantsSecurity.SYSTEM_CODE)) {
                         if (fichaRotavirus.getDaNotificacion().getCodSilaisAtencion()!=null && fichaRotavirus.getDaNotificacion().getCodUnidadAtencion()!=null) {
                             uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo(),
-                                    fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                                    //fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                                    fichaRotavirus.getDaNotificacion().getMunicipioResidencia(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
                         }
                     }
                     else{
                         if (fichaRotavirus.getDaNotificacion().getCodSilaisAtencion()!=null && fichaRotavirus.getDaNotificacion().getCodUnidadAtencion()!=null) {
-                            uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo(), fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                            //uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo(), fichaRotavirus.getDaNotificacion().getCodUnidadAtencion().getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
+                            uni = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int) idUsuario, fichaRotavirus.getDaNotificacion().getCodSilaisAtencion().getCodigo(),
+                                    fichaRotavirus.getDaNotificacion().getMunicipioResidencia(),
+                                    ConstantsSecurity.SYSTEM_CODE, HealthUnitType.UnidadesPrimHosp.getDiscriminator());
                             if (!uni.contains(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion())) {
-                                uni.add(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion());
+                                //uni.add(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion());
+                                Unidades unidades = CallRestServices.getUnidadSalud(fichaRotavirus.getDaNotificacion().getCodUnidadAtencion());
+                                uni.add(unidades);
                             }
                         }
                     }
 
                     //datos persona
-                    Divisionpolitica departamentoProce;
-                    List<Divisionpolitica> municipiosResi = null;
+                    /*Divisionpolitica departamentoProce;
+                    List<Divisionpolitica> municipiosResi = null;*/
+                    String departamentoProce;
+                    List<Municipio> municipiosResi = null;
                     List<Comunidades> comunidades = null;
 
-                    if(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia() != null){
-                        String municipioResidencia = fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional();
-                        departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(municipioResidencia);
-                        municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
-                        String comu = fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional();
+                    //if(fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia() != null){
+                    if(fichaRotavirus.getDaNotificacion().getPersona().getIdMunicipioResidencia() != null){
+                        //String municipioResidencia = fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional();
+                        String municipioResidencia = fichaRotavirus.getDaNotificacion().getPersona().getNombreMunicipioResidencia();
+                        //departamentoProce = divisionPoliticaService.getDepartamentoByMunicipi(municipioResidencia);
+                        departamentoProce = fichaRotavirus.getDaNotificacion().getPersona().getNombreDepartamentoNacimiento();
+                        //municipiosResi = divisionPoliticaService.getMunicipiosFromDepartamento(departamentoProce.getCodigoNacional());
+                        municipiosResi = CallRestServices.getMunicipiosDepartamento(fichaRotavirus.getDaNotificacion().getPersona().getIdDepartamentoNacimiento());
+                        //String comu = fichaRotavirus.getDaNotificacion().getPersona().getMunicipioResidencia().getCodigoNacional();
+                        String comu = fichaRotavirus.getDaNotificacion().getPersona().getNombreComunidadResidencia();
                         comunidades = comunidadesService.getComunidades(comu);
                     }
 
@@ -501,19 +553,22 @@ public class RotavirusController {
     ) throws Exception {
 
         logger.debug("Actualizando datos persona");
-        SisPersona pers = new SisPersona();
+        //SisPersona pers = new SisPersona();
+        PersonaTmp pers = new PersonaTmp();
         InfoResultado infoResultado;
         if (personaId != null) {
             pers = personaService.getPersona(personaId);
-            pers.setMunicipioResidencia(divisionPoliticaService.getDivisionPolitiacaByCodNacional(municipioResidencia));
-            pers.setComunidadResidencia(comunidadesService.getComunidad(comunidadResidencia));
+            /*pers.setMunicipioResidencia(divisionPoliticaService.getDivisionPolitiacaByCodNacional(municipioResidencia));
+            pers.setComunidadResidencia(comunidadesService.getComunidad(comunidadResidencia));*/
+            pers.setNombreMunicipioResidencia(municipioResidencia);
+            pers.setNombreComunidadResidencia(comunidadResidencia);
             pers.setDireccionResidencia(direccionResidencia);
             if (ConstantsSecurity.ENABLE_PERSON_COMPONENT) {
-                Persona persona = personaService.ensamblarObjetoPersona(pers);
+                //Persona persona = personaService.ensamblarObjetoPersona(pers);
                 try {
                     personaService.iniciarTransaccion();
 
-                    infoResultado = personaService.guardarPersona(persona, seguridadService.obtenerNombreUsuario(request));
+                    //infoResultado = personaService.guardarPersona(persona, seguridadService.obtenerNombreUsuario(request));PENDIENTE DE REVISAR
                     if (infoResultado.isOk() && infoResultado.getObjeto() != null) {
                         updateNotificacion(idNotificacion, pers);
                     } else
@@ -587,17 +642,28 @@ public class RotavirusController {
         }
 
         if(personaId != null){
-            SisPersona persona = personaService.getPersona(personaId);
+            //SisPersona persona = personaService.getPersona(personaId);
+            PersonaTmp persona = personaService.getPersona(personaId);
+            List<Catalogo> tipoNotificacion = CallRestServices.getCatalogos("TPNOTI");
             noti.setPersona(persona);
             noti.setFechaRegistro(new Timestamp(new Date().getTime()));
             noti.setCodSilaisAtencion(entidadAdmonService.getSilaisByCodigo(codSilaisAtencion));
-            noti.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+            //noti.setCodUnidadAtencion(unidadesService.getUnidadByCodigo(codUnidadAtencion));
+            Unidades unidades = CallRestServices.getUnidadSalud(codUnidadAtencion);
+            noti.setCodUnidadAtencion(Long.valueOf(unidades.getCodigo()));
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             noti.setUsuarioRegistro(usuarioService.getUsuarioById((int)idUsuario));
-            noti.setCodTipoNotificacion(catalogoService.getTipoNotificacion("TPNOTI|RTV"));
-            noti.setMunicipioResidencia(persona.getMunicipioResidencia());
+            //noti.setCodTipoNotificacion(catalogoService.getTipoNotificacion("TPNOTI|RTV"));
+            noti.setCodTipoNotificacion("TPNOTI|RTV");
+            String descTipoNotificacion = Utils.getDescripcion(tipoNotificacion,"TPNOTI|RTV");
+            noti.setDesTipoNotificacion(descTipoNotificacion);
+            //noti.setMunicipioResidencia(persona.getMunicipioResidencia());
+            noti.setMunicipioResidencia(persona.getNombreMunicipioResidencia());
             noti.setDireccionResidencia(persona.getDireccionResidencia());
-            noti.setUrgente(catalogoService.getRespuesta(urgente));
+            noti.setUrgente(urgente);
+            String descUrgente = Utils.getDescripcion(catResp, urgente);
+            noti.setDesUrgente(descUrgente);
+            //noti.setUrgente(catalogoService.getRespuesta(urgente));
 
             daNotificacionService.addNotification(noti);
             return noti;
@@ -612,13 +678,13 @@ public class RotavirusController {
      * @param persona a quien pertenece la notificación
      * @throws Exception
      */
-    public void updateNotificacion(String idNotificacion, SisPersona persona ) throws Exception {
+    public void updateNotificacion(String idNotificacion, PersonaTmp persona ) throws Exception {
         DaNotificacion noti;
 
         if (idNotificacion != null) {
             //DaNotificacion
             noti = daNotificacionService.getNotifById(idNotificacion);
-            noti.setMunicipioResidencia(persona.getMunicipioResidencia());
+            noti.setMunicipioResidencia(persona.getNombreMunicipioResidencia());
             noti.setDireccionResidencia(persona.getDireccionResidencia());
             daNotificacionService.updateNotificacion(noti);
         }
@@ -643,21 +709,27 @@ public class RotavirusController {
         //datos cl�nicos
         Date fechaInicioDiarrea = null;
         Integer noEvacuaciones24Hrs = null;
-        Respuesta fiebre = null;
-        Respuesta vomito = null;
+        /*Respuesta fiebre = null;
+        Respuesta vomito = null;*/
+        String fiebre = null;
+        String vomito = null;
         Integer noVomito24Hrs = null;
         Date fechaInicioVomito = null;
-        CaracteristaHeces caracteristaHeces = null;
+        //CaracteristaHeces caracteristaHeces = null;
+        String caracteristaHeces = null;
         String otraCaracteristicaHeces= null;
-        GradoDeshidratacion gradoDeshidratacion = null;
+        //GradoDeshidratacion gradoDeshidratacion = null;
+        String gradoDeshidratacion = null;
         Integer diasHospitalizacion = null;
         Date fechaAlta = null;
         //tratamiento
-        Respuesta usoAntibioticoPrevio = null;
+        //Respuesta usoAntibioticoPrevio = null;
+        String usoAntibioticoPrevio = null;
         String plan = null;
         Boolean planB = null;
         Boolean planC = null;
-        Respuesta antibioticoHospital = null;
+        //Respuesta antibioticoHospital = null;
+        String antibioticoHospital = null;
         String cualAntibiotico= null;
         Boolean UCI = null;
         Integer diasUCI = null;
@@ -665,9 +737,12 @@ public class RotavirusController {
         Date fechaTerminoDiarrea = null;
         Boolean ignoradoFechaTD = null;
         //historia vacunacion
-        Respuesta vacunado = null;
+        /*Respuesta vacunado = null;
         RegistroVacuna registroVacuna = null;
-        TipoVacunaRotavirus tipoVacunaRotavirus = null;
+        TipoVacunaRotavirus tipoVacunaRotavirus = null;*/
+        String vacunado = null;
+        String registroVacuna = null;
+        String tipoVacunaRotaviru = null;
         Boolean dosi1 = null;
         Date fechaAplicacionDosis1 = null;
         Boolean dosi2 = null;
@@ -675,16 +750,20 @@ public class RotavirusController {
         Boolean dosi3 = null;
         Date fechaAplicacionDosis3 = null;
         //datos laboratorio
-        Respuesta tomoMuestraHeces = null;
+        //Respuesta tomoMuestraHeces = null;
+        String tomoMuestraHeces = null;
         //Clasificaci�n final
-        ClasificacionFinalRotavirus clasificacionFinal = null;
-        CondicionEgreso condicionEgreso = null;
+        //ClasificacionFinalRotavirus clasificacionFinal = null;
+        String clasificacionFinal = null;
+        //CondicionEgreso condicionEgreso = null;
+        String condicionEgreso = null;
         //Responsable Informaci�n
         String nombreLlenaFicha= null;
         String epidemiologo= null;
         String nombreTomoMx=null;
 
-        SalaRotaVirus sala = null;
+        //SalaRotaVirus sala = null;
+        String sala = null;
         Date fechaIngreso = null;
         String telefonoTutor = null;
 
@@ -715,10 +794,12 @@ public class RotavirusController {
             noEvacuaciones24Hrs = jObjectJson.get("noEvacuaciones24Hrs").getAsInt();
 
         if (jObjectJson.get("fiebre")!=null && !jObjectJson.get("fiebre").getAsString().isEmpty())
-            fiebre = catalogoService.getRespuesta(jObjectJson.get("fiebre").getAsString());
+            //fiebre = catalogoService.getRespuesta(jObjectJson.get("fiebre").getAsString());
+            fiebre = Utils.getDescripcion(catResp, jObjectJson.get("fiebre").getAsString());
 
         if (jObjectJson.get("vomito")!=null && !jObjectJson.get("vomito").getAsString().isEmpty())
-            vomito = catalogoService.getRespuesta(jObjectJson.get("vomito").getAsString());
+            //vomito = catalogoService.getRespuesta(jObjectJson.get("vomito").getAsString());
+            vomito = Utils.getDescripcion(catResp, jObjectJson.get("vomito").getAsString());
 
         if (jObjectJson.get("noVomito24Hrs")!=null && !jObjectJson.get("noVomito24Hrs").getAsString().isEmpty())
             noVomito24Hrs = jObjectJson.get("noVomito24Hrs").getAsInt();
@@ -727,13 +808,15 @@ public class RotavirusController {
             fechaInicioVomito = DateUtil.StringToDate(jObjectJson.get("fechaInicioVomito").getAsString(),"dd/MM/yyyy");
 
         if (jObjectJson.get("caracteristaHeces")!=null && !jObjectJson.get("caracteristaHeces").getAsString().isEmpty())
-            caracteristaHeces = catalogoService.getCaracteristaHeces(jObjectJson.get("caracteristaHeces").getAsString());
+            //caracteristaHeces = catalogoService.getCaracteristaHeces(jObjectJson.get("caracteristaHeces").getAsString());
+            caracteristaHeces = Utils.getDescripcion(caracteristaHeceses, jObjectJson.get("caracteristaHeces").getAsString());
 
         if (jObjectJson.get("otraCaracteristicaHeces")!=null && !jObjectJson.get("otraCaracteristicaHeces").getAsString().isEmpty())
             otraCaracteristicaHeces = jObjectJson.get("otraCaracteristicaHeces").getAsString();
 
         if (jObjectJson.get("gradoDeshidratacion")!=null && !jObjectJson.get("gradoDeshidratacion").getAsString().isEmpty())
-            gradoDeshidratacion = catalogoService.getGradoDeshidratacion(jObjectJson.get("gradoDeshidratacion").getAsString());
+            //gradoDeshidratacion = catalogoService.getGradoDeshidratacion(jObjectJson.get("gradoDeshidratacion").getAsString());
+            gradoDeshidratacion = Utils.getDescripcion(gradoDeshidratacions, jObjectJson.get("gradoDeshidratacion").getAsString());
 
         if (jObjectJson.get("diasHospitalizacion")!=null && !jObjectJson.get("diasHospitalizacion").getAsString().isEmpty())
             diasHospitalizacion = jObjectJson.get("diasHospitalizacion").getAsInt();
@@ -742,7 +825,8 @@ public class RotavirusController {
             fechaAlta = DateUtil.StringToDate(jObjectJson.get("fechaAlta").getAsString(),"dd/MM/yyyy");
 
         if (jObjectJson.get("usoAntibioticoPrevio")!=null && !jObjectJson.get("usoAntibioticoPrevio").getAsString().isEmpty())
-            usoAntibioticoPrevio = catalogoService.getRespuesta(jObjectJson.get("usoAntibioticoPrevio").getAsString());
+            //usoAntibioticoPrevio = catalogoService.getRespuesta(jObjectJson.get("usoAntibioticoPrevio").getAsString());
+            usoAntibioticoPrevio = Utils.getDescripcion(catResp, jObjectJson.get("usoAntibioticoPrevio").getAsString());
 
         if (jObjectJson.get("plan")!=null && !jObjectJson.get("plan").getAsString().isEmpty()) {
             plan = jObjectJson.get("plan").getAsString();
@@ -753,7 +837,8 @@ public class RotavirusController {
         }
 
         if (jObjectJson.get("antibioticoHospital")!=null && !jObjectJson.get("antibioticoHospital").getAsString().isEmpty())
-            antibioticoHospital = catalogoService.getRespuesta(jObjectJson.get("antibioticoHospital").getAsString());
+            //antibioticoHospital = catalogoService.getRespuesta(jObjectJson.get("antibioticoHospital").getAsString());
+            antibioticoHospital = Utils.getDescripcion(catResp, jObjectJson.get("antibioticoHospital").getAsString());
 
         if (jObjectJson.get("cualAntibiotico")!=null && !jObjectJson.get("cualAntibiotico").getAsString().isEmpty())
             cualAntibiotico = jObjectJson.get("cualAntibiotico").getAsString();
@@ -774,13 +859,16 @@ public class RotavirusController {
             ignoradoFechaTD = jObjectJson.get("ignoradoFTD").getAsBoolean();
 
         if (jObjectJson.get("vacunado")!=null && !jObjectJson.get("vacunado").getAsString().isEmpty())
-            vacunado = catalogoService.getRespuesta(jObjectJson.get("vacunado").getAsString());
+            //vacunado = catalogoService.getRespuesta(jObjectJson.get("vacunado").getAsString());
+            vacunado = Utils.getDescripcion(catResp, jObjectJson.get("vacunado").getAsString());
 
         if (jObjectJson.get("registroVacuna")!=null && !jObjectJson.get("registroVacuna").getAsString().isEmpty())
-            registroVacuna = catalogoService.getRegistroVacuna(jObjectJson.get("registroVacuna").getAsString());
+            //registroVacuna = catalogoService.getRegistroVacuna(jObjectJson.get("registroVacuna").getAsString());
+            registroVacuna = Utils.getDescripcion(registroVacunas, jObjectJson.get("registroVacuna").getAsString());
 
         if (jObjectJson.get("tipoVacunaRotavirus")!=null && !jObjectJson.get("tipoVacunaRotavirus").getAsString().isEmpty())
-            tipoVacunaRotavirus = catalogoService.getTipoVacunaRotavirus(jObjectJson.get("tipoVacunaRotavirus").getAsString());
+            //tipoVacunaRotavirus = catalogoService.getTipoVacunaRotavirus(jObjectJson.get("tipoVacunaRotavirus").getAsString());
+            tipoVacunaRotaviru = Utils.getDescripcion(tipoVacunaRotavirus, jObjectJson.get("tipoVacunaRotavirus").getAsString());
 
         if (jObjectJson.get("dosi1")!=null)
             dosi1 = jObjectJson.get("dosi1").getAsBoolean();
@@ -801,13 +889,16 @@ public class RotavirusController {
             fechaAplicacionDosis3 = DateUtil.StringToDate(jObjectJson.get("fechaAplicacionDosis3").getAsString(),"dd/MM/yyyy");
 
         if (jObjectJson.get("tomoMuestraHeces")!=null && !jObjectJson.get("tomoMuestraHeces").getAsString().isEmpty())
-            tomoMuestraHeces = catalogoService.getRespuesta(jObjectJson.get("tomoMuestraHeces").getAsString());
+            //tomoMuestraHeces = catalogoService.getRespuesta(jObjectJson.get("tomoMuestraHeces").getAsString());
+            tomoMuestraHeces = Utils.getDescripcion(catResp, jObjectJson.get("tomoMuestraHeces").getAsString());
 
         if (jObjectJson.get("clasificacionFinal")!=null && !jObjectJson.get("clasificacionFinal").getAsString().isEmpty())
-            clasificacionFinal = catalogoService.getClasificacionFinalRotavirus(jObjectJson.get("clasificacionFinal").getAsString());
+            //clasificacionFinal = catalogoService.getClasificacionFinalRotavirus(jObjectJson.get("clasificacionFinal").getAsString());
+            clasificacionFinal = Utils.getDescripcion(catClasif, jObjectJson.get("clasificacionFinal").getAsString());
 
         if (jObjectJson.get("condicionEgreso")!=null && !jObjectJson.get("condicionEgreso").getAsString().isEmpty())
-            condicionEgreso = catalogoService.getCondicionEgreso(jObjectJson.get("condicionEgreso").getAsString());
+            //condicionEgreso = catalogoService.getCondicionEgreso(jObjectJson.get("condicionEgreso").getAsString());
+            condicionEgreso = Utils.getDescripcion(condicionEgresos, jObjectJson.get("condicionEgreso").getAsString());
 
         if (jObjectJson.get("nombreLlenaFicha")!=null && !jObjectJson.get("nombreLlenaFicha").getAsString().isEmpty())
             nombreLlenaFicha = jObjectJson.get("nombreLlenaFicha").getAsString();
@@ -816,7 +907,8 @@ public class RotavirusController {
             epidemiologo = jObjectJson.get("epidemiologo").getAsString();
 
         if (jObjectJson.get("sala")!=null && !jObjectJson.get("sala").getAsString().isEmpty())
-            sala = catalogoService.getSalaRotaVirus(jObjectJson.get("sala").getAsString());
+            //sala = catalogoService.getSalaRotaVirus(jObjectJson.get("sala").getAsString());
+            sala = Utils.getDescripcion(salaRotaVirusList, jObjectJson.get("sala").getAsString());
 
         if (jObjectJson.get("fechaIngreso")!=null && !jObjectJson.get("fechaIngreso").getAsString().isEmpty())
             fechaIngreso = DateUtil.StringToDate(jObjectJson.get("fechaIngreso").getAsString(),"dd/MM/yyyy");
@@ -853,7 +945,7 @@ public class RotavirusController {
         fichaRotavirus.setIgnoradoFechaTD(ignoradoFechaTD);
         fichaRotavirus.setVacunado(vacunado);
         fichaRotavirus.setRegistroVacuna(registroVacuna);
-        fichaRotavirus.setTipoVacunaRotavirus(tipoVacunaRotavirus);
+        fichaRotavirus.setTipoVacunaRotavirus(tipoVacunaRotaviru);
         fichaRotavirus.setDosi1(dosi1);
         fichaRotavirus.setDosi2(dosi2);
         fichaRotavirus.setDosi3(dosi3);

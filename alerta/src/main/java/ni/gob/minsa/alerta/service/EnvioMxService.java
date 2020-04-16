@@ -59,7 +59,8 @@ public class EnvioMxService {
                 Restrictions.eq("estado.codigo", "ESTDMX|PEND").ignoreCase()));
         //no mostrar las muestras de notificaciones 'CASOS ESPECIALES'
         crit.add( Restrictions.and(
-                Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|CAESP").ignoreCase()));
+                //Restrictions.ne("notifi.codTipoNotificacion.codigo", "TPNOTI|CAESP").ignoreCase()));
+                Restrictions.ne("notifi.codTipoNotificacion", "TPNOTI|CAESP").ignoreCase()));
 
         // se filtra por nombre y apellido persona
         if (filtro.getNombreApellido()!=null) {
@@ -183,7 +184,8 @@ public class EnvioMxService {
 
         //SINDROMES FEBRILES
         String query2 = "from DaSindFebril where idNotificacion.idNotificacion = :idNotificacion" +
-                " and embarazo.codigo = :codigoEmb";
+                //" and embarazo.codigo = :codigoEmb";
+                " and embarazo = :codigoEmb";
         Query q2 = session.createQuery(query2);
         q2.setParameter("idNotificacion", strIdNotificacion);
         q2.setParameter("codigoEmb","RESP|S"); //respuesta afirmativa

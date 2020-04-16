@@ -259,10 +259,10 @@
                 <c:forEach items="${entidades}" var="entidad">
                     <c:choose>
                         <c:when test="${entidad.codigo eq irag.idNotificacion.codSilaisAtencion.codigo}">
-                            <option selected value="${entidad.codigo}">${entidad.nombre}</option>
+                            <option selected value="${entidad.id}">${entidad.nombre}</option>
                         </c:when>
                         <c:otherwise>
-                            <option value="${entidad.codigo}">${entidad.nombre}</option>
+                            <option value="${entidad.id}">${entidad.nombre}</option>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -286,11 +286,12 @@
                 <option value=""></option>
                 <c:forEach items="${munic}" var="muni">
                     <c:choose>
-                        <c:when test="${muni.codigoNacional eq irag.idNotificacion.codUnidadAtencion.municipio.codigoNacional}">
-                            <option selected value="${muni.codigoNacional}">${muni.nombre}</option>
+                        <%--<c:when test="${muni.codigoNacional eq irag.idNotificacion.codUnidadAtencion.municipio.codigoNacional}">--%>
+                        <c:when test="${muni.id eq irag.idNotificacion.idMunicipioResidencia}">
+                            <option selected value="${muni.id}">${muni.nombre}</option>
                         </c:when>
                         <c:otherwise>
-                            <option value="${muni.codigoNacional}">${muni.nombre}</option>
+                            <option value="${muni.id}">${muni.nombre}</option>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -315,11 +316,12 @@
                 <option value=""></option>
                 <c:forEach items="${uni}" var="unid">
                     <c:choose>
-                        <c:when test="${irag.idNotificacion.codUnidadAtencion.codigo eq unid.codigo}">
-                            <option selected value="${unid.codigo}">${unid.nombre}</option>
+                        <%--<c:when test="${irag.idNotificacion.codUnidadAtencion.codigo eq unid.codigo}">--%>
+                        <c:when test="${irag.idNotificacion.codUnidadAtencion eq unid.id}">
+                            <option selected value="${unid.id}">${unid.nombre}</option>
                         </c:when>
                         <c:otherwise>
-                            <option value="${unid.codigo}">${unid.nombre}</option>
+                            <option value="${unid.id}">${unid.nombre}</option>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -425,7 +427,8 @@
                 <option value=""></option>
                 <c:forEach items="${catResp}" var="cresp">
                     <c:choose>
-                        <c:when test="${cresp.codigo eq  irag.idNotificacion.urgente.codigo}">
+                        <%--<c:when test="${cresp.codigo eq  irag.idNotificacion.urgente.codigo}">--%>
+                        <c:when test="${cresp.codigo eq  irag.idNotificacion.urgente}">
                             <option selected value="${cresp.codigo}">${cresp.valor}</option>
                         </c:when>
                         <c:otherwise>
@@ -509,10 +512,12 @@
 
         <div class="input-group">
             <c:choose>
-                <c:when test="${irag.idNotificacion.persona.sexo.codigo eq 'SEXO|M'}">
+                <%--<c:when test="${irag.idNotificacion.persona.sexo.codigo eq 'SEXO|M'}">--%>
+                <c:when test="${irag.idNotificacion.persona.codigoSexo eq 'SEXO|M'}">
                     <span class="input-group-addon"><i class="fa fa-male fa-fw"></i></span>
                 </c:when>
-                <c:when test="${irag.idNotificacion.persona.sexo.codigo eq 'SEXO|F'}">
+                <%--<c:when test="${irag.idNotificacion.persona.sexo.codigo eq 'SEXO|F'}">--%>
+                <c:when test="${irag.idNotificacion.persona.codigoSexo eq 'SEXO|F'}">
                     <span class="input-group-addon"><i class="fa fa-female fa-fw"></i></span>
                 </c:when>
                 <c:otherwise>
@@ -521,7 +526,8 @@
             </c:choose>
             <label class="input">
                 <input class="form-control" type="text" name="sexo" id="sexo"
-                       value="${irag.idNotificacion.persona.sexo}" readonly cssStyle="background-color: #f0fff0"
+                       <%--value="${irag.idNotificacion.persona.sexo}" readonly cssStyle="background-color: #f0fff0"--%>
+                       value="${irag.idNotificacion.persona.codigoSexo}" readonly cssStyle="background-color: #f0fff0"
                        placeholder=" <spring:message code="person.sexo" />">
             </label>
             <span class="input-group-addon"><i class="fa fa-sort-alpha-asc fa-fw"></i></span>
@@ -580,11 +586,11 @@
                 <option value=""></option>
                 <c:forEach items="${departamentos}" var="depa">
                     <c:choose>
-                        <c:when test="${depa.divisionpoliticaId eq departamentoProce.divisionpoliticaId}">
-                            <option selected value="${depa.codigoNacional}">${depa.nombre}</option>
+                        <c:when test="${depa.id eq departamentoProce.id}">
+                            <option selected value="${depa.id}">${depa.nombre}</option>
                         </c:when>
                         <c:otherwise>
-                            <option value="${depa.codigoNacional}">${depa.nombre}</option>
+                            <option value="${depa.id}">${depa.nombre}</option>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -607,7 +613,7 @@
                 <option value=""></option>
                 <c:forEach items="${municipiosResi}" var="muniResi">
                     <c:choose>
-                        <c:when test="${muniResi.codigoNacional eq irag.idNotificacion.persona.municipioResidencia.codigoNacional or muniResi.codigoNacional eq irag.idNotificacion.municipioResidencia.codigoNacional}">
+                        <c:when test="${muniResi.codigoNacional eq irag.idNotificacion.persona.nombreMunicipioResidencia or muniResi.id eq irag.idNotificacion.idMunicipioResidencia}">
                             <option selected value="${muniResi.codigoNacional}">${muniResi.nombre}</option>
                         </c:when>
                         <c:otherwise>
@@ -635,11 +641,14 @@
                 <option value=""></option>
                 <c:forEach items="${comunidades}" var="comu">
                     <c:choose>
-                        <c:when test="${comu.codigo eq irag.idNotificacion.comunidadResidencia.codigo or comu.codigo eq irag.idNotificacion.persona.comunidadResidencia.codigo}">
-                            <option selected value="${comu.codigo}">${comu.nombre}-${comu.sector.unidad.nombre}</option>
+                        <%--<c:when test="${comu.codigo eq irag.idNotificacion.comunidadResidencia.codigo or comu.codigo eq irag.idNotificacion.persona.comunidadResidencia.codigo}">--%>
+                        <c:when test="${comu.codigo eq irag.idNotificacion.comunidadResidencia or comu.id eq irag.idNotificacion.persona.idComunidadResidencia}">
+                            <%--<option selected value="${comu.codigo}">${comu.nombre}-${comu.sector.unidad.nombre}</option>--%>
+                            <option selected value="${comu.codigo}">${comu.nombre}</option>
                         </c:when>
                         <c:otherwise>
-                            <option value="${comu.codigo}">${comu.nombre}-${comu.sector.unidad.nombre}</option>
+                            <%--<option value="${comu.codigo}">${comu.nombre}-${comu.sector.unidad.nombre}</option>--%>
+                            <option value="${comu.codigo}">${comu.nombre}</option>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>

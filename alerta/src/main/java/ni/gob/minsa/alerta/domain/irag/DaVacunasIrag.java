@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.domain.irag;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import org.hibernate.annotations.ForeignKey;
 
@@ -21,7 +21,7 @@ public class DaVacunasIrag implements Serializable, Auditable {
     private static final long serialVersionUID = -6541039785829475122L;
     private Integer idVacuna;
     private DaIrag idNotificacion;
-    private Vacuna codVacuna;
+    //private Vacuna codVacuna;
     private String codTipoVacuna;
     private Integer dosis;
     private Date fechaUltimaDosis;
@@ -29,6 +29,7 @@ public class DaVacunasIrag implements Serializable, Auditable {
     private boolean pasivo;
     private Usuarios usuario;
     private String actor;
+    private String codVacuna;
 
 
     @Id
@@ -54,12 +55,17 @@ public class DaVacunasIrag implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
+    /*@ManyToOne(fetch=FetchType.LAZY,targetEntity=Catalogo.class)
     @JoinColumn(name="COD_VACUNA", referencedColumnName = "CODIGO", nullable = false)
     @ForeignKey(name = "COD_VACUNA_FK")
     public Vacuna getCodVacuna() { return codVacuna; }
 
-    public void setCodVacuna(Vacuna codVacuna) { this.codVacuna = codVacuna; }
+    public void setCodVacuna(Vacuna codVacuna) { this.codVacuna = codVacuna; }*/
+
+    @Column(name="COD_VACUNA", nullable = false)
+    public String getCodVacuna() { return codVacuna; }
+
+    public void setCodVacuna(String codVacuna) { this.codVacuna = codVacuna; }
 
 
     @Basic

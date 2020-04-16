@@ -178,7 +178,7 @@ var Results = function () {
                         //se valida si hay unidad de atención
                         var nombreUnidad='';
                         if (data[i].idNotificacion.codUnidadAtencion!=null){
-                            nombreUnidad = data[i].idNotificacion.codUnidadAtencion.nombre;
+                            nombreUnidad = data[i].idNotificacion.nombreMuniUnidadAtencion;
                         }
 
                         table1.fnAddData(

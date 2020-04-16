@@ -42,6 +42,7 @@ var SearchPerson = function () {
 					}
 				},
                 "paging": false,
+                "lengthChange": false,
                 "info": false,
 				"rowCallback" : function(nRow) {
 					responsiveHelper_dt_basic.createExpandIcon(nRow);
@@ -51,25 +52,68 @@ var SearchPerson = function () {
 				}
 			});
 
+            /*----------------------------------------------------------*/
+            function desbloquearUI() {
+                setTimeout($.unblockUI, 500);
+            }
+
+            $("input[name$='rbTipoBusqueda']").click(function () {
+                var valor = $(this).val();
+                if (valor == 'NOMBRE') {
+                    $('#filtroNombre').show();
+                    $('#filtroIdentificacion').hide();
+                }else {
+                    $('#filtroIdentificacion').show();
+                    $('#filtroNombre').hide();
+                }
+            });
+
+            $("#prev").on('click', function (event) {
+                if (page>1) {
+                    page = page - 1;
+                    getPersons(page);
+                }
+            });
+            $("#next").on('click', function (event) {
+                page = page+1;
+                getPersons(page);
+
+            });
+            /*---------------------------------------------*/
             $('#search-form').validate({
     			// Rules for form validation
-    				rules : {
+    				/*rules : {
     					filtro : {
     						required : true,
     						minlength: 3
     					}
-    				},
+    				},*/
+                rules: {
+                    primerNombre: {
+                        required: true,
+                        minlength: 3
+                    },
+                    primerApellido: {
+                        required: true,
+                        minlength: 3
+                    },
+                    numIdentificacion: {
+                        required: true,
+                        minlength: 3
+                    }
+                },
     				// Do not change code below
     				errorPlacement : function(error, element) {
     					error.insertAfter(element.parent());
     				},
     				submitHandler: function (form) {
                         page=0;
+                        //getPersons(page*rowsPage);
                         getPersons(page*rowsPage);
                     }
             });
 
-            $("#prev").on('click', function (event) {
+            /*$("#prev").on('click', function (event) {
                 if (page>0) {
                     page = page - 1;
                     getPersons(page*rowsPage);
@@ -79,9 +123,9 @@ var SearchPerson = function () {
                 page = page+1;
                 getPersons(page*rowsPage);
 
-            });
+            });*/
 
-            function getPersons(pagina) {
+            /*function getPersons(pagina) {
                 if (page>0) {
                     $("#prev").prop('disabled',false);
                 }else{
@@ -167,6 +211,138 @@ var SearchPerson = function () {
             $("#create-person").click(function(){
                 window.location.href = parametros.sCreatePersonUrl;
             });
+        }*/
+            function getPersons(pagina) {
+                table1.fnClearTable();
+                bloquearUI(parametros.blockMess);
+                var tipoBusqueda = $('input[name="rbTipoBusqueda"]:checked', '#search-form').val();
+                if (tipoBusqueda == 'NOMBRE') {
+                    getPersonsByName(pagina);
+                } else {
+                    getPersonsByIdentification();
+                }
+            }
+
+            function getPersonsByIdentification() {
+                table1.fnClearTable();
+                bloquearUI(parametros.blockMess);
+                $.getJSON(parametros.sPersonaByIdentificacionUrl+$("#numIdentificacion").val(), {
+                    ajax: 'true'
+                }, function (data) {
+                    if (data.datos != null) {
+                        loadPersons(data.datos);
+                        setPagination(data.paginacion);
+                    }
+                    if (data.error!=null){
+                        $.smallBox({
+                            title: data.error.messageUser,
+                            content: $("#smallBox_content").val(),
+                            color: "#C79121",
+                            iconSmall: "fa fa-warning",
+                            timeout: 4000
+                        });
+                        setPagination(data.paginacion);
+                    }
+                    desbloquearUI();
+                }).fail(function (jqXHR) {
+                    setPagination(null);
+                    desbloquearUI();
+                    //validateLogin(jqXHR);
+                });
+            }
+
+            function getPersonsByName(pagina) {
+                table1.fnClearTable();
+                bloquearUI(parametros.blockMess);
+                $.ajax({
+                    url: parametros.sPersonaByNombresUrl,
+                    data: {
+                        nombrecompleto : "0",
+                        primerapellido:  $("#primerApellido").val(),
+                        primernombre: $("#primerNombre").val(),
+                        segundoapellido: $("#segundoApellido").val(),
+                        segundonombre: $("#segundoNombre").val(),
+                        pagina: pagina,
+                        registros: rowsPage
+                    },
+                    error: function(xhr) {
+                        setPagination(null);
+                        desbloquearUI();
+                        //validateLogin(xhr);
+                    }
+                }).then(function(data) {
+                    if (data.datos != null) {
+                        loadPersons(data.datos);
+                        setPagination(data.paginacion);
+                    }
+                    if (data.error!=null){
+                        $.smallBox({
+                            title: data.error.messageUser,
+                            content: $("#smallBox_content").val(),
+                            color: "#C79121",
+                            iconSmall: "fa fa-warning",
+                            timeout: 4000
+                        });
+                        setPagination(data.paginacion);
+                    }
+                    desbloquearUI();
+                });
+            }
+
+            function setPagination(paginacion){
+                if (paginacion!=null) {
+                    var total = paginacion.paginaRegistros * paginacion.pagina;
+                    if (total > paginacion.cantidadRegistros)
+                        total = paginacion.cantidadRegistros;
+                    $("#paginacionLbl").html("Página " + paginacion.pagina + " De " + paginacion.paginasCantidad + ", Mostrando " + (paginacion.paginaRegistros * (paginacion.pagina - 1) + 1) + " al " + total + " de <strong>" + paginacion.cantidadRegistros+"</strong>")
+                    if (paginacion.pagina>1) {
+                        $("#prev").prop('disabled',false);
+                    }else{
+                        $("#prev").prop('disabled',true);
+                    }
+                    if (paginacion.cantidadRegistros < rowsPage) {
+                        $("#next").prop('disabled', true);
+                    } else {
+                        $("#next").prop('disabled', false);
+                    }
+                }else {
+                    $("#paginacionLbl").html("");
+                    $("#prev").prop('disabled',true);
+                    $("#next").prop('disabled',true);
+                }
+            }
+
+            function loadPersons(datos){
+                if (datos != null) {
+                    var len = datos.length;
+                    for (var i = 0; i < len; i++) {
+                        var nombreMuniRes = "";
+
+                        if (datos[i].divisionPolitica.nacimiento.municipio != null) {
+                            nombreMuniRes = datos[i].divisionPolitica.nacimiento.municipio.nombre;
+                        }
+                        var actionUrl = parametros.sActionUrl + '/' + datos[i].id;
+                        var actionNotiPacienteUrl = parametros.sActionNotiPacienteUrl + '/' + datos[i].id;
+                        var edad = getAge(datos[i].fechaNacimiento).split(",");
+                        table1.fnAddData(
+                            [
+                                (datos[i].identificacion != null ? datos[i].identificacion.valor : ""),
+                                datos[i].primerNombre,
+                                (datos[i].segundoNombre != null ? datos[i].segundoNombre : ""),
+                                datos[i].primerApellido,
+                                (datos[i].segundoApellido != null ? datos[i].segundoApellido : ""),
+                                datos[i].fechaNacimiento,
+                                edad[0],
+                                nombreMuniRes,
+                                    '<a title="Ver" href=' + actionUrl + ' class="btn btn-success btn-xs"><i class="fa fa-mail-forward"></i></a>',
+                                    '<a title="Eventos Previos" href=' + actionNotiPacienteUrl + ' class="btn btn-primary btn-xs"><i class="fa fa-list"></i></a>']);
+                    }
+                }
+            }
+
+            //datos por defecto
+            $('#filtroIdentificacion').hide();
+
         }
     };
 

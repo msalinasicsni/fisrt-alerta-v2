@@ -5,12 +5,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.poblacion.Comunidades;
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import ni.gob.minsa.alerta.domain.poblacion.Sectores;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.*;
+import ni.gob.minsa.alerta.restServices.CallRestServices;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Departamento;
+import ni.gob.minsa.alerta.restServices.entidades.Municipio;
+import ni.gob.minsa.alerta.restServices.entidades.Unidades;
 import ni.gob.minsa.alerta.service.*;
 import ni.gob.minsa.alerta.utilities.ConstantsSecurity;
 import ni.gob.minsa.alerta.utilities.enumeration.HealthUnitType;
@@ -110,15 +115,20 @@ public class EntomologiaController {
     @Qualifier(value = "sectoresService")
     private SectoresService sectoresService;
 
-    List<Divisionpolitica> municipios;
+    //List<Divisionpolitica> municipios;
+    List<Municipio> municipios;
     List<EntidadesAdtvas> silais;
     List<Unidades> unidadesSalud;
     List<Comunidades> comunidades;
     List<Sectores> sectores;
-    List<Procedencia> procedencias;
+    /*List<Procedencia> procedencias;
     List<Ordinal> ordinales;
     List<Distritos> distritosMng;
-    List<Areas> areasMng;
+    List<Areas> areasMng;*/
+    List<Catalogo> procedencias;
+    List<Catalogo> ordinales;
+    List<Catalogo> distritosMng;
+    List<Catalogo> areasMng;
     //endregion
 
     //region REGISTRO AEDES
@@ -152,8 +162,10 @@ public class EntomologiaController {
             }else {
                 silais = seguridadService.obtenerEntidadesPorUsuario((int) idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            procedencias = catalogosService.getProcedencia();
-            ordinales = catalogosService.getOrdinalEncuesta();
+            //procedencias = catalogosService.getProcedencia();
+            //ordinales = catalogosService.getOrdinalEncuesta();
+            procedencias = CallRestServices.getCatalogos("PROCDNCIA");
+            ordinales = CallRestServices.getCatalogos("ORDINAL");
             mav.addObject("entidades", silais);
             mav.addObject("procedencias", procedencias);
             mav.addObject("ordinales", ordinales);
@@ -200,7 +212,8 @@ public class EntomologiaController {
 
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -370,8 +383,10 @@ public class EntomologiaController {
             }else{//sino sólo se cargan los SILAIS autorizados al usuario
                 silais = seguridadService.obtenerEntidadesPorUsuario((int)idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            procedencias = catalogosService.getProcedencia();
-            ordinales = catalogosService.getOrdinalEncuesta();
+            //procedencias = catalogosService.getProcedencia();
+            //ordinales = catalogosService.getOrdinalEncuesta();
+            procedencias = CallRestServices.getCatalogos("PROCDNCIA");
+            ordinales = CallRestServices.getCatalogos("ORDINAL");
             mav.addObject("entidades", silais);
             //mav.addObject("departamentos", departamentos);
             mav.addObject("procedencias",procedencias);
@@ -432,7 +447,8 @@ public class EntomologiaController {
 
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -580,8 +596,10 @@ public class EntomologiaController {
             }else{//sino sólo se cargan los SILAIS autorizados al usuario
                 silais = seguridadService.obtenerEntidadesPorUsuario((int)idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            procedencias = catalogosService.getProcedencia();
-            ordinales = catalogosService.getOrdinalEncuesta();
+            //procedencias = catalogosService.getProcedencia();
+            //ordinales = catalogosService.getOrdinalEncuesta();
+            procedencias = CallRestServices.getCatalogos("PROCDNCIA");
+            ordinales = CallRestServices.getCatalogos("ORDINAL");
             mav.addObject("entidades", silais);
             mav.addObject("procedencias",procedencias);
             mav.addObject("ordinales",ordinales);
@@ -641,7 +659,8 @@ public class EntomologiaController {
 
 //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -793,7 +812,8 @@ public class EntomologiaController {
         }
         ModelAndView mav = new ModelAndView("");
         if (urlValidacion.isEmpty()) {
-            List<ModeloEncuesta> modelosEncuesta = new ArrayList<ModeloEncuesta>();
+            //List<ModeloEncuesta> modelosEncuesta = new ArrayList<ModeloEncuesta>();
+            List<Catalogo> modelosEncuesta;
             mav.setViewName("/encuesta/search");
             long idUsuario = seguridadService.obtenerIdUsuario(request);
             //Si es usuario a nivel central se cargan todos los SILAIS
@@ -802,7 +822,8 @@ public class EntomologiaController {
             }else{//sino sólo se cargan los SILAIS autorizados al usuario
                 silais = seguridadService.obtenerEntidadesPorUsuario((int)idUsuario, ConstantsSecurity.SYSTEM_CODE);
             }
-            modelosEncuesta = catalogosService.getModeloEncuesta(); //.ElementosCatalogos(typeCatalogs.ModeloEncuesta.getDiscriminator());
+            //modelosEncuesta = catalogosService.getModeloEncuesta(); //.ElementosCatalogos(typeCatalogs.ModeloEncuesta.getDiscriminator());
+            modelosEncuesta = CallRestServices.getCatalogos("TIPOMODENCU");
             mav.addObject("entidades", silais);
             mav.addObject("modelos", modelosEncuesta);
         }else
@@ -841,31 +862,44 @@ public class EntomologiaController {
                     mesEpi = jsonpObject.get("mesEpi").getAsInt();
 
                 encuestas = daMaeEncuestaService.searchMaestroEncuestaByFiltros(codSilais, codUnidadSalud, anioEpi, mesEpi, strModeloEncu);
-                Divisionpolitica departamento;
-                Distritos distrito;
-                Areas area;
+                //Divisionpolitica departamento;
+                String departamento;
+
+                //Distritos distrito;
+                //Areas area;
+                Catalogo distrito;
+                Catalogo area;
+
                 Map<String, Object> data  = new HashMap<String, Object>();
 
                 for(int i=0;i < encuestas.size();i++){
                     Map<String, String> map = new HashMap<String, String>();
-                    departamento = encuestas.get(i).getMunicipio().getDependencia(); //divisionPoliticaService.getDepartamentoByMunicipi(encuestas.get(i).getMunicipio().getCodigoNacional());
-                    distrito = catalogosService.getDistritos(encuestas.get(i).getCodDistrito());
-                    area = catalogosService.getAreas(encuestas.get(i).getCodArea());
+                    //departamento = encuestas.get(i).getMunicipio().getDependencia(); //divisionPoliticaService.getDepartamentoByMunicipi(encuestas.get(i).getMunicipio().getCodigoNacional());
+
+                    departamento = encuestas.get(i).getDepatamento();
+
+                    //distrito = catalogosService.getDistritos(encuestas.get(i).getCodDistrito());
+                    //area = catalogosService.getAreas(encuestas.get(i).getCodArea());
+                    distrito = CallRestServices.getCatalogo(encuestas.get(i).getCodDistrito());
+                    area = CallRestServices.getCatalogo(encuestas.get(i).getCodArea());
 
                     map.put("encuestaId", encuestas.get(i).getEncuestaId());
                     map.put("silais",encuestas.get(i).getEntidadesAdtva().getNombre());
-                    map.put("unidadSalud", encuestas.get(i).getUnidadSalud().getNombre());
+                    //map.put("unidadSalud", encuestas.get(i).getUnidadSalud().getNombre());
+                    map.put("unidadSalud", encuestas.get(i).getNombreUnidadSalud());
                     map.put("mesEpi",(encuestas.get(i).getMesEpi()!=null?String.valueOf(encuestas.get(i).getMesEpi()):""));
                     map.put("anioEpi",(encuestas.get(i).getAnioEpi()!=null?String.valueOf(encuestas.get(i).getAnioEpi()):""));
-                    map.put("departamento",departamento!=null?departamento.getNombre():"");
-                    map.put("municipio", encuestas.get(i).getMunicipio().getNombre());
+                    //map.put("departamento",departamento!=null?departamento.getNombre():"");
+                    map.put("departamento",departamento!=null ? departamento :"");
+                    //map.put("municipio", encuestas.get(i).getMunicipio().getNombre());
+                    map.put("municipio", encuestas.get(i).getMunicipio());
                     map.put("distrito",distrito!=null?distrito.getValor():"");
                     map.put("area", area!=null?area.getValor():"");
-                    map.put("ordinalEncu",encuestas.get(i).getOrdinalEncuesta().getValor());
-                    map.put("procedencia", encuestas.get(i).getProcedencia().getValor());
+                    map.put("ordinalEncu",encuestas.get(i).getOrdinalEncuesta()); //.getValor());
+                    map.put("procedencia", encuestas.get(i).getProcedencia()); //.getValor());
                     map.put("feInicioEncuesta",DateToString(encuestas.get(i).getFeInicioEncuesta()));
                     map.put("feFinEncuesta", (encuestas.get(i).getFeFinEncuesta()!=null?DateToString(encuestas.get(i).getFeFinEncuesta()):""));
-                    map.put("modeloEncu",encuestas.get(i).getModeloEncuesta().getValor());
+                    map.put("modeloEncu",encuestas.get(i).getModeloEncuesta()); //.getValor());
                     data.put("encu"+String.valueOf(i),map);
                 }
                 result = new Gson().toJson(data);
@@ -901,9 +935,11 @@ public class EntomologiaController {
         ModelAndView mav = new ModelAndView("");
         if (urlValidacion.isEmpty()) {
             DaMaeEncuesta maestro = daMaeEncuestaService.getMaestroEncuestaById(idMaestro);
-            if (maestro.getModeloEncuesta().getCodigo().equalsIgnoreCase(surveyModelType.AedesAegypti.getDiscriminator()))
+            //if (maestro.getModeloEncuesta().getCodigo().equalsIgnoreCase(surveyModelType.AedesAegypti.getDiscriminator()))
+            if (maestro.getModeloEncuesta().equalsIgnoreCase(surveyModelType.AedesAegypti.getDiscriminator()))
                 mav.setViewName("encuesta/editarEncuestaAedes");
-            else if (maestro.getModeloEncuesta().getCodigo().equalsIgnoreCase(surveyModelType.LarvariaAedes.getDiscriminator()))
+            //else if (maestro.getModeloEncuesta().getCodigo().equalsIgnoreCase(surveyModelType.LarvariaAedes.getDiscriminator()))
+            else if (maestro.getModeloEncuesta().equalsIgnoreCase(surveyModelType.LarvariaAedes.getDiscriminator()))
                 mav.setViewName("encuesta/editarEncuestaLarvaria");
             else
                 mav.setViewName("encuesta/editarDepositoPreferencial");
@@ -912,10 +948,11 @@ public class EntomologiaController {
 
             //Si es usuario a nivel central se cargan todos los municipios asociados al SILAIS
             if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
-                municipios = divisionPoliticaService.getMunicipiosBySilais(maestro.getEntidadesAdtva().getEntidadAdtvaId());
-            }else{
+                //municipios = divisionPoliticaService.getMunicipiosBySilais(maestro.getEntidadesAdtva().getEntidadAdtvaId());
+                municipios = CallRestServices.getMunicipiosEntidad(maestro.getEntidadesAdtva().getEntidadAdtvaId());
+            }/*else{ PENDIENTE DE REVISAR
                 municipios = seguridadService.obtenerMunicipiosPorUsuarioEntidad((int)idUsuario,maestro.getEntidadesAdtva().getEntidadAdtvaId(), ConstantsSecurity.SYSTEM_CODE);
-            }
+            }*/
 
             //Si es usuario a nivel central se cargan todos los SILAIS
             if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
@@ -925,22 +962,29 @@ public class EntomologiaController {
             }
 
             if (procedencias == null)
-            procedencias = catalogosService.getProcedencia();
+            //procedencias = catalogosService.getProcedencia();
+                procedencias = CallRestServices.getCatalogos("PROCDNCIA");
 
             if (ordinales == null)
-            ordinales = catalogosService.getOrdinalEncuesta();
+            //ordinales = catalogosService.getOrdinalEncuesta();
+                ordinales = CallRestServices.getCatalogos("ORDINAL");
             //Si es usuario a nivel central se cargan todas las unidades asociados al SILAIS y municipio
             if(seguridadService.esUsuarioNivelCentral(idUsuario, ConstantsSecurity.SYSTEM_CODE)) {
-                unidadesSalud = unidadesService.getPrimaryUnitsByMunicipio_Silais(maestro.getMunicipio().getCodigoNacional(), maestro.getEntidadesAdtva().getCodigo(), HealthUnitType.UnidadesPrimarias.getDiscriminator().split(","));
+                //unidadesSalud = unidadesService.getPrimaryUnitsByMunicipio_Silais(maestro.getMunicipio().getCodigoNacional(), maestro.getEntidadesAdtva().getCodigo(), HealthUnitType.UnidadesPrimarias.getDiscriminator().split(","));
+                unidadesSalud = CallRestServices.getUnidadesByEntidadMunicipioTipo(Long.parseLong(maestro.getMunicipio()), maestro.getEntidadesAdtva().getCodigo(), HealthUnitType.UnidadesPrimarias.getDiscriminator().split(","));
             }else{ //sino sólo se cargarn las unidades autorizadas para el usuario según SILAIS y municipio
-                unidadesSalud = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int)idUsuario ,maestro.getEntidadesAdtva().getCodigo(),maestro.getMunicipio().getCodigoNacional(), ConstantsSecurity.SYSTEM_CODE,HealthUnitType.UnidadesPrimarias.getDiscriminator());
+                unidadesSalud = seguridadService.obtenerUnidadesPorUsuarioEntidadMunicipio((int)idUsuario ,maestro.getEntidadesAdtva().getCodigo(),maestro.getMunicipio(), ConstantsSecurity.SYSTEM_CODE,HealthUnitType.UnidadesPrimarias.getDiscriminator());
             }
 
-            sectores = sectoresService.getSectoresByUnidad(maestro.getUnidadSalud().getCodigo());
+            //sectores = sectoresService.getSectoresByUnidad(maestro.getUnidadSalud().getCodigo());
+            sectores = sectoresService.getSectoresByUnidad(maestro.getUnidad());
             //comunidades = comunidadesService.getComunidades(maestro.getMunicipio().getCodigoNacional());
-            if (maestro.getMunicipio().getCodigoNacional().equalsIgnoreCase(COD_NACIONAL_MUNI_MANAGUA)) {
-                distritosMng = catalogosService.getDistritos();
-                areasMng = catalogosService.getAreas();
+            //if (maestro.getMunicipio().getCodigoNacional().equalsIgnoreCase(COD_NACIONAL_MUNI_MANAGUA)) {
+            if (maestro.getMunicipio().equalsIgnoreCase(COD_NACIONAL_MUNI_MANAGUA)) {
+                //distritosMng = catalogosService.getDistritos();
+                //areasMng = catalogosService.getAreas();
+                distritosMng = CallRestServices.getCatalogos("DISTRIT");
+                areasMng = CallRestServices.getCatalogos("AREAMNG");
             }else{
                 distritosMng = null;
                 areasMng = null;
@@ -996,7 +1040,8 @@ public class EntomologiaController {
 
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     daMaeEncuestaService.updateDaMaeEncuesta(daMaeEncuesta);
                 } else {
@@ -1088,7 +1133,8 @@ public class EntomologiaController {
                 daMaeEncuesta.setCodArea(null);
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -1186,7 +1232,8 @@ public class EntomologiaController {
 
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -1312,7 +1359,8 @@ public class EntomologiaController {
 
             //se obtiene el id del usuario logueado
             long idUsuario = seguridadService.obtenerIdUsuario(request);
-            if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            //if (usuarioAutorizadoEntidadUnidad((int)idUsuario,daMaeEncuesta.getEntidadesAdtva().getCodigo(),daMaeEncuesta.getUnidadSalud().getCodigo())) {
+            if (usuarioAutorizadoEntidadUnidad((int) idUsuario, daMaeEncuesta.getEntidadesAdtva().getCodigo(), daMaeEncuesta.getUnidad())) {
                 daMaeEncuesta.setActor(seguridadService.obtenerNombreUsuario(request));
                 if (daMaeEncuesta.getEncuestaId() != null && !daMaeEncuesta.getEncuestaId().isEmpty()) {
                     idMaestro = daMaeEncuesta.getEncuestaId();
@@ -1442,25 +1490,33 @@ public class EntomologiaController {
         String strUsuarioRegistroId = jObjectMae.get("usuarioRegistroId").getAsString();
         DaMaeEncuesta maeEncuesta = new DaMaeEncuesta();
         EntidadesAdtvas silais = silaisServce.getSilaisByCodigo(Integer.valueOf(strCodSilais));
-        Divisionpolitica divisionpolitica = divisionPoliticaService.getDivisionPolitiacaByCodNacional(strCodMunicipio);
-        Unidades unidadSalud = unidadesService.getUnidadByCodigo(Integer.valueOf(strCodUnidadSalud));
-        Procedencia procedencia = catalogosService.getProcedencia(strCodProcedencia);
-        ModeloEncuesta modeloEncuesta = null;
+        //Divisionpolitica divisionpolitica = divisionPoliticaService.getDivisionPolitiacaByCodNacional(strCodMunicipio);
+        //Unidades unidadSalud = unidadesService.getUnidadByCodigo(Integer.valueOf(strCodUnidadSalud));
+        Unidades unidadSalud = CallRestServices.getUnidadSalud(Integer.valueOf(strCodUnidadSalud));
+        //Procedencia procedencia = catalogosService.getProcedencia(strCodProcedencia);
+        Catalogo procedencia = CallRestServices.getCatalogo(strCodProcedencia);
+        //ModeloEncuesta modeloEncuesta = null;
+        Catalogo modeloEncuesta = null;
         if (tipoModelo!=null)
-            modeloEncuesta = catalogosService.getModeloEncuesta(tipoModelo);
+            //modeloEncuesta = catalogosService.getModeloEncuesta(tipoModelo);
+            modeloEncuesta = CallRestServices.getCatalogo(tipoModelo);
         else
-            modeloEncuesta = daMaeEncuestaService.getModeloEncuByIdMaestro(strEncuestaId);
-        Ordinal ordinal = catalogosService.getOrdinalEncuesta(strCodOrdinalEncu);
+            //modeloEncuesta = daMaeEncuestaService.getModeloEncuByIdMaestro(strEncuestaId);
+            modeloEncuesta = CallRestServices.getCatalogo(strEncuestaId);
+        //Ordinal ordinal = catalogosService.getOrdinalEncuesta(strCodOrdinalEncu);
+        Catalogo ordinal = CallRestServices.getCatalogo(strCodOrdinalEncu);
         Usuarios usuario = usuarioService.getUsuarioById(Integer.valueOf(strUsuarioRegistroId));
 
         maeEncuesta.setEncuestaId(strEncuestaId);
         maeEncuesta.setEntidadesAdtva(silais);
-        maeEncuesta.setUnidadSalud(unidadSalud);
-        maeEncuesta.setProcedencia(procedencia);
-        maeEncuesta.setOrdinalEncuesta(ordinal);
-        maeEncuesta.setModeloEncuesta(modeloEncuesta);
+        //maeEncuesta.setUnidadSalud(unidadSalud);
+        maeEncuesta.setUnidad(Long.valueOf(unidadSalud.getCodigo()));
+        maeEncuesta.setProcedencia(procedencia.getValor());
+        maeEncuesta.setOrdinalEncuesta(ordinal.getValor());
+        maeEncuesta.setModeloEncuesta(modeloEncuesta.getValor());
         maeEncuesta.setUsuario(usuario);
-        maeEncuesta.setMunicipio(divisionpolitica);
+        //maeEncuesta.setMunicipio(divisionpolitica);strCodMunicipio
+        maeEncuesta.setMunicipio(strCodMunicipio);
         maeEncuesta.setFeInicioEncuesta(StringToDate(strFeInicioEncuesta));
         maeEncuesta.setFeFinEncuesta((strFeFinEncuesta!=null?StringToDate(strFeFinEncuesta):null));
         maeEncuesta.setAnioEpi(anioEpi);

@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.domain.muestra;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import org.hibernate.annotations.ForeignKey;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +18,8 @@ public class Estudio_UnidadSalud implements Auditable {
 
     Integer idEstudioUnidad;
     Catalogo_Estudio estudio;
-    Unidades unidad;
+    //Unidades unidad;
+    long unidad;
     Boolean pasivo;
     Date fechaRegistro;
     Usuarios usuarioRegistro;
@@ -42,7 +43,7 @@ public class Estudio_UnidadSalud implements Auditable {
         this.estudio = estudio;
     }
 
-    @ManyToOne(optional = false)
+    /*@ManyToOne(optional = false)
     @JoinColumn(name = "UNIDAD_ID", referencedColumnName = "UNIDAD_ID", nullable = false)
     @ForeignKey(name = "ESTUNIDAD_UNIDAD_FK")
     public Unidades getUnidad() {
@@ -50,6 +51,14 @@ public class Estudio_UnidadSalud implements Auditable {
     }
 
     public void setUnidad(Unidades unidad) {
+        this.unidad = unidad;
+    }*/
+    @Column(name = "UNIDAD_ID", nullable = false)
+    public long getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(long unidad) {
         this.unidad = unidad;
     }
 

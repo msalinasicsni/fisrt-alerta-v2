@@ -3,7 +3,7 @@ package ni.gob.minsa.alerta.service;
 import ni.gob.minsa.alerta.domain.audit.AuditTrail;
 import ni.gob.minsa.alerta.domain.examen.CatalogoExamenes;
 import ni.gob.minsa.alerta.domain.muestra.*;
-import ni.gob.minsa.alerta.domain.persona.SisPersona;
+import ni.gob.minsa.alerta.domain.persona.PersonaTmp;
 import ni.gob.minsa.alerta.domain.solicitante.Solicitante;
 import ni.gob.minsa.alerta.utilities.reportes.Solicitud;
 import org.apache.commons.codec.language.Soundex;
@@ -51,7 +51,8 @@ public class TomaMxService {
      */
     @SuppressWarnings("unchecked")
     public List<Dx_TipoMx_TipoNoti> getDx(String codMx, String tipoNoti) throws Exception {
-        String query = "select dx from Dx_TipoMx_TipoNoti dx where dx.tipoMx_tipoNotificacion.tipoMx.idTipoMx = :codMx and dx.tipoMx_tipoNotificacion.tipoNotificacion.codigo = :tipoNoti" ;
+        //String query = "select dx from Dx_TipoMx_TipoNoti dx where dx.tipoMx_tipoNotificacion.tipoMx.idTipoMx = :codMx and dx.tipoMx_tipoNotificacion.tipoNotificacion.codigo = :tipoNoti" ;
+        String query = "select dx from Dx_TipoMx_TipoNoti dx where dx.tipoMx_tipoNotificacion.tipoMx.idTipoMx = :codMx and dx.tipoMx_tipoNotificacion.tipoNotificacion = :tipoNoti" ;
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setString("codMx", codMx);
@@ -224,7 +225,8 @@ public class TomaMxService {
             auditTrail.setEntityName(tomaMx.getClass().getName());
             auditTrail.setEntityProperty("estadoMx");
             auditTrail.setEntityPropertyNewValue(estado);
-            auditTrail.setEntityPropertyOldValue(tomaMx.getEstadoMx().getCodigo());
+            //auditTrail.setEntityPropertyOldValue(tomaMx.getEstadoMx().getCodigo());
+            auditTrail.setEntityPropertyOldValue(tomaMx.getEstadoMx());
             auditTrail.setOperationType("UPDATE");
             auditTrail.setOperationDate(new Date());
             auditTrail.setUsername(username);
@@ -265,9 +267,11 @@ public class TomaMxService {
     public List<Estudio_TipoMx_TipoNoti> getEstudiosByTipoMxTipoNoti(String codTipoMx, String codTipoNoti, Long idUnidadSalud) throws Exception {
         String query = "select est from Estudio_TipoMx_TipoNoti est, Estudio_UnidadSalud eu " +
                 "where est.tipoMx_tipoNotificacion.tipoMx.idTipoMx = :codTipoMx " +
-                "and est.tipoMx_tipoNotificacion.tipoNotificacion.codigo = :codTipoNoti " +
+                //"and est.tipoMx_tipoNotificacion.tipoNotificacion.codigo = :codTipoNoti " +
+                "and est.tipoMx_tipoNotificacion.tipoNotificacion = :codTipoNoti " +
                 "and est.estudio.idEstudio = eu.estudio.idEstudio "+
-                "and eu.unidad.unidadId = :idUnidadSalud" ;
+               // "and eu.unidad.unidadId = :idUnidadSalud" ;
+                "and eu.unidad = :idUnidadSalud" ;
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setString("codTipoMx", codTipoMx);
@@ -357,14 +361,15 @@ public class TomaMxService {
             }
             for (int i = 0; i < partes.length; i++) {
                 Junction conditGroup = Restrictions.disjunction();
-                conditGroup.add(Subqueries.propertyIn("notifi.persona.personaId", DetachedCriteria.forClass(SisPersona.class, "person")
+                //conditGroup.add(Subqueries.propertyIn("notifi.persona.personaId", DetachedCriteria.forClass(SisPersona.class, "person")
+                conditGroup.add(Subqueries.propertyIn("notifi.persona.personaId", DetachedCriteria.forClass(PersonaTmp.class, "person")
                         .add(Restrictions.or(Restrictions.ilike("person.primerNombre", "%" + partes[i] + "%"))
                                 .add(Restrictions.or(Restrictions.ilike("person.primerApellido", "%" + partes[i] + "%"))
                                         .add(Restrictions.or(Restrictions.ilike("person.segundoNombre", "%" + partes[i] + "%"))
                                                 .add(Restrictions.or(Restrictions.ilike("person.segundoApellido", "%" + partes[i] + "%"))
                                                         .add(Restrictions.or(Restrictions.ilike("person.sndNombre", "%" + partesSnd[i] + "%")))))))
                         .setProjection(Property.forName("personaId"))))
-                        .add(Subqueries.propertyIn("notifi.solicitante.idSolicitante", DetachedCriteria.forClass(Solicitante.class,"solicitante")
+                        .add(Subqueries.propertyIn("notifi.solicitante.idSolicitante", DetachedCriteria.forClass(Solicitante.class, "solicitante")
                                 .add(Restrictions.ilike("solicitante.nombre", "%" + partes[i] + "%"))
                                 .setProjection(Property.forName("idSolicitante"))));
                 crit.add(conditGroup);

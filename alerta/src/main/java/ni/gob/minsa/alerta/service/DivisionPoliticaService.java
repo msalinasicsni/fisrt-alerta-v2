@@ -1,6 +1,6 @@
 package ni.gob.minsa.alerta.service;
 
-import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
+//import ni.gob.minsa.alerta.domain.poblacion.Divisionpolitica;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
@@ -38,26 +38,26 @@ public class DivisionPoliticaService {
      * @return
      * @throws Exception
      */
-    public List<Divisionpolitica> getAllDepartamentos() throws Exception {
+    /*public List<Divisionpolitica> getAllDepartamentos() throws Exception {
         String query = "from Divisionpolitica where pasivo = :pasivo and dependencia is null order by nombre asc";
 
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setParameter("pasivo",'0');
         return  q.list();
-    }
+    }*/
 
-    @Deprecated
-    public List<Divisionpolitica> getAllMunicipios() throws Exception {
+    /*@Deprecated*/
+    /*public List<Divisionpolitica> getAllMunicipios() throws Exception {
         String query = "from Divisionpolitica where pasivo = :pasivo and dependencia is not null order by nombre asc";
 
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setParameter("pasivo",'0');
         return q.list();
-    }
+    }*/
 
-    public List<Divisionpolitica> getMunicipiosFromDepartamento(String codigoNacional) throws Exception {
+    /*public List<Divisionpolitica> getMunicipiosFromDepartamento(String codigoNacional) throws Exception {
         String query = "select muni from Divisionpolitica as muni, Divisionpolitica as depa " +
                 "where muni.pasivo = :pasivo and muni.dependencia is not null and muni.dependencia.codigoNacional =depa.codigoNacional and depa.codigoNacional =:codigoNacional order by muni.nombre asc";
 
@@ -66,10 +66,10 @@ public class DivisionPoliticaService {
         q.setString("codigoNacional", codigoNacional);
         q.setParameter("pasivo",'0');
         return q.list();
-    }
+    }*/
 
 
-    public Divisionpolitica getDepartamentoByMunicipi(String codNac){
+    /*public Divisionpolitica getDepartamentoByMunicipi(String codNac){
         String query = "select muni.dependencia from Divisionpolitica as muni " +
                 "where muni.dependencia is not null and muni.codigoNacional =:codigoNacional";
 
@@ -77,9 +77,9 @@ public class DivisionPoliticaService {
         Query q = session.createQuery(query);
         q.setString("codigoNacional", codNac);
         return (Divisionpolitica)q.uniqueResult();
-    }
+    }*/
 
-    public List<Divisionpolitica> getMunicipiosBySilais(long idSilais){
+    /*public List<Divisionpolitica> getMunicipiosBySilais(long idSilais){
         String query = "select distinct muni from Divisionpolitica as muni, Unidades as uni " +
                 "where muni.pasivo = :pasivo and  uni.entidadAdtva = :idSilais and uni.municipio = muni.codigoNacional order by muni.nombre"; // muni.dependenciaSilais =:idSilas";
 
@@ -88,9 +88,9 @@ public class DivisionPoliticaService {
         q.setLong("idSilais", idSilais);
         q.setParameter("pasivo",'0');
         return q.list();
-    }
+    }*/
 
-    public Divisionpolitica getMunicipiosByUnidadSalud(String municipio){
+    /*public Divisionpolitica getMunicipiosByUnidadSalud(String municipio){
         String query = "select muni from Divisionpolitica as muni, Unidades as uni " +
                 "where muni.pasivo = :pasivo and  uni.municipio = :municipio and uni.municipio = muni.codigoNacional";
 
@@ -99,23 +99,23 @@ public class DivisionPoliticaService {
         q.setString("municipio", municipio);
         q.setParameter("pasivo",'0');
         return (Divisionpolitica)q.uniqueResult();
-    }
+    }*/
 
-    public Divisionpolitica getDivisionPolitiacaByCodNacional(String codNac){
+    /*public Divisionpolitica getDivisionPolitiacaByCodNacional(String codNac){
         String query = "from Divisionpolitica where codigoNacional =:codigoNacional";
 
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setString("codigoNacional", codNac);
         return (Divisionpolitica)q.uniqueResult();
-    }
+    }*/
     
-    public Divisionpolitica getDivisionPolitiacaById(long idDivPol){
+    /*public Divisionpolitica getDivisionPolitiacaById(long idDivPol){
         String query = "from Divisionpolitica where divisionpoliticaId =:divId";
 
         Session session = sessionFactory.getCurrentSession();
         Query q = session.createQuery(query);
         q.setLong("divId", idDivPol);
         return (Divisionpolitica)q.uniqueResult();
-    }
+    }*/
 }

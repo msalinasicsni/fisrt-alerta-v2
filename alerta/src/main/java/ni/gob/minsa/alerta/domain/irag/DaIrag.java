@@ -1,11 +1,11 @@
 package ni.gob.minsa.alerta.domain.irag;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.estructura.Cie10;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Procedencia;
+//import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.Procedencia;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,20 +28,20 @@ public class DaIrag implements Serializable, Auditable {
     private Date fechaConsulta;
     private Date fechaPrimeraConsulta;
     private String codExpediente;
-    private Clasificacion codClasificacion;
+    //private Clasificacion codClasificacion;
     private String nombreMadreTutor;
-    private Procedencia codProcedencia;
-    private Captacion codCaptacion;
+    //private Procedencia codProcedencia;
+    //private Captacion codCaptacion;
     private Cie10 diagnostico;
     private Integer tarjetaVacuna;
-    private Respuesta codAntbUlSem;
+    //private Respuesta codAntbUlSem;
     private Integer cantidadAntib;
     private String nombreAntibiotico;
     private Date fechaPrimDosisAntib;
     private Date fechaUltDosisAntib;
     private Integer noDosisAntib;
-    private ViaAntibiotico codViaAntb;
-    private Respuesta usoAntivirales;
+    //private ViaAntibiotico codViaAntb;
+    //private Respuesta usoAntivirales;
     private String nombreAntiviral;
     private Date fechaPrimDosisAntiviral;
     private Date fechaUltDosisAntiviral;
@@ -54,10 +54,10 @@ public class DaIrag implements Serializable, Auditable {
     private String diagnostico1Egreso;  //Juan Marcio Solicita dejarlo como texto libre
     private String diagnostico2Egreso;  //Juan Marcio Solicita dejarlo como texto libre
     private Date fechaEgreso;
-    private CondicionEgreso codCondEgreso;
+    //private CondicionEgreso codCondEgreso;
     private String codClasFCaso;
-    private ClasificacionFinalNB codClasFDetalleNB;
-    private ClasificacionFinalNV codClasFDetalleNV;
+    //private ClasificacionFinalNB codClasFDetalleNB;
+    //private ClasificacionFinalNV codClasFDetalleNV;
     private String agenteBacteriano;
     private String serotipificacion;
     private String agenteViral;
@@ -71,6 +71,17 @@ public class DaIrag implements Serializable, Auditable {
     private Usuarios usuario;
     private String actor;
     private String id;
+    /****/
+    private String codClasificacion;
+    private String codProcedencia;
+    private String codCaptacion;
+    private String codAntbUlSem;
+    private String codViaAntb;
+    private String usoAntivirales;
+    private String codCondEgreso;
+    private String codClasFDetalleNB;
+    private String codClasFDetalleNV;
+    //private String descripcion;
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -123,7 +134,7 @@ public class DaIrag implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CLASIFICACION", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_CLASIF_FK")
     public Clasificacion getCodClasificacion() {
@@ -131,6 +142,14 @@ public class DaIrag implements Serializable, Auditable {
     }
 
     public void setCodClasificacion(Clasificacion codClasificacion) {
+        this.codClasificacion = codClasificacion;
+    }*/
+    @Column(name = "COD_CLASIFICACION", nullable = true, length = 32)
+    public String getCodClasificacion() {
+        return codClasificacion;
+    }
+
+    public void setCodClasificacion(String codClasificacion) {
         this.codClasificacion = codClasificacion;
     }
 
@@ -145,8 +164,7 @@ public class DaIrag implements Serializable, Auditable {
         this.nombreMadreTutor = nombreMadreTutor;
     }
 
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class)
     @JoinColumn(name = "COD_PROCEDENCIA", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_PROC_FK")
     public Procedencia getCodProcedencia() {
@@ -155,9 +173,18 @@ public class DaIrag implements Serializable, Auditable {
 
     public void setCodProcedencia(Procedencia codProcedencia) {
         this.codProcedencia = codProcedencia;
+    }*/
+
+    @Column(name = "COD_PROCEDENCIA", nullable = true, length = 32)
+    public String getCodProcedencia() {
+        return codProcedencia;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class)
+    public void setCodProcedencia(String codProcedencia) {
+        this.codProcedencia = codProcedencia;
+    }
+
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class)
     @JoinColumn(name = "COD_CAPTACION", referencedColumnName = "CODIGO")
     @ForeignKey(name = "COD_CAPT_FK")
     public Captacion getCodCaptacion() {
@@ -165,6 +192,14 @@ public class DaIrag implements Serializable, Auditable {
     }
 
     public void setCodCaptacion(Captacion codCaptacion) {
+        this.codCaptacion = codCaptacion;
+    }*/
+    @Column(name = "COD_CAPTACION", nullable = true, length = 32)
+    public String getCodCaptacion() {
+        return codCaptacion;
+    }
+
+    public void setCodCaptacion(String codCaptacion) {
         this.codCaptacion = codCaptacion;
     }
 
@@ -191,7 +226,7 @@ public class DaIrag implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_ANTB_ULSEM", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_ANTB_ULSEM_FK")
     public Respuesta getCodAntbUlSem() {
@@ -199,6 +234,14 @@ public class DaIrag implements Serializable, Auditable {
     }
 
     public void setCodAntbUlSem(Respuesta codAntbUlSem) {
+        this.codAntbUlSem = codAntbUlSem;
+    }*/
+    @Column(name = "COD_ANTB_ULSEM", nullable = true, length = 32)
+    public String getCodAntbUlSem() {
+        return codAntbUlSem;
+    }
+
+    public void setCodAntbUlSem(String codAntbUlSem) {
         this.codAntbUlSem = codAntbUlSem;
     }
 
@@ -256,7 +299,7 @@ public class DaIrag implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_VIA_ANTB", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_VIA_ANTB_FK")
     public ViaAntibiotico getCodViaAntb() {
@@ -265,10 +308,18 @@ public class DaIrag implements Serializable, Auditable {
 
     public void setCodViaAntb(ViaAntibiotico codViaAntb) {
         this.codViaAntb = codViaAntb;
+    }*/
+    @Column(name = "COD_VIA_ANTB", nullable = true, length = 32)
+    public String getCodViaAntb() {
+        return codViaAntb;
+    }
+
+    public void setCodViaAntb(String codViaAntb) {
+        this.codViaAntb = codViaAntb;
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "USO_ANTIVIRALES", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "USO_ANTIV_FK")
     public Respuesta getUsoAntivirales() {
@@ -276,6 +327,14 @@ public class DaIrag implements Serializable, Auditable {
     }
 
     public void setUsoAntivirales(Respuesta usoAntivirales) {
+        this.usoAntivirales = usoAntivirales;
+    }*/
+    @Column(name = "USO_ANTIVIRALES", nullable = true, length = 32)
+    public String getUsoAntivirales() {
+        return usoAntivirales;
+    }
+
+    public void setUsoAntivirales(String usoAntivirales) {
         this.usoAntivirales = usoAntivirales;
     }
 
@@ -404,7 +463,7 @@ public class DaIrag implements Serializable, Auditable {
         this.fechaEgreso = fechaEgreso;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_COND_EGRESO", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_CONDEGRESO_FK")
     public CondicionEgreso getCodCondEgreso() {
@@ -412,6 +471,14 @@ public class DaIrag implements Serializable, Auditable {
     }
 
     public void setCodCondEgreso(CondicionEgreso codCondEgreso) {
+        this.codCondEgreso = codCondEgreso;
+    }*/
+    @Column(name = "COD_COND_EGRESO", nullable = true, length = 32)
+    public String getCodCondEgreso() {
+        return codCondEgreso;
+    }
+
+    public void setCodCondEgreso(String codCondEgreso) {
         this.codCondEgreso = codCondEgreso;
     }
 
@@ -426,7 +493,7 @@ public class DaIrag implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CLASF_NB", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_CLASFNB_FK")
     public ClasificacionFinalNB getCodClasFDetalleNB() {
@@ -435,18 +502,33 @@ public class DaIrag implements Serializable, Auditable {
 
     public void setCodClasFDetalleNB(ClasificacionFinalNB codClasFDetalleNB) {
         this.codClasFDetalleNB = codClasFDetalleNB;
+    }*/
+    @Column(name = "COD_CLASF_NB", nullable = true, length = 32)
+    public String getCodClasFDetalleNB() {
+        return codClasFDetalleNB;
+    }
+
+    public void setCodClasFDetalleNB(String codClasFDetalleNB) {
+        this.codClasFDetalleNB = codClasFDetalleNB;
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CLASF_NV", referencedColumnName = "CODIGO", nullable = true)
     @ForeignKey(name = "COD_CLASFNV_FK")
-
     public ClasificacionFinalNV getCodClasFDetalleNV() {
         return codClasFDetalleNV;
     }
 
     public void setCodClasFDetalleNV(ClasificacionFinalNV codClasFDetalleNV) {
+        this.codClasFDetalleNV = codClasFDetalleNV;
+    }*/
+    @Column(name = "COD_CLASF_NV", nullable = true, length = 32)
+    public String getCodClasFDetalleNV() {
+        return codClasFDetalleNV;
+    }
+
+    public void setCodClasFDetalleNV(String codClasFDetalleNV) {
         this.codClasFDetalleNV = codClasFDetalleNV;
     }
 

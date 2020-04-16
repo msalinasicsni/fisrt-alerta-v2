@@ -1,7 +1,7 @@
 package ni.gob.minsa.alerta.service;
 
 import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.DaMaeEncuesta;
-import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.ModeloEncuesta;
+//import ni.gob.minsa.alerta.domain.vigilanciaEntomologica.ModeloEncuesta;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -95,14 +95,17 @@ public class DaMaeEncuestaService {
             Timestamp tsFechaIni = new Timestamp(maeEncuesta.getFeInicioEncuesta().getTime());
             Timestamp tsFechaFin = new Timestamp(maeEncuesta.getFeFinEncuesta().getTime());
             String query = "select ma from DaMaeEncuesta as ma inner join ma.entidadesAdtva as en " +
-                    "inner join ma.unidadSalud as un " +
-                    "inner join ma.municipio as mu " +
-                    "inner join ma.ordinalEncuesta as ordi " +
-                    "inner join ma.procedencia as pr " +
-                    "inner join ma.modeloEncuesta as mo " +
-                    "where en.codigo =:codSilais and mu.codigoNacional=:municipio " +
+                    //"inner join ma.unidadSalud as un " +
+                    //"inner join ma.municipio as mu " +
+                    //"inner join ma.ordinalEncuesta as ordi " +
+                    //"inner join ma.procedencia as pr " +
+                    //"inner join ma.modeloEncuesta as mo " +
+                    /*"where en.codigo =:codSilais and mu.codigoNacional=:municipio " +
                     "and un.codigo=:unidadSalud and ordi.codigo=:ordinalEncu and pr.codigo=:procedencia " +
-                    "and mo.codigo=:modelo and ma.feInicioEncuesta = :fecInicio";
+                    "and mo.codigo=:modelo and ma.feInicioEncuesta = :fecInicio";*/
+                    "where en.codigo =:codSilais and ma.municipio=:municipio " +
+                    "and ma.unidad=:unidadSalud and ma.ordinalEncuesta=:ordinalEncu and ma.procedencia=:procedencia " +
+                    "and ma.modeloEncuesta=:modelo and ma.feInicioEncuesta = :fecInicio";
             if (maeEncuesta.getAnioEpi()!=null)
                 query = query + " and ma.anioEpi=:anioEpi ";
             if(maeEncuesta.getFeFinEncuesta()!=null)
@@ -111,13 +114,18 @@ public class DaMaeEncuestaService {
             Session session = sessionFactory.getCurrentSession();
             Query q = session.createQuery(query);
             q.setLong("codSilais", maeEncuesta.getEntidadesAdtva().getCodigo());
-            q.setString("municipio", maeEncuesta.getMunicipio().getCodigoNacional());
-            q.setLong("unidadSalud",maeEncuesta.getUnidadSalud().getCodigo());
+            /*q.setString("municipio", maeEncuesta.getMunicipio().getCodigoNacional());
+            q.setLong("unidadSalud",maeEncuesta.getUnidadSalud().getCodigo());*/
+            q.setString("municipio", maeEncuesta.getMunicipio());
+            q.setLong("unidadSalud",maeEncuesta.getUnidad());
             if (maeEncuesta.getAnioEpi()!=null)
                 q.setInteger("anioEpi",maeEncuesta.getAnioEpi());
-            q.setString("ordinalEncu", maeEncuesta.getOrdinalEncuesta().getCodigo());
+            /*q.setString("ordinalEncu", maeEncuesta.getOrdinalEncuesta().getCodigo());
             q.setString("procedencia", maeEncuesta.getProcedencia().getCodigo());
-            q.setString("modelo", maeEncuesta.getModeloEncuesta().getCodigo());
+            q.setString("modelo", maeEncuesta.getModeloEncuesta().getCodigo());*/
+            q.setString("ordinalEncu", maeEncuesta.getOrdinalEncuesta());
+            q.setString("procedencia", maeEncuesta.getProcedencia());
+            q.setString("modelo", maeEncuesta.getModeloEncuesta());
             q.setTimestamp("fecInicio", tsFechaIni);
 
             if(maeEncuesta.getFeFinEncuesta()!=null)
@@ -141,9 +149,10 @@ public class DaMaeEncuestaService {
         try {
             //silais, unidad salud, año, mes y modelo
             String query = "select a from DaMaeEncuesta as a join a.entidadesAdtva as b " +
-                    "join a.unidadSalud as c " +
-                    "join a.modeloEncuesta as d " +
-                    "where b.codigo =:codSilais and c.codigo =:unidadSalud and d.codigo =:modelo";//" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
+                    //"join a.unidadSalud as c " +
+                    //"join a.modeloEncuesta as d " +
+                    //"where b.codigo =:codSilais and c.codigo =:unidadSalud and d.codigo =:modelo";//" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
+                    "where b.codigo =:codSilais and a.unidad =:unidadSalud and a.modeloEncuesta =:modelo";//" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
             if (anioEpi!=null )
                query = query + " and a.anioEpi=:anioEpi";
             if (mesEpi!=null)
@@ -187,7 +196,7 @@ public class DaMaeEncuestaService {
         return aux;
     }
 
-    public ModeloEncuesta getModeloEncuByIdMaestro(String idMaeEncuesta) {
+   /* public ModeloEncuesta getModeloEncuByIdMaestro(String idMaeEncuesta) {
         ModeloEncuesta aux = null;
         try {
             String query = "select mae.modeloEncuesta as mode from DaMaeEncuesta as mae where mae.encuestaId=:idMaestro";//" and feFinEncuesta =: fecInicio and feFinEncuesta =: fecFin";
@@ -203,7 +212,7 @@ public class DaMaeEncuestaService {
             }
         }
         return aux;
-    }
+    }*/
 
     private Date StringToDate(String strFecha) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");

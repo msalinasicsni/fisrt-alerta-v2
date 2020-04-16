@@ -1,9 +1,9 @@
 package ni.gob.minsa.alerta.domain.muestra;
 
 import ni.gob.minsa.alerta.domain.audit.Auditable;
-import ni.gob.minsa.alerta.domain.estructura.Catalogo;
+import ni.gob.minsa.alerta.restServices.entidades.Catalogo;
 import ni.gob.minsa.alerta.domain.estructura.EntidadesAdtvas;
-import ni.gob.minsa.alerta.domain.estructura.Unidades;
+//import ni.gob.minsa.alerta.domain.estructura.Unidades;
 import ni.gob.minsa.alerta.domain.notificacion.DaNotificacion;
 import ni.gob.minsa.alerta.domain.portal.Usuarios;
 import org.hibernate.annotations.ForeignKey;
@@ -16,7 +16,8 @@ import java.sql.Timestamp;
  * Created by souyen-ics on 11-05-14.
  */
 @Entity
-@Table(name = "da_tomamx", schema = "alerta", uniqueConstraints = @UniqueConstraint(columnNames = "CODUNICOMX"))
+//@Table(name = "da_tomamx", schema = "alerta", uniqueConstraints = @UniqueConstraint(columnNames = "CODUNICOMX"))
+@Table(name = "da_tomamx_v2", schema = "alerta", uniqueConstraints = @UniqueConstraint(columnNames = "CODUNICOMX"))
 public class DaTomaMx implements Serializable, Auditable {
 
     private String idTomaMx;
@@ -27,19 +28,34 @@ public class DaTomaMx implements Serializable, Auditable {
     private Integer canTubos;
     private Float volumen;
     private Boolean mxSeparada;
-    private EstadoMx estadoMx;
+    //private EstadoMx estadoMx;
     private Usuarios usuario;
     private Timestamp fechaRegistro;
     private boolean anulada;
     private Timestamp fechaAnulacion;
     private String codigoUnicoMx;
     private DaEnvioMx envio;
-    private CategoriaMx categoriaMx;
+    //private CategoriaMx categoriaMx;
     private String codigoLab;
     private EntidadesAdtvas codSilaisAtencion;
-    private Unidades codUnidadAtencion;
+    //private Unidades codUnidadAtencion;
+    private Long codUnidadAtencion;
     private String horaTomaMx;
     private String actor;
+
+    /***/
+    private String estadoMx;
+    private String categoriaMx;
+    private String desEstadoMx;
+    private String desCategoriaMx;
+    private Long idUnidadAtencion;
+    private String nombreUnidadAtencion;
+    private Long tipoUnidad;
+    private Long idMuniUnidadAtencion;
+    private Long codMuniUnidadAtencion;
+    private String nombreMuniUnidadAtencion;
+    private Long idSilaisAtencion;
+    private String nombreSilaisAtencion;
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -158,7 +174,7 @@ public class DaTomaMx implements Serializable, Auditable {
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = false)
     @JoinColumn(name = "COD_ESTADOMX", referencedColumnName = "CODIGO", nullable = false)
     @ForeignKey(name = "COD_ESTADOMX_FK")
     public EstadoMx getEstadoMx() {
@@ -166,6 +182,15 @@ public class DaTomaMx implements Serializable, Auditable {
     }
 
     public void setEstadoMx(EstadoMx estadoMx) {
+        this.estadoMx = estadoMx;
+    }*/
+
+    @Column(name = "COD_ESTADOMX", nullable = false)
+    public String getEstadoMx() {
+        return estadoMx;
+    }
+
+    public void setEstadoMx(String estadoMx) {
         this.estadoMx = estadoMx;
     }
 
@@ -200,7 +225,7 @@ public class DaTomaMx implements Serializable, Auditable {
         this.envio = envio;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
+    /*@ManyToOne(fetch = FetchType.LAZY, targetEntity = Catalogo.class, optional = true)
     @JoinColumn(name = "COD_CATEGORIA", referencedColumnName = "CODIGO",nullable = true)
     @ForeignKey(name = "CATEGORIAMX_MX_FK")
     public CategoriaMx getCategoriaMx() {
@@ -208,6 +233,14 @@ public class DaTomaMx implements Serializable, Auditable {
     }
 
     public void setCategoriaMx(CategoriaMx categoriaMx) {
+        this.categoriaMx = categoriaMx;
+    }*/
+    @Column(name = "COD_CATEGORIA", nullable = true)
+    public String getCategoriaMx() {
+        return categoriaMx;
+    }
+
+    public void setCategoriaMx(String categoriaMx) {
         this.categoriaMx = categoriaMx;
     }
 
@@ -232,14 +265,13 @@ public class DaTomaMx implements Serializable, Auditable {
         this.codSilaisAtencion = codSilaisAtencion;
     }
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "COD_UNIDAD_ATENCION", referencedColumnName = "CODIGO", nullable = true)
+    @Column(name = "COD_UNIDAD_ATENCION", nullable = true)
     @ForeignKey(name = "COD_UNIDAD_FK")
-    public Unidades getCodUnidadAtencion() {
+    public Long getCodUnidadAtencion() {
         return codUnidadAtencion;
     }
 
-    public void setCodUnidadAtencion(Unidades codUnidadAtencion) {
+    public void setCodUnidadAtencion(Long codUnidadAtencion) {
         this.codUnidadAtencion = codUnidadAtencion;
     }
 
@@ -251,6 +283,87 @@ public class DaTomaMx implements Serializable, Auditable {
 
     public void setHoraTomaMx(String horaTomaMx) {
         this.horaTomaMx = horaTomaMx;
+    }
+
+    //Metadata
+    @Basic
+    @Column(name = "ID_UNIDAD_ATENCION", nullable = true)
+    public Long getIdUnidadAtencion() {
+        return idUnidadAtencion;
+    }
+
+    public void setIdUnidadAtencion(Long idUnidadAtencion) {
+        this.idUnidadAtencion = idUnidadAtencion;
+    }
+
+    @Basic
+    @Column(name = "NOMBRE_UNIDAD_ATENCION", nullable = true, insertable = true, updatable = true, length = 400)
+    public String getNombreUnidadAtencion() {
+        return nombreUnidadAtencion;
+    }
+
+    public void setNombreUnidadAtencion(String nombreUnidadAtencion) {
+        this.nombreUnidadAtencion = nombreUnidadAtencion;
+    }
+
+    @Basic
+    @Column(name = "TIPO_UNIDAD", nullable = true)
+    public Long getTipoUnidad() {
+        return this.tipoUnidad;
+    }
+
+    public void setTipoUnidad(Long tipoUnidad) {
+        this.tipoUnidad = tipoUnidad;
+    }
+
+    @Basic
+    @Column(name = "ID_MUN_UNIDAD_ATENCION", nullable = true)
+    public Long getIdMuniUnidadAtencion() {
+        return idMuniUnidadAtencion;
+    }
+
+    public void setIdMuniUnidadAtencion(Long idMuniUnidadAtencion) {
+        this.idMuniUnidadAtencion = idMuniUnidadAtencion;
+    }
+
+    @Basic
+    @Column(name = "COD_MUN_UNIDAD_ATENCION", nullable = true)
+    public Long getCodMuniUnidadAtencion() {
+        return codMuniUnidadAtencion;
+    }
+
+    public void setCodMuniUnidadAtencion(Long codMuniUnidadAtencion) {
+        this.codMuniUnidadAtencion = codMuniUnidadAtencion;
+    }
+
+    @Basic
+    @Column(name = "NOM_MUN_UNIDAD_ATENCION", nullable = true)
+    public String getNombreMuniUnidadAtencion() {
+        return nombreMuniUnidadAtencion;
+    }
+
+    public void setNombreMuniUnidadAtencion(String nombreMuniUnidadAtencion) {
+        this.nombreMuniUnidadAtencion = nombreMuniUnidadAtencion;
+    }
+
+    @Basic
+    @Column(name = "ID_SILAIS_ATENCION", nullable = true, insertable = true, updatable = true)
+    public Long getIdSilaisAtencion() {
+        return idSilaisAtencion;
+    }
+
+    public void setIdSilaisAtencion(Long idSilaisAtencion) {
+        this.idSilaisAtencion = idSilaisAtencion;
+    }
+
+    @Basic
+    @Column(name = "NOMBRE_SILAIS_ATENCION", nullable = true, insertable = true, updatable = true, length = 400)
+    public String getNombreSilaisAtencion() {
+        return nombreSilaisAtencion;
+    }
+
+    public void setNombreSilaisAtencion(String nombreSilaisAtencion) {
+        this.nombreSilaisAtencion = nombreSilaisAtencion;
     }
 
     @Override
@@ -292,5 +405,25 @@ public class DaTomaMx implements Serializable, Auditable {
     @Override
     public int hashCode() {
         return idTomaMx != null ? idTomaMx.hashCode() : 0;
+    }
+
+    @Basic
+    @Column(name = "DES_ESTADOMX", nullable = false, length = 100)
+    public String getDesEstadoMx() {
+        return desEstadoMx;
+    }
+
+    public void setDesEstadoMx(String desEstadoMx) {
+        this.desEstadoMx = desEstadoMx;
+    }
+
+    @Basic
+    @Column(name = "DES_CATEGORIA",nullable = true, length = 100)
+    public String getDesCategoriaMx() {
+        return desCategoriaMx;
+    }
+
+    public void setDesCategoriaMx(String desCategoriaMx) {
+        this.desCategoriaMx = desCategoriaMx;
     }
 }
